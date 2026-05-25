@@ -1,0 +1,2168 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Clinic Management System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --bg: #f4f5f7;
+        --surface: #ffffff;
+        --surface-2: #f9fafb;
+        --border: #e5e7eb;
+        --border-strong: #d1d5db;
+        --text: #111827;
+        --text-2: #6b7280;
+        --text-3: #9ca3af;
+        --teal: #0d9488;
+        --teal-light: #e6f7f5;
+        --teal-dark: #0f766e;
+        --blue: #3b82f6;
+        --blue-light: #eff6ff;
+        --red: #ef4444;
+        --red-light: #fef2f2;
+        --amber: #f59e0b;
+        --amber-light: #fffbeb;
+        --green: #10b981;
+        --green-light: #ecfdf5;
+        --purple: #8b5cf6;
+        --purple-light: #f5f3ff;
+        --sidebar-w: 220px;
+        --radius: 8px;
+        --radius-lg: 12px;
+      }
+
+      body {
+        font-family: "DM Sans", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        display: flex;
+        min-height: 100vh;
+        font-size: 14px;
+      }
+
+      /* SIDEBAR */
+      .sidebar {
+        width: var(--sidebar-w);
+        background: var(--surface);
+        border-right: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        z-index: 100;
+      }
+
+      .sidebar-logo {
+        padding: 20px 20px 16px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .sidebar-logo .logo-mark {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .logo-icon {
+        width: 32px;
+        height: 32px;
+        background: var(--teal);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .logo-icon svg {
+        width: 18px;
+        height: 18px;
+        stroke: white;
+        fill: none;
+        stroke-width: 2;
+      }
+
+      .logo-text {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text);
+        line-height: 1.2;
+      }
+
+      .logo-sub {
+        font-size: 11px;
+        color: var(--text-2);
+        font-weight: 400;
+      }
+
+      .sidebar-nav {
+        padding: 12px 10px;
+        flex: 1;
+      }
+
+      .nav-label {
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        color: var(--text-3);
+        text-transform: uppercase;
+        padding: 8px 10px 4px;
+      }
+
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 10px;
+        border-radius: var(--radius);
+        cursor: pointer;
+        color: var(--text-2);
+        font-size: 13.5px;
+        font-weight: 400;
+        transition: all 0.15s;
+        margin-bottom: 1px;
+      }
+
+      .nav-item:hover {
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      .nav-item.active {
+        background: var(--teal-light);
+        color: var(--teal-dark);
+        font-weight: 500;
+      }
+
+      .nav-item svg {
+        width: 16px;
+        height: 16px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 1.75;
+        flex-shrink: 0;
+      }
+
+      .sidebar-footer {
+        padding: 12px 10px;
+        border-top: 1px solid var(--border);
+      }
+
+      .admin-pill {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 10px;
+        border-radius: var(--radius);
+      }
+
+      .avatar {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: var(--teal);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 600;
+        color: white;
+        flex-shrink: 0;
+      }
+
+      .avatar.sm {
+        width: 24px;
+        height: 24px;
+        font-size: 10px;
+      }
+      .avatar.lg {
+        width: 40px;
+        height: 40px;
+        font-size: 14px;
+      }
+      .avatar.xl {
+        width: 52px;
+        height: 52px;
+        font-size: 18px;
+      }
+
+      .avatar.blue {
+        background: var(--blue);
+      }
+      .avatar.purple {
+        background: var(--purple);
+      }
+      .avatar.amber {
+        background: #d97706;
+      }
+      .avatar.green {
+        background: var(--green);
+      }
+
+      /* MAIN */
+      .main {
+        margin-left: var(--sidebar-w);
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+
+      .topbar {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        padding: 0 24px;
+        height: 56px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        position: sticky;
+        top: 0;
+        z-index: 50;
+      }
+
+      .topbar-title {
+        font-size: 15px;
+        font-weight: 600;
+        flex: 1;
+      }
+
+      .search-box {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 6px 12px;
+        font-size: 13px;
+        color: var(--text-2);
+        width: 220px;
+      }
+
+      .search-box svg {
+        width: 14px;
+        height: 14px;
+        stroke: var(--text-3);
+        fill: none;
+        stroke-width: 2;
+        flex-shrink: 0;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 14px;
+        border-radius: var(--radius);
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        border: 1px solid transparent;
+        transition: all 0.15s;
+        font-family: inherit;
+      }
+
+      .btn svg {
+        width: 14px;
+        height: 14px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 2;
+      }
+
+      .btn-primary {
+        background: var(--teal);
+        color: white;
+      }
+      .btn-primary:hover {
+        background: var(--teal-dark);
+      }
+
+      .btn-outline {
+        background: white;
+        border-color: var(--border-strong);
+        color: var(--text);
+      }
+      .btn-outline:hover {
+        background: var(--bg);
+      }
+
+      .btn-ghost {
+        background: transparent;
+        color: var(--text-2);
+      }
+      .btn-ghost:hover {
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      .btn-sm {
+        padding: 5px 10px;
+        font-size: 12px;
+      }
+
+      /* CONTENT */
+      .content {
+        padding: 24px;
+        flex: 1;
+      }
+
+      /* PAGE VIEWS */
+      .page {
+        display: none;
+      }
+      .page.active {
+        display: block;
+      }
+
+      /* STATS GRID */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+        margin-bottom: 24px;
+      }
+
+      .stat-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 16px 18px;
+      }
+
+      .stat-label {
+        font-size: 12px;
+        color: var(--text-2);
+        font-weight: 500;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .stat-label svg {
+        width: 14px;
+        height: 14px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 2;
+      }
+
+      .stat-value {
+        font-size: 28px;
+        font-weight: 600;
+        line-height: 1;
+        color: var(--text);
+      }
+
+      .stat-sub {
+        font-size: 11px;
+        color: var(--text-3);
+        margin-top: 4px;
+      }
+
+      /* CARDS + TABLES */
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+      }
+
+      .card-header {
+        padding: 14px 18px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .card-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th {
+        text-align: left;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--text-3);
+        padding: 10px 18px;
+        border-bottom: 1px solid var(--border);
+        background: var(--surface-2);
+      }
+
+      td {
+        padding: 12px 18px;
+        border-bottom: 1px solid var(--border);
+        font-size: 13.5px;
+        color: var(--text);
+        vertical-align: middle;
+      }
+
+      tr:last-child td {
+        border-bottom: none;
+      }
+      tr:hover td {
+        background: var(--bg);
+      }
+
+      /* BADGES */
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px 8px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 500;
+      }
+
+      .badge-teal {
+        background: var(--teal-light);
+        color: var(--teal-dark);
+      }
+      .badge-blue {
+        background: var(--blue-light);
+        color: #1d4ed8;
+      }
+      .badge-red {
+        background: var(--red-light);
+        color: #b91c1c;
+      }
+      .badge-amber {
+        background: var(--amber-light);
+        color: #92400e;
+      }
+      .badge-green {
+        background: var(--green-light);
+        color: #065f46;
+      }
+      .badge-purple {
+        background: var(--purple-light);
+        color: #5b21b6;
+      }
+      .badge-gray {
+        background: #f3f4f6;
+        color: #374151;
+      }
+
+      .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+      }
+
+      /* TAGS / CHIPS */
+      .tag {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 500;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        color: var(--text-2);
+        margin: 2px;
+      }
+
+      .tag.red {
+        background: var(--red-light);
+        border-color: #fca5a5;
+        color: #b91c1c;
+      }
+      .tag.amber {
+        background: var(--amber-light);
+        border-color: #fcd34d;
+        color: #92400e;
+      }
+      .tag.blue {
+        background: var(--blue-light);
+        border-color: #93c5fd;
+        color: #1d4ed8;
+      }
+
+      /* PROFILE LAYOUT */
+      .profile-grid {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: 16px;
+        align-items: start;
+      }
+
+      .profile-sidebar-col {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .profile-main-col {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .section-title {
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--text-3);
+        margin-bottom: 12px;
+      }
+
+      .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 6px 0;
+        border-bottom: 1px solid var(--border);
+        font-size: 13px;
+        gap: 12px;
+      }
+
+      .info-row:last-child {
+        border-bottom: none;
+      }
+
+      .info-label {
+        color: var(--text-2);
+        flex-shrink: 0;
+      }
+      .info-value {
+        color: var(--text);
+        font-weight: 500;
+        text-align: right;
+      }
+
+      /* CASE CARDS */
+      .cases-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .case-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 14px 16px;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+
+      .case-card:hover {
+        border-color: var(--teal);
+        box-shadow: 0 0 0 3px var(--teal-light);
+      }
+
+      .case-card.expanded {
+        border-color: var(--teal);
+      }
+
+      .case-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .case-complaint {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text);
+        margin-bottom: 4px;
+      }
+
+      .case-meta {
+        font-size: 12px;
+        color: var(--text-2);
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .case-meta span {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .case-meta svg {
+        width: 12px;
+        height: 12px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 2;
+      }
+
+      .case-expand {
+        padding: 14px 16px;
+        border-top: 1px solid var(--border);
+        margin-top: 12px;
+        display: none;
+      }
+
+      .case-card.expanded .case-expand {
+        display: block;
+      }
+
+      /* LAB TESTS */
+      .lab-test-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--border);
+        font-size: 13px;
+      }
+
+      .lab-test-row:last-child {
+        border-bottom: none;
+      }
+
+      .lab-icon {
+        width: 28px;
+        height: 28px;
+        background: var(--blue-light);
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      .lab-icon svg {
+        width: 14px;
+        height: 14px;
+        stroke: var(--blue);
+        fill: none;
+        stroke-width: 2;
+      }
+
+      /* DOCTOR CARDS */
+      .doctors-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 14px;
+      }
+
+      .doctor-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 18px;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+
+      .doctor-card:hover {
+        border-color: var(--teal);
+      }
+
+      /* DOCTOR PROFILE */
+      .doctor-profile {
+        display: none;
+      }
+
+      /* DIVIDER */
+      .divider {
+        height: 1px;
+        background: var(--border);
+        margin: 14px 0;
+      }
+
+      /* BACK BTN */
+      .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        color: var(--text-2);
+        cursor: pointer;
+        margin-bottom: 16px;
+        padding: 5px 0;
+        background: none;
+        border: none;
+        font-family: inherit;
+      }
+
+      .back-btn:hover {
+        color: var(--text);
+      }
+      .back-btn svg {
+        width: 14px;
+        height: 14px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 2;
+      }
+
+      /* GRID UTILS */
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+      .grid-3 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 14px;
+      }
+
+      /* RECENT ACTIVITY */
+      .activity-item {
+        display: flex;
+        gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--border);
+        align-items: flex-start;
+      }
+
+      .activity-item:last-child {
+        border-bottom: none;
+      }
+
+      .activity-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-top: 5px;
+        flex-shrink: 0;
+      }
+
+      .activity-text {
+        font-size: 13px;
+        color: var(--text);
+      }
+      .activity-time {
+        font-size: 11px;
+        color: var(--text-3);
+        margin-top: 2px;
+      }
+
+      /* EMPTY STATE */
+      .empty-state {
+        text-align: center;
+        padding: 32px;
+        color: var(--text-3);
+        font-size: 13px;
+      }
+
+      /* SCROLLBAR */
+      ::-webkit-scrollbar {
+        width: 5px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--border-strong);
+        border-radius: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-mark">
+          <div class="logo-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+            </svg>
+          </div>
+          <div>
+            <div class="logo-text">ClinicMS</div>
+            <div class="logo-sub">Management System</div>
+          </div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-label">Overview</div>
+        <div class="nav-item active" onclick="showPage('dashboard')">
+          <svg viewBox="0 0 24 24">
+            <rect x="3" y="3" width="7" height="7" />
+            <rect x="14" y="3" width="7" height="7" />
+            <rect x="14" y="14" width="7" height="7" />
+            <rect x="3" y="14" width="7" height="7" />
+          </svg>
+          Dashboard
+        </div>
+        <div class="nav-label">Records</div>
+        <div class="nav-item" onclick="showPage('patients')">
+          <svg viewBox="0 0 24 24">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+          </svg>
+          Patients
+        </div>
+        <div class="nav-item" onclick="showPage('doctors')">
+          <svg viewBox="0 0 24 24">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+            <polyline points="9 22 9 12 15 12 15 22" />
+          </svg>
+          Doctors
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="admin-pill">
+          <div class="avatar sm">AD</div>
+          <div>
+            <div style="font-size: 13px; font-weight: 500">Admin</div>
+            <div style="font-size: 11px; color: var(--text-2)">
+              Clinic Staff
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      <!-- TOPBAR -->
+      <div class="topbar">
+        <div class="topbar-title" id="topbar-title">Dashboard</div>
+        <div class="search-box">
+          <svg viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          Search patients...
+        </div>
+        <button
+          class="btn btn-primary"
+          style="font-size: 13px"
+          onclick="showPage('patients')"
+        >
+          <svg viewBox="0 0 24 24">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          New Patient
+        </button>
+      </div>
+
+      <div class="content">
+        <!-- ========== DASHBOARD ========== -->
+        <div class="page active" id="page-dashboard">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-label">
+                <svg viewBox="0 0 24 24">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                </svg>
+                Total Patients
+              </div>
+              <div class="stat-value">142</div>
+              <div class="stat-sub">+8 this month</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                  />
+                  <polyline points="14 2 14 8 20 8" />
+                </svg>
+                Active Cases
+              </div>
+              <div class="stat-value">37</div>
+              <div class="stat-sub">5 opened this week</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">
+                <svg viewBox="0 0 24 24">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+                Doctors on Staff
+              </div>
+              <div class="stat-value">9</div>
+              <div class="stat-sub">3 residents, 6 attendings</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"
+                  />
+                </svg>
+                Pending Lab Results
+              </div>
+              <div class="stat-value">12</div>
+              <div class="stat-sub">Awaiting findings</div>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-header">
+                <span class="card-title">Recent Patients</span>
+                <button
+                  class="btn btn-ghost btn-sm"
+                  onclick="showPage('patients')"
+                >
+                  View all
+                </button>
+              </div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Blood Type</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr onclick="showPatientProfile(0)" style="cursor: pointer">
+                    <td>
+                      <div
+                        style="display: flex; align-items: center; gap: 10px"
+                      >
+                        <div class="avatar sm">MR</div>
+                        <span>Maria Reyes</span>
+                      </div>
+                    </td>
+                    <td><span class="badge badge-red">A+</span></td>
+                    <td>
+                      <span class="badge badge-teal"
+                        ><span class="dot"></span> Active</span
+                      >
+                    </td>
+                  </tr>
+                  <tr onclick="showPatientProfile(1)" style="cursor: pointer">
+                    <td>
+                      <div
+                        style="display: flex; align-items: center; gap: 10px"
+                      >
+                        <div class="avatar sm blue">JD</div>
+                        <span>Jose Dela Cruz</span>
+                      </div>
+                    </td>
+                    <td><span class="badge badge-blue">O+</span></td>
+                    <td>
+                      <span class="badge badge-amber"
+                        ><span class="dot"></span> Follow-up</span
+                      >
+                    </td>
+                  </tr>
+                  <tr onclick="showPatientProfile(2)" style="cursor: pointer">
+                    <td>
+                      <div
+                        style="display: flex; align-items: center; gap: 10px"
+                      >
+                        <div class="avatar sm purple">LS</div>
+                        <span>Liza Santos</span>
+                      </div>
+                    </td>
+                    <td><span class="badge badge-purple">B-</span></td>
+                    <td>
+                      <span class="badge badge-teal"
+                        ><span class="dot"></span> Active</span
+                      >
+                    </td>
+                  </tr>
+                  <tr onclick="showPatientProfile(3)" style="cursor: pointer">
+                    <td>
+                      <div
+                        style="display: flex; align-items: center; gap: 10px"
+                      >
+                        <div class="avatar sm amber">RM</div>
+                        <span>Roberto Mendoza</span>
+                      </div>
+                    </td>
+                    <td><span class="badge badge-green">AB+</span></td>
+                    <td>
+                      <span class="badge badge-gray"
+                        ><span class="dot"></span> Closed</span
+                      >
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <span class="card-title">Recent Activity</span>
+              </div>
+              <div style="padding: 4px 18px">
+                <div class="activity-item">
+                  <div
+                    class="activity-dot"
+                    style="background: var(--teal)"
+                  ></div>
+                  <div>
+                    <div class="activity-text">
+                      New case opened for Maria Reyes — Persistent chest pain
+                    </div>
+                    <div class="activity-time">Today, 9:42 AM</div>
+                  </div>
+                </div>
+                <div class="activity-item">
+                  <div
+                    class="activity-dot"
+                    style="background: var(--blue)"
+                  ></div>
+                  <div>
+                    <div class="activity-text">
+                      Lab result recorded — CBC for Jose Dela Cruz
+                    </div>
+                    <div class="activity-time">Today, 8:15 AM</div>
+                  </div>
+                </div>
+                <div class="activity-item">
+                  <div
+                    class="activity-dot"
+                    style="background: var(--amber)"
+                  ></div>
+                  <div>
+                    <div class="activity-text">
+                      Clinical background updated — Liza Santos
+                    </div>
+                    <div class="activity-time">Yesterday, 4:30 PM</div>
+                  </div>
+                </div>
+                <div class="activity-item">
+                  <div
+                    class="activity-dot"
+                    style="background: var(--green)"
+                  ></div>
+                  <div>
+                    <div class="activity-text">
+                      Case closed — Roberto Mendoza (Hypertension follow-up)
+                    </div>
+                    <div class="activity-time">Yesterday, 2:00 PM</div>
+                  </div>
+                </div>
+                <div class="activity-item">
+                  <div
+                    class="activity-dot"
+                    style="background: var(--purple)"
+                  ></div>
+                  <div>
+                    <div class="activity-text">
+                      New patient registered — Ana Villanueva
+                    </div>
+                    <div class="activity-time">May 23, 11:10 AM</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== PATIENTS LIST ========== -->
+        <div class="page" id="page-patients">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">All Patients</span>
+              <div style="display: flex; gap: 8px">
+                <div class="search-box" style="width: 200px">
+                  <svg viewBox="0 0 24 24">
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                  </svg>
+                  Search...
+                </div>
+                <button class="btn btn-primary btn-sm">
+                  <svg viewBox="0 0 24 24">
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                  </svg>
+                  Add Patient
+                </button>
+              </div>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Patient</th>
+                  <th>Date of Birth</th>
+                  <th>Blood Type</th>
+                  <th>Contact</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div style="display: flex; align-items: center; gap: 10px">
+                      <div class="avatar sm">MR</div>
+                      <div>
+                        <div style="font-weight: 500">Maria Reyes</div>
+                        <div style="font-size: 11px; color: var(--text-2)">
+                          F • 38 yrs
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>Mar 14, 1986</td>
+                  <td><span class="badge badge-red">A+</span></td>
+                  <td style="color: var(--text-2)">0917-234-5678</td>
+                  <td>
+                    <span class="badge badge-teal"
+                      ><span class="dot"></span> Active</span
+                    >
+                  </td>
+                  <td>
+                    <button
+                      class="btn btn-outline btn-sm"
+                      onclick="showPatientProfile(0)"
+                    >
+                      View
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div style="display: flex; align-items: center; gap: 10px">
+                      <div class="avatar sm blue">JD</div>
+                      <div>
+                        <div style="font-weight: 500">Jose Dela Cruz</div>
+                        <div style="font-size: 11px; color: var(--text-2)">
+                          M • 52 yrs
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>Jun 8, 1972</td>
+                  <td><span class="badge badge-blue">O+</span></td>
+                  <td style="color: var(--text-2)">0928-765-4321</td>
+                  <td>
+                    <span class="badge badge-amber"
+                      ><span class="dot"></span> Follow-up</span
+                    >
+                  </td>
+                  <td>
+                    <button
+                      class="btn btn-outline btn-sm"
+                      onclick="showPatientProfile(1)"
+                    >
+                      View
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div style="display: flex; align-items: center; gap: 10px">
+                      <div class="avatar sm purple">LS</div>
+                      <div>
+                        <div style="font-weight: 500">Liza Santos</div>
+                        <div style="font-size: 11px; color: var(--text-2)">
+                          F • 29 yrs
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>Nov 20, 1995</td>
+                  <td><span class="badge badge-purple">B-</span></td>
+                  <td style="color: var(--text-2)">0935-111-9922</td>
+                  <td>
+                    <span class="badge badge-teal"
+                      ><span class="dot"></span> Active</span
+                    >
+                  </td>
+                  <td>
+                    <button
+                      class="btn btn-outline btn-sm"
+                      onclick="showPatientProfile(2)"
+                    >
+                      View
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div style="display: flex; align-items: center; gap: 10px">
+                      <div class="avatar sm amber">RM</div>
+                      <div>
+                        <div style="font-weight: 500">Roberto Mendoza</div>
+                        <div style="font-size: 11px; color: var(--text-2)">
+                          M • 61 yrs
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>Feb 3, 1963</td>
+                  <td><span class="badge badge-green">AB+</span></td>
+                  <td style="color: var(--text-2)">0945-888-3300</td>
+                  <td>
+                    <span class="badge badge-gray"
+                      ><span class="dot"></span> Closed</span
+                    >
+                  </td>
+                  <td>
+                    <button
+                      class="btn btn-outline btn-sm"
+                      onclick="showPatientProfile(3)"
+                    >
+                      View
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div style="display: flex; align-items: center; gap: 10px">
+                      <div class="avatar sm green">AV</div>
+                      <div>
+                        <div style="font-weight: 500">Ana Villanueva</div>
+                        <div style="font-size: 11px; color: var(--text-2)">
+                          F • 44 yrs
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>Aug 30, 1980</td>
+                  <td><span class="badge badge-red">O-</span></td>
+                  <td style="color: var(--text-2)">0956-432-7711</td>
+                  <td>
+                    <span class="badge badge-teal"
+                      ><span class="dot"></span> Active</span
+                    >
+                  </td>
+                  <td>
+                    <button
+                      class="btn btn-outline btn-sm"
+                      onclick="showPatientProfile(4)"
+                    >
+                      View
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ========== PATIENT PROFILE ========== -->
+        <div class="page" id="page-patient-profile">
+          <button class="back-btn" onclick="showPage('patients')">
+            <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6" /></svg>
+            Back to Patients
+          </button>
+
+          <!-- Profile Header -->
+          <div class="card" style="margin-bottom: 14px">
+            <div
+              style="
+                padding: 20px 22px;
+                display: flex;
+                align-items: center;
+                gap: 18px;
+                justify-content: space-between;
+              "
+            >
+              <div style="display: flex; align-items: center; gap: 18px">
+                <div class="avatar xl" id="profile-avatar">MR</div>
+                <div>
+                  <div
+                    style="font-size: 20px; font-weight: 600"
+                    id="profile-name"
+                  >
+                    Maria Reyes
+                  </div>
+                  <div
+                    style="
+                      font-size: 13px;
+                      color: var(--text-2);
+                      margin-top: 3px;
+                    "
+                    id="profile-sub"
+                  >
+                    Female • 38 years old • A+ Blood Type
+                  </div>
+                  <div
+                    style="margin-top: 8px; display: flex; gap: 6px"
+                    id="profile-tags"
+                  ></div>
+                </div>
+              </div>
+              <div style="display: flex; gap: 8px">
+                <button class="btn btn-outline btn-sm">
+                  <svg viewBox="0 0 24 24">
+                    <path
+                      d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+                    />
+                    <path
+                      d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+                    />
+                  </svg>
+                  Edit
+                </button>
+                <button class="btn btn-primary btn-sm">
+                  <svg viewBox="0 0 24 24">
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                  </svg>
+                  New Case
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="profile-grid">
+            <!-- LEFT COL -->
+            <div class="profile-sidebar-col">
+              <!-- Personal Info -->
+              <div class="card">
+                <div class="card-header">
+                  <span class="card-title">Personal Information</span>
+                </div>
+                <div
+                  style="padding: 14px 18px"
+                  id="profile-personal-info"
+                ></div>
+              </div>
+
+              <!-- Clinical Background -->
+              <div class="card">
+                <div class="card-header">
+                  <span class="card-title">Clinical Background</span>
+                  <button class="btn btn-ghost btn-sm">
+                    <svg viewBox="0 0 24 24" style="width: 12px; height: 12px">
+                      <path
+                        d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+                      />
+                      <path
+                        d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+                      />
+                    </svg>
+                    Edit
+                  </button>
+                </div>
+                <div style="padding: 14px 18px" id="profile-clinical-bg"></div>
+              </div>
+            </div>
+
+            <!-- RIGHT COL -->
+            <div class="profile-main-col">
+              <div class="card">
+                <div class="card-header">
+                  <span class="card-title">Case History</span>
+                  <span
+                    style="font-size: 12px; color: var(--text-3)"
+                    id="case-count"
+                    >3 cases</span
+                  >
+                </div>
+                <div style="padding: 14px" id="cases-container"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== DOCTORS LIST ========== -->
+        <div class="page" id="page-doctors">
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 16px;
+            "
+          >
+            <div style="font-size: 13px; color: var(--text-2)">
+              9 doctors on staff
+            </div>
+            <button class="btn btn-primary btn-sm">
+              <svg viewBox="0 0 24 24">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+              Add Doctor
+            </button>
+          </div>
+          <div class="doctors-grid">
+            <div class="doctor-card" onclick="showDoctorProfile(0)">
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 12px;
+                  margin-bottom: 12px;
+                "
+              >
+                <div class="avatar lg">AC</div>
+                <div>
+                  <div style="font-weight: 600; font-size: 14px">
+                    Dr. Anna Cruz
+                  </div>
+                  <div style="font-size: 12px; color: var(--text-2)">
+                    Internal Medicine
+                  </div>
+                </div>
+              </div>
+              <div style="display: flex; gap: 6px; flex-wrap: wrap">
+                <span class="badge badge-teal">Attending</span>
+                <span class="badge badge-green">Active</span>
+              </div>
+              <div class="divider"></div>
+              <div style="font-size: 12px; color: var(--text-2)">
+                12 active cases
+              </div>
+            </div>
+
+            <div class="doctor-card" onclick="showDoctorProfile(1)">
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 12px;
+                  margin-bottom: 12px;
+                "
+              >
+                <div class="avatar lg blue">BM</div>
+                <div>
+                  <div style="font-weight: 600; font-size: 14px">
+                    Dr. Ben Marcos
+                  </div>
+                  <div style="font-size: 12px; color: var(--text-2)">
+                    Cardiology
+                  </div>
+                </div>
+              </div>
+              <div style="display: flex; gap: 6px; flex-wrap: wrap">
+                <span class="badge badge-blue">Resident</span>
+                <span class="badge badge-green">Active</span>
+              </div>
+              <div class="divider"></div>
+              <div style="font-size: 12px; color: var(--text-2)">
+                7 active cases
+              </div>
+            </div>
+
+            <div class="doctor-card" onclick="showDoctorProfile(2)">
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 12px;
+                  margin-bottom: 12px;
+                "
+              >
+                <div class="avatar lg purple">CL</div>
+                <div>
+                  <div style="font-weight: 600; font-size: 14px">
+                    Dr. Clara Lim
+                  </div>
+                  <div style="font-size: 12px; color: var(--text-2)">
+                    Pediatrics
+                  </div>
+                </div>
+              </div>
+              <div style="display: flex; gap: 6px; flex-wrap: wrap">
+                <span class="badge badge-purple">Consultant</span>
+                <span class="badge badge-green">Active</span>
+              </div>
+              <div class="divider"></div>
+              <div style="font-size: 12px; color: var(--text-2)">
+                5 active cases
+              </div>
+            </div>
+
+            <div class="doctor-card" onclick="showDoctorProfile(3)">
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 12px;
+                  margin-bottom: 12px;
+                "
+              >
+                <div class="avatar lg amber">DT</div>
+                <div>
+                  <div style="font-weight: 600; font-size: 14px">
+                    Dr. Dante Tan
+                  </div>
+                  <div style="font-size: 12px; color: var(--text-2)">
+                    General Practice
+                  </div>
+                </div>
+              </div>
+              <div style="display: flex; gap: 6px; flex-wrap: wrap">
+                <span class="badge badge-teal">Attending</span>
+                <span class="badge badge-green">Active</span>
+              </div>
+              <div class="divider"></div>
+              <div style="font-size: 12px; color: var(--text-2)">
+                9 active cases
+              </div>
+            </div>
+
+            <div class="doctor-card">
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 12px;
+                  margin-bottom: 12px;
+                "
+              >
+                <div class="avatar lg green">EV</div>
+                <div>
+                  <div style="font-weight: 600; font-size: 14px">
+                    Dr. Elena Vega
+                  </div>
+                  <div style="font-size: 12px; color: var(--text-2)">
+                    Neurology
+                  </div>
+                </div>
+              </div>
+              <div style="display: flex; gap: 6px; flex-wrap: wrap">
+                <span class="badge badge-blue">Resident</span>
+                <span class="badge badge-green">Active</span>
+              </div>
+              <div class="divider"></div>
+              <div style="font-size: 12px; color: var(--text-2)">
+                4 active cases
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== DOCTOR PROFILE ========== -->
+        <div class="page" id="page-doctor-profile">
+          <button class="back-btn" onclick="showPage('doctors')">
+            <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6" /></svg>
+            Back to Doctors
+          </button>
+
+          <div class="card" style="margin-bottom: 14px">
+            <div
+              style="
+                padding: 20px 22px;
+                display: flex;
+                align-items: center;
+                gap: 18px;
+                justify-content: space-between;
+              "
+            >
+              <div style="display: flex; align-items: center; gap: 18px">
+                <div class="avatar xl" id="doc-avatar">AC</div>
+                <div>
+                  <div style="font-size: 20px; font-weight: 600" id="doc-name">
+                    Dr. Anna Cruz
+                  </div>
+                  <div
+                    style="
+                      font-size: 13px;
+                      color: var(--text-2);
+                      margin-top: 3px;
+                    "
+                    id="doc-sub"
+                  >
+                    Internal Medicine • Attending
+                  </div>
+                  <div style="margin-top: 8px">
+                    <span class="badge badge-green"
+                      ><span class="dot"></span> Active</span
+                    >
+                  </div>
+                </div>
+              </div>
+              <button class="btn btn-outline btn-sm">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+                  />
+                  <path
+                    d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+                  />
+                </svg>
+                Edit
+              </button>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-header">
+                <span class="card-title">Doctor Information</span>
+              </div>
+              <div style="padding: 14px 18px" id="doc-info"></div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <span class="card-title">Assigned Cases</span>
+              </div>
+              <div style="padding: 8px 0" id="doc-cases"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- /content -->
+    </main>
+
+    <script>
+      const patients = [
+        {
+          id: 0,
+          initials: "MR",
+          avatarClass: "",
+          name: "Maria Reyes",
+          sub: "Female • 38 years old • A+ Blood Type",
+          tags: [
+            { label: "Diabetic", cls: "badge-amber" },
+            { label: "Hypertensive", cls: "badge-red" },
+          ],
+          personal: {
+            "Date of Birth": "March 14, 1986",
+            Sex: "Female",
+            "Blood Type": "A+",
+            Contact: "0917-234-5678",
+            Email: "maria.reyes@email.com",
+            Address: "123 Mango Ave, Lahug, Cebu City, 6000",
+            "Emergency Contact": "Pedro Reyes (Husband) • 0917-987-6543",
+          },
+          clinical: {
+            smoking: "Non-smoker",
+            alcohol: "Occasional",
+            allergies: [
+              { label: "Penicillin", cls: "red" },
+              { label: "Shellfish", cls: "amber" },
+            ],
+            conditions: ["Type 2 Diabetes", "Hypertension"],
+            disabilities: ["None reported"],
+            surgeries: ["Appendectomy (2010)"],
+          },
+          cases: [
+            {
+              id: "C-2024-031",
+              complaint: "Persistent chest pain and shortness of breath",
+              doctor: "Dr. Anna Cruz",
+              date: "May 20, 2026",
+              status: "open",
+              notes:
+                "Patient reports intermittent chest tightness lasting 3-5 minutes, accompanied by mild dyspnea. BP elevated at 150/95 mmHg on admission.",
+              labs: [
+                {
+                  type: "ECG",
+                  date: "May 20, 2026",
+                  findings:
+                    "Sinus rhythm, no ST-segment changes. Minor T-wave inversion in V4-V5.",
+                },
+                {
+                  type: "CBC",
+                  date: "May 20, 2026",
+                  findings:
+                    "WBC 8.2 x10³/μL, RBC 4.5 x10⁶/μL, Hgb 13.1 g/dL — within normal limits.",
+                },
+              ],
+            },
+            {
+              id: "C-2024-018",
+              complaint: "Uncontrolled blood glucose levels",
+              doctor: "Dr. Dante Tan",
+              date: "Feb 3, 2026",
+              status: "closed",
+              notes:
+                "HbA1c at 9.2% on last check. Adjusted metformin dosage, referred to nutritionist.",
+              labs: [
+                {
+                  type: "HbA1c",
+                  date: "Feb 3, 2026",
+                  findings: "9.2% — poorly controlled. Target <7%.",
+                },
+                {
+                  type: "FBS",
+                  date: "Feb 3, 2026",
+                  findings: "Fasting blood sugar: 182 mg/dL — elevated.",
+                },
+              ],
+            },
+            {
+              id: "C-2023-045",
+              complaint: "Annual physical exam",
+              doctor: "Dr. Anna Cruz",
+              date: "Aug 10, 2025",
+              status: "closed",
+              notes: "Routine annual checkup. All vitals stable. BMI 27.4.",
+              labs: [
+                {
+                  type: "Urinalysis",
+                  date: "Aug 10, 2025",
+                  findings: "Normal, no proteinuria or glycosuria.",
+                },
+                {
+                  type: "Lipid Panel",
+                  date: "Aug 10, 2025",
+                  findings:
+                    "Total cholesterol 214 mg/dL, LDL 138 mg/dL — borderline elevated.",
+                },
+              ],
+            },
+          ],
+        },
+        {
+          id: 1,
+          initials: "JD",
+          avatarClass: "blue",
+          name: "Jose Dela Cruz",
+          sub: "Male • 52 years old • O+ Blood Type",
+          tags: [
+            { label: "Hypertensive", cls: "badge-red" },
+            { label: "Smoker", cls: "badge-gray" },
+          ],
+          personal: {
+            "Date of Birth": "June 8, 1972",
+            Sex: "Male",
+            "Blood Type": "O+",
+            Contact: "0928-765-4321",
+            Email: "jdelacruz@email.com",
+            Address: "45 Osmena Blvd, Pardo, Cebu City, 6000",
+            "Emergency Contact": "Rosa Dela Cruz (Wife) • 0928-111-2222",
+          },
+          clinical: {
+            smoking: "Active smoker (10 pack-years)",
+            alcohol: "Non-drinker",
+            allergies: [{ label: "Aspirin", cls: "red" }],
+            conditions: ["Hypertension", "Stage 1 COPD"],
+            disabilities: ["None reported"],
+            surgeries: ["None"],
+          },
+          cases: [
+            {
+              id: "C-2024-029",
+              complaint: "Productive cough and fatigue for 2 weeks",
+              doctor: "Dr. Ben Marcos",
+              date: "May 15, 2026",
+              status: "open",
+              notes:
+                "Chronic smoker presenting with productive cough, mild hemoptysis, fatigue. Referred to pulmonology.",
+              labs: [
+                {
+                  type: "Chest X-Ray",
+                  date: "May 15, 2026",
+                  findings:
+                    "Mild hyperinflation, no infiltrates. Consistent with early COPD.",
+                },
+                {
+                  type: "CBC",
+                  date: "May 15, 2026",
+                  findings:
+                    "WBC 10.1 x10³/μL — slightly elevated, possible infection.",
+                },
+              ],
+            },
+          ],
+        },
+        {
+          id: 2,
+          initials: "LS",
+          avatarClass: "purple",
+          name: "Liza Santos",
+          sub: "Female • 29 years old • B- Blood Type",
+          tags: [{ label: "Asthma", cls: "badge-blue" }],
+          personal: {
+            "Date of Birth": "November 20, 1995",
+            Sex: "Female",
+            "Blood Type": "B-",
+            Contact: "0935-111-9922",
+            Email: "liza.santos@email.com",
+            Address: "88 Colon St, Parian, Cebu City, 6000",
+            "Emergency Contact": "Nena Santos (Mother) • 0935-444-5555",
+          },
+          clinical: {
+            smoking: "Non-smoker",
+            alcohol: "Non-drinker",
+            allergies: [
+              { label: "Dust mites", cls: "amber" },
+              { label: "NSAIDs", cls: "red" },
+            ],
+            conditions: ["Bronchial Asthma"],
+            disabilities: ["None reported"],
+            surgeries: ["None"],
+          },
+          cases: [
+            {
+              id: "C-2024-027",
+              complaint: "Recurrent asthma exacerbation",
+              doctor: "Dr. Anna Cruz",
+              date: "May 10, 2026",
+              status: "open",
+              notes:
+                "Third exacerbation this year. Peak flow reading at 68% predicted. Salbutamol nebulization administered.",
+              labs: [
+                {
+                  type: "Peak Flow Meter",
+                  date: "May 10, 2026",
+                  findings: "68% of predicted — moderate obstruction.",
+                },
+                {
+                  type: "ABG",
+                  date: "May 10, 2026",
+                  findings:
+                    "pH 7.42, PaO2 88 mmHg, PaCO2 36 mmHg — mild hypoxemia.",
+                },
+              ],
+            },
+          ],
+        },
+        {
+          id: 3,
+          initials: "RM",
+          avatarClass: "amber",
+          name: "Roberto Mendoza",
+          sub: "Male • 61 years old • AB+ Blood Type",
+          tags: [{ label: "Diabetic", cls: "badge-amber" }],
+          personal: {
+            "Date of Birth": "February 3, 1963",
+            Sex: "Male",
+            "Blood Type": "AB+",
+            Contact: "0945-888-3300",
+            Email: "r.mendoza@email.com",
+            Address: "22 Leon Kilat St, Cebu City, 6000",
+            "Emergency Contact": "Carmen Mendoza (Daughter) • 0945-777-6600",
+          },
+          clinical: {
+            smoking: "Former smoker (quit 2018)",
+            alcohol: "Occasional",
+            allergies: [],
+            conditions: ["Type 2 Diabetes (managed)"],
+            disabilities: ["Mild hearing impairment (left ear)"],
+            surgeries: ["CABG (2019)", "Cataract surgery (2022)"],
+          },
+          cases: [
+            {
+              id: "C-2023-058",
+              complaint: "Routine hypertension follow-up",
+              doctor: "Dr. Dante Tan",
+              date: "Nov 5, 2025",
+              status: "closed",
+              notes:
+                "BP 128/82 mmHg on current medication. Stable. Continue Amlodipine 5mg OD.",
+              labs: [
+                {
+                  type: "BMP",
+                  date: "Nov 5, 2025",
+                  findings:
+                    "Creatinine 1.0 mg/dL, K+ 4.2 mEq/L — normal renal function.",
+                },
+              ],
+            },
+          ],
+        },
+        {
+          id: 4,
+          initials: "AV",
+          avatarClass: "green",
+          name: "Ana Villanueva",
+          sub: "Female • 44 years old • O- Blood Type",
+          tags: [],
+          personal: {
+            "Date of Birth": "August 30, 1980",
+            Sex: "Female",
+            "Blood Type": "O-",
+            Contact: "0956-432-7711",
+            Email: "ana.villanueva@email.com",
+            Address: "7 Jakosalem St, Cebu City, 6000",
+            "Emergency Contact": "Marco Villanueva (Husband) • 0956-333-4444",
+          },
+          clinical: {
+            smoking: "Non-smoker",
+            alcohol: "Non-drinker",
+            allergies: [{ label: "Latex", cls: "amber" }],
+            conditions: ["Hypothyroidism"],
+            disabilities: ["None reported"],
+            surgeries: ["C-section (2010)", "C-section (2013)"],
+          },
+          cases: [
+            {
+              id: "C-2024-030",
+              complaint: "Fatigue and unexplained weight gain",
+              doctor: "Dr. Anna Cruz",
+              date: "May 18, 2026",
+              status: "open",
+              notes:
+                "TSH levels elevated at last visit. Levothyroxine dose adjustment pending lab confirmation.",
+              labs: [
+                {
+                  type: "TSH",
+                  date: "May 18, 2026",
+                  findings:
+                    "TSH 7.8 mIU/L — elevated, consistent with hypothyroidism.",
+                },
+                {
+                  type: "Free T4",
+                  date: "May 18, 2026",
+                  findings: "Free T4 0.7 ng/dL — low-normal.",
+                },
+              ],
+            },
+          ],
+        },
+      ];
+
+      const doctors = [
+        {
+          id: 0,
+          initials: "AC",
+          cls: "",
+          name: "Dr. Anna Cruz",
+          sub: "Internal Medicine • Attending",
+          info: {
+            Specialization: "Internal Medicine",
+            Role: "Attending Physician",
+            Contact: "0917-555-0011",
+            Email: "a.cruz@clinicms.ph",
+            "Years on Staff": "8 years",
+          },
+          cases: [
+            "Maria Reyes — Persistent chest pain (Open)",
+            "Liza Santos — Asthma exacerbation (Open)",
+            "Ana Villanueva — Fatigue and weight gain (Open)",
+          ],
+        },
+        {
+          id: 1,
+          initials: "BM",
+          cls: "blue",
+          name: "Dr. Ben Marcos",
+          sub: "Cardiology • Resident",
+          info: {
+            Specialization: "Cardiology",
+            Role: "Resident Physician",
+            Contact: "0928-555-0022",
+            Email: "b.marcos@clinicms.ph",
+            "Years on Staff": "2 years",
+          },
+          cases: ["Jose Dela Cruz — Productive cough (Open)"],
+        },
+        {
+          id: 2,
+          initials: "CL",
+          cls: "purple",
+          name: "Dr. Clara Lim",
+          sub: "Pediatrics • Consultant",
+          info: {
+            Specialization: "Pediatrics",
+            Role: "Consultant",
+            Contact: "0935-555-0033",
+            Email: "c.lim@clinicms.ph",
+            "Years on Staff": "5 years",
+          },
+          cases: ["2 active pediatric cases on referral"],
+        },
+        {
+          id: 3,
+          initials: "DT",
+          cls: "amber",
+          name: "Dr. Dante Tan",
+          sub: "General Practice • Attending",
+          info: {
+            Specialization: "General Practice",
+            Role: "Attending Physician",
+            Contact: "0945-555-0044",
+            Email: "d.tan@clinicms.ph",
+            "Years on Staff": "11 years",
+          },
+          cases: [
+            "Jose Dela Cruz — Follow-up (Closed)",
+            "Roberto Mendoza — Hypertension follow-up (Closed)",
+          ],
+        },
+      ];
+
+      function showPage(name) {
+        document
+          .querySelectorAll(".page")
+          .forEach((p) => p.classList.remove("active"));
+        document.getElementById("page-" + name).classList.add("active");
+        document
+          .querySelectorAll(".nav-item")
+          .forEach((n) => n.classList.remove("active"));
+        const map = {
+          dashboard: 0,
+          patients: 1,
+          "patient-profile": 1,
+          doctors: 2,
+          "doctor-profile": 2,
+        };
+        if (map[name] !== undefined)
+          document
+            .querySelectorAll(".nav-item")
+            [map[name]].classList.add("active");
+        const titles = {
+          dashboard: "Dashboard",
+          patients: "Patients",
+          "patient-profile": "Patient Profile",
+          doctors: "Doctors",
+          "doctor-profile": "Doctor Profile",
+        };
+        document.getElementById("topbar-title").textContent =
+          titles[name] || name;
+      }
+
+      function showPatientProfile(idx) {
+        const p = patients[idx];
+
+        document.getElementById("profile-avatar").textContent = p.initials;
+        document.getElementById("profile-avatar").className =
+          "avatar xl" + (p.avatarClass ? " " + p.avatarClass : "");
+        document.getElementById("profile-name").textContent = p.name;
+        document.getElementById("profile-sub").textContent = p.sub;
+
+        const tagsEl = document.getElementById("profile-tags");
+        tagsEl.innerHTML = p.tags
+          .map((t) => `<span class="badge ${t.cls}">${t.label}</span>`)
+          .join("");
+
+        const piEl = document.getElementById("profile-personal-info");
+        piEl.innerHTML = Object.entries(p.personal)
+          .map(
+            ([k, v]) =>
+              `<div class="info-row"><span class="info-label">${k}</span><span class="info-value">${v}</span></div>`,
+          )
+          .join("");
+
+        const cbEl = document.getElementById("profile-clinical-bg");
+        const c = p.clinical;
+        cbEl.innerHTML = `
+    <div class="section-title">Lifestyle</div>
+    <div class="info-row"><span class="info-label">Smoking</span><span class="info-value">${c.smoking}</span></div>
+    <div class="info-row" style="margin-bottom:12px;"><span class="info-label">Alcohol</span><span class="info-value">${c.alcohol}</span></div>
+    <div class="section-title">Allergies</div>
+    <div style="margin-bottom:12px;">${c.allergies.length ? c.allergies.map((a) => `<span class="tag ${a.cls}">${a.label}</span>`).join("") : '<span style="font-size:13px;color:var(--text-3);">None on record</span>'}</div>
+    <div class="section-title">Chronic Conditions</div>
+    <div style="margin-bottom:12px;">${c.conditions.map((x) => `<span class="tag">${x}</span>`).join("")}</div>
+    <div class="section-title">Disabilities</div>
+    <div style="margin-bottom:12px;">${c.disabilities.map((x) => `<span class="tag">${x}</span>`).join("")}</div>
+    <div class="section-title">Past Surgeries</div>
+    <div>${c.surgeries.map((x) => `<span class="tag">${x}</span>`).join("")}</div>
+  `;
+
+        const casesEl = document.getElementById("cases-container");
+        document.getElementById("case-count").textContent =
+          `${p.cases.length} case${p.cases.length !== 1 ? "s" : ""}`;
+
+        const statusBadge = (s) => {
+          const map = {
+            open: "badge-teal",
+            closed: "badge-gray",
+            referred: "badge-blue",
+          };
+          return `<span class="badge ${map[s] || "badge-gray"}"><span class="dot"></span> ${s.charAt(0).toUpperCase() + s.slice(1)}</span>`;
+        };
+
+        casesEl.innerHTML = p.cases
+          .map(
+            (cas, ci) => `
+    <div class="case-card" id="case-${idx}-${ci}" onclick="toggleCase(${idx},${ci})">
+      <div class="case-header">
+        <div>
+          <div class="case-complaint">${cas.complaint}</div>
+          <div class="case-meta">
+            <span><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>${cas.doctor}</span>
+            <span><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${cas.date}</span>
+            <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text-3);">${cas.id}</span>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+          ${statusBadge(cas.status)}
+          <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:var(--text-3);fill:none;stroke-width:2;transition:transform 0.2s;" class="expand-icon-${idx}-${ci}"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+      <div class="case-expand">
+        <div style="font-size:12px;color:var(--text-2);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Clinical Notes</div>
+        <div style="font-size:13px;color:var(--text);line-height:1.6;background:var(--bg);border-radius:var(--radius);padding:10px 12px;margin-bottom:14px;">${cas.notes}</div>
+        <div style="font-size:12px;color:var(--text-2);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Lab Tests</div>
+        ${cas.labs
+          .map(
+            (l) => `
+          <div class="lab-test-row">
+            <div class="lab-icon">
+              <svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
+            </div>
+            <div style="flex:1;">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+                <span style="font-weight:600;font-size:13px;">${l.type}</span>
+                <span class="badge badge-blue" style="font-size:10px;">${l.date}</span>
+              </div>
+              <div style="font-size:12px;color:var(--text-2);line-height:1.5;">${l.findings}</div>
+            </div>
+          </div>
+        `,
+          )
+          .join("")}
+      </div>
+    </div>
+  `,
+          )
+          .join("");
+
+        showPage("patient-profile");
+      }
+
+      function toggleCase(pidx, cidx) {
+        const card = document.getElementById(`case-${pidx}-${cidx}`);
+        const icon = document.querySelector(`.expand-icon-${pidx}-${cidx}`);
+        card.classList.toggle("expanded");
+        if (card.classList.contains("expanded")) {
+          icon.style.transform = "rotate(180deg)";
+        } else {
+          icon.style.transform = "rotate(0deg)";
+        }
+      }
+
+      function showDoctorProfile(idx) {
+        const d = doctors[idx];
+        document.getElementById("doc-avatar").textContent = d.initials;
+        document.getElementById("doc-avatar").className =
+          "avatar xl" + (d.cls ? " " + d.cls : "");
+        document.getElementById("doc-name").textContent = d.name;
+        document.getElementById("doc-sub").textContent = d.sub;
+
+        document.getElementById("doc-info").innerHTML = Object.entries(d.info)
+          .map(
+            ([k, v]) =>
+              `<div class="info-row"><span class="info-label">${k}</span><span class="info-value">${v}</span></div>`,
+          )
+          .join("");
+
+        document.getElementById("doc-cases").innerHTML = d.cases
+          .map(
+            (c) => `
+    <div style="padding:10px 18px;border-bottom:1px solid var(--border);font-size:13px;display:flex;align-items:center;gap:10px;">
+      <div class="dot" style="background:var(--teal);flex-shrink:0;"></div>
+      ${c}
+    </div>
+  `,
+          )
+          .join("");
+
+        showPage("doctor-profile");
+      }
+    </script>
+  </body>
+</html>
