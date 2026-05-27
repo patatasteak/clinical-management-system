@@ -1,7 +1,6 @@
 -- ============================================================
 -- CLINIC MANAGEMENT SYSTEM — SCHEMA
 -- ============================================================
-
 DROP TABLE IF EXISTS lab_test CASCADE;
 DROP TABLE IF EXISTS lab_test_catalog CASCADE;
 DROP TABLE IF EXISTS past_surgery CASCADE;
@@ -16,7 +15,6 @@ DROP TABLE IF EXISTS doctor CASCADE;
 DROP TABLE IF EXISTS patient CASCADE;
 DROP TABLE IF EXISTS admin_user CASCADE;
 DROP SEQUENCE IF EXISTS patient_id_seq;
-
 -- ============================================================
 -- ADMIN USERS
 -- ============================================================
@@ -27,7 +25,6 @@ CREATE TABLE admin_user (
     password_hash VARCHAR(255) NOT NULL,
     role VARCHAR(20) CHECK (role IN ('superadmin', 'staff'))
 );
-
 -- ============================================================
 -- DOCTOR
 -- ============================================================
@@ -44,12 +41,10 @@ CREATE TABLE doctor (
     role VARCHAR(20) DEFAULT 'resident',
     is_active BOOLEAN DEFAULT TRUE
 );
-
 -- ============================================================
 -- PATIENT
 -- ============================================================
-CREATE SEQUENCE patient_id_seq START 0;
-
+CREATE SEQUENCE patient_id_seq START 1;
 CREATE TABLE patient (
     PatientID INT PRIMARY KEY DEFAULT nextval('patient_id_seq'),
     FirstName VARCHAR(50) NOT NULL,
@@ -66,35 +61,37 @@ CREATE TABLE patient (
     emergencyContact VARCHAR(50),
     password_hash VARCHAR(255) NOT NULL
 );
-
 -- ============================================================
 -- CASE
 -- ============================================================
 CREATE TABLE patient_case (
     case_id SERIAL PRIMARY KEY,
-    appoint_status VARCHAR(20) DEFAULT 'Pending' CHECK (appoint_status IN ('Pending', 'Ongoing', 'Closed')),
-    chief_Complaint TEXT NOT NULL, -- Case Name
+    appoint_status VARCHAR(20) DEFAULT 'Pending' CHECK (
+        appoint_status IN ('Pending', 'Ongoing', 'Closed')
+    ),
+    chief_Complaint TEXT NOT NULL,
+    -- Case Name
     description TEXT,
     PatientID INT NOT NULL REFERENCES patient(PatientID) ON DELETE CASCADE,
     doctor_id INT NOT NULL REFERENCES doctor(doctor_id),
     date_opened TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     date_closed TIMESTAMP
 );
-
 -- ============================================================
 -- VITAL STATS
 -- ============================================================
 CREATE TABLE vital_stats (
     stat_id SERIAL PRIMARY KEY,
     recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    weight NUMERIC(5, 2), -- in kg
-    height NUMERIC(5, 2), -- in cm
+    weight NUMERIC(5, 2),
+    -- in kg
+    height NUMERIC(5, 2),
+    -- in cm
     temperature NUMERIC(4, 1),
     blood_pressure VARCHAR(20),
     pulse_rate INT,
     PatientID INT NOT NULL REFERENCES patient(PatientID) ON DELETE CASCADE
 );
-
 -- ============================================================
 -- INSURANCE
 -- ============================================================
@@ -105,7 +102,6 @@ CREATE TABLE insurance (
     policy_number VARCHAR(100),
     PatientID INT NOT NULL REFERENCES patient(PatientID) ON DELETE CASCADE
 );
-
 -- ============================================================
 -- CLINICAL BACKGROUND
 -- ============================================================
@@ -116,7 +112,6 @@ CREATE TABLE clinical_background (
     notes TEXT,
     PatientID INT NOT NULL REFERENCES patient(PatientID) ON DELETE CASCADE
 );
-
 -- ============================================================
 -- ALLERGY
 -- ============================================================
@@ -128,7 +123,6 @@ CREATE TABLE allergy (
     severity VARCHAR(20) CHECK (severity IN ('mild', 'moderate', 'severe')),
     noted_date DATE
 );
-
 -- ============================================================
 -- CHRONIC CONDITION
 -- ============================================================
@@ -140,7 +134,6 @@ CREATE TABLE chronic_condition (
     status VARCHAR(20),
     notes TEXT
 );
-
 -- ============================================================
 -- DISABILITY
 -- ============================================================
@@ -151,7 +144,6 @@ CREATE TABLE disability (
     congenital BOOLEAN DEFAULT FALSE,
     notes TEXT
 );
-
 -- ============================================================
 -- PAST SURGERY
 -- ============================================================
@@ -163,17 +155,16 @@ CREATE TABLE past_surgery (
     hospital VARCHAR(255),
     notes TEXT
 );
-
 -- ============================================================
 -- LAB TEST CATALOG
 -- ============================================================
 CREATE TABLE LabTestCatalog (
-    catalog_id VARCHAR(10) PRIMARY KEY, -- e.g. LT0001
+    catalog_id VARCHAR(10) PRIMARY KEY,
+    -- e.g. LT0001
     test_name VARCHAR(100) NOT NULL,
     description TEXT,
     price DECIMAL(10, 2) NOT NULL
 );
-
 -- ============================================================
 -- LAB TEST
 -- ============================================================

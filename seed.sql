@@ -1,10 +1,10 @@
 -- ============================================================
 -- CLINIC MANAGEMENT SYSTEM — SEED DATA
 -- Run schema.sql first before this file
+-- PatientIDs start at 1 (sequence starts at 1)
 -- ============================================================
 -- ============================================================
 -- ADMIN USERS
--- passwords are placeholder hashes — replace before going live
 -- ============================================================
 INSERT INTO admin_user (name, email, password_hash, role)
 VALUES (
@@ -25,171 +25,221 @@ VALUES (
 INSERT INTO doctor (
         first_name,
         last_name,
-        specialization,
-        role,
-        contact_number,
+        sex,
+        license_no,
         email,
+        years_exp,
+        specialization,
+        contact_number,
+        role,
         is_active
     )
 VALUES (
         'Anna',
         'Cruz',
-        'Internal Medicine',
-        'attending',
-        '0917-555-0011',
+        'F',
+        1001,
         'a.cruz@clinicms.ph',
+        8,
+        'Internal Medicine',
+        '0917-555-0011',
+        'attending',
         TRUE
     ),
     (
         'Ben',
         'Marcos',
-        'Cardiology',
-        'resident',
-        '0928-555-0022',
+        'M',
+        1002,
         'b.marcos@clinicms.ph',
+        2,
+        'Cardiology',
+        '0928-555-0022',
+        'resident',
         TRUE
     ),
     (
         'Clara',
         'Lim',
-        'Pediatrics',
-        'consultant',
-        '0935-555-0033',
+        'F',
+        1003,
         'c.lim@clinicms.ph',
+        5,
+        'Pediatrics',
+        '0935-555-0033',
+        'consultant',
         TRUE
     ),
     (
         'Dante',
         'Tan',
-        'General Practice',
-        'attending',
-        '0945-555-0044',
+        'M',
+        1004,
         'd.tan@clinicms.ph',
+        11,
+        'General Practice',
+        '0945-555-0044',
+        'attending',
         TRUE
     ),
     (
         'Elena',
         'Vega',
-        'Neurology',
-        'resident',
-        '0956-555-0055',
+        'F',
+        1005,
         'e.vega@clinicms.ph',
+        3,
+        'Neurology',
+        '0956-555-0055',
+        'resident',
         TRUE
     );
 -- ============================================================
 -- PATIENTS
+-- PatientIDs will be 1, 2, 3, 4, 5
 -- ============================================================
 INSERT INTO patient (
-        first_name,
-        last_name,
-        date_of_birth,
-        sex,
-        blood_type,
-        contact_number,
+        FirstName,
+        LastName,
+        Nationality,
+        Sex,
+        Address,
+        contactNumber,
+        BloodType,
         email,
-        street_address,
-        barangay,
-        city,
-        province,
-        zip_code,
-        emergency_contact_name,
-        emergency_contact_number
+        birthday,
+        emergencyContact,
+        password_hash
     )
 VALUES (
         'Maria',
         'Reyes',
-        '1986-03-14',
+        'Filipino',
         'female',
-        'A+',
+        '123 Mango Ave, Lahug, Cebu City, 6000',
         '0917-234-5678',
+        'A+',
         'maria.reyes@email.com',
-        '123 Mango Ave',
-        'Lahug',
-        'Cebu City',
-        'Cebu',
-        '6000',
-        'Pedro Reyes',
-        '0917-987-6543'
+        '1986-03-14',
+        'Pedro Reyes - 0917-987-6543',
+        'changeme_hash'
     ),
     (
         'Jose',
         'Dela Cruz',
-        '1972-06-08',
+        'Filipino',
         'male',
-        'O+',
+        '45 Osmena Blvd, Pardo, Cebu City, 6000',
         '0928-765-4321',
+        'O+',
         'jdelacruz@email.com',
-        '45 Osmena Blvd',
-        'Pardo',
-        'Cebu City',
-        'Cebu',
-        '6000',
-        'Rosa Dela Cruz',
-        '0928-111-2222'
+        '1972-06-08',
+        'Rosa Dela Cruz - 0928-111-2222',
+        'changeme_hash'
     ),
     (
         'Liza',
         'Santos',
-        '1995-11-20',
+        'Filipino',
         'female',
-        'B-',
+        '88 Colon St, Parian, Cebu City, 6000',
         '0935-111-9922',
+        'B-',
         'liza.santos@email.com',
-        '88 Colon St',
-        'Parian',
-        'Cebu City',
-        'Cebu',
-        '6000',
-        'Nena Santos',
-        '0935-444-5555'
+        '1995-11-20',
+        'Nena Santos - 0935-444-5555',
+        'changeme_hash'
     ),
     (
         'Roberto',
         'Mendoza',
-        '1963-02-03',
+        'Filipino',
         'male',
-        'AB+',
+        '22 Leon Kilat St, Kalubihan, Cebu City, 6000',
         '0945-888-3300',
+        'AB+',
         'r.mendoza@email.com',
-        '22 Leon Kilat St',
-        'Kalubihan',
-        'Cebu City',
-        'Cebu',
-        '6000',
-        'Carmen Mendoza',
-        '0945-777-6600'
+        '1963-02-03',
+        'Carmen Mendoza - 0945-777-6600',
+        'changeme_hash'
     ),
     (
         'Ana',
         'Villanueva',
-        '1980-08-30',
+        'Filipino',
         'female',
-        'O-',
+        '7 Jakosalem St, Cebu City, 6000',
         '0956-432-7711',
+        'O-',
         'ana.villanueva@email.com',
-        '7 Jakosalem St',
-        'Cebu City',
-        'Cebu City',
-        'Cebu',
-        '6000',
-        'Marco Villanueva',
-        '0956-333-4444'
+        '1980-08-30',
+        'Marco Villanueva - 0956-333-4444',
+        'changeme_hash'
     );
 -- ============================================================
--- CLINICAL BACKGROUND
--- one row per patient
+-- VITAL STATS
 -- ============================================================
-INSERT INTO clinical_background (patient_id, smoking_status, alcohol_use)
-VALUES (1, 'non-smoker', 'occasional'),
-    (2, 'active smoker', 'non-drinker'),
-    (3, 'non-smoker', 'non-drinker'),
-    (4, 'former smoker (quit 2018)', 'occasional'),
-    (5, 'non-smoker', 'non-drinker');
+INSERT INTO vital_stats (
+        weight,
+        height,
+        temperature,
+        blood_pressure,
+        pulse_rate,
+        PatientID
+    )
+VALUES (62.5, 158.0, 36.8, '150/95', 88, 1),
+    (78.0, 170.0, 36.5, '145/90', 82, 2),
+    (52.0, 162.0, 37.1, '110/70', 94, 3),
+    (80.5, 165.0, 36.6, '128/82', 76, 4),
+    (65.0, 160.0, 36.7, '118/75', 80, 5);
+-- ============================================================
+-- INSURANCE
+-- ============================================================
+INSERT INTO insurance (provider, expiry, policy_number, PatientID)
+VALUES ('PhilHealth', '2027-12-31', 'PH-123456789', 1),
+    ('Maxicare', '2026-06-30', 'MX-987654321', 2),
+    ('PhilHealth', '2027-12-31', 'PH-456789123', 3),
+    ('Medicard', '2026-09-30', 'MD-321654987', 4),
+    ('PhilHealth', '2027-12-31', 'PH-789123456', 5);
+-- ============================================================
+-- CLINICAL BACKGROUND
+-- ============================================================
+INSERT INTO clinical_background (smoking_status, alcohol_use, notes, PatientID)
+VALUES (
+        'non-smoker',
+        'occasional',
+        'Managed diabetic, hypertensive',
+        1
+    ),
+    (
+        'active smoker',
+        'non-drinker',
+        '10 pack-years, early COPD',
+        2
+    ),
+    (
+        'non-smoker',
+        'non-drinker',
+        'Bronchial asthma since childhood',
+        3
+    ),
+    (
+        'former smoker (quit 2018)',
+        'occasional',
+        'Post-CABG, mild hearing impairment',
+        4
+    ),
+    (
+        'non-smoker',
+        'non-drinker',
+        'Hypothyroid, two prior C-sections',
+        5
+    );
 -- ============================================================
 -- ALLERGIES
 -- ============================================================
 INSERT INTO allergy (
-        patient_id,
+        PatientID,
         allergen,
         reaction,
         severity,
@@ -241,7 +291,7 @@ VALUES (
 -- CHRONIC CONDITIONS
 -- ============================================================
 INSERT INTO chronic_condition (
-        patient_id,
+        PatientID,
         condition_name,
         date_diagnosed,
         status,
@@ -299,7 +349,7 @@ VALUES (
 -- ============================================================
 -- DISABILITIES
 -- ============================================================
-INSERT INTO disability (patient_id, description, congenital, notes)
+INSERT INTO disability (PatientID, description, congenital, notes)
 VALUES (
         4,
         'Mild hearing impairment (left ear)',
@@ -310,7 +360,7 @@ VALUES (
 -- PAST SURGERIES
 -- ============================================================
 INSERT INTO past_surgery (
-        patient_id,
+        PatientID,
         procedure_name,
         date_performed,
         hospital,
@@ -354,176 +404,159 @@ VALUES (
 -- ============================================================
 -- LAB TEST CATALOG
 -- ============================================================
-INSERT INTO lab_test_catalog (test_name, category, description)
+INSERT INTO LabTestCatalog (catalog_id, test_name, description, price)
 VALUES (
+        'LT0001',
         'CBC',
-        'Hematology',
-        'Complete Blood Count — evaluates overall blood health'
+        'Complete Blood Count',
+        350.00
     ),
     (
+        'LT0002',
         'FBS',
-        'Chemistry',
-        'Fasting Blood Sugar — screens for diabetes'
+        'Fasting Blood Sugar',
+        150.00
     ),
     (
+        'LT0003',
         'HbA1c',
-        'Chemistry',
-        'Glycated hemoglobin — 3-month average blood glucose'
+        'Glycated Hemoglobin',
+        650.00
     ),
     (
+        'LT0004',
         'BMP',
-        'Chemistry',
-        'Basic Metabolic Panel — kidney function, electrolytes'
+        'Basic Metabolic Panel',
+        800.00
     ),
     (
+        'LT0005',
         'Lipid Panel',
-        'Chemistry',
-        'Total cholesterol, LDL, HDL, triglycerides'
+        'Total cholesterol, LDL, HDL, triglycerides',
+        900.00
     ),
     (
+        'LT0006',
         'TSH',
-        'Endocrinology',
-        'Thyroid Stimulating Hormone'
+        'Thyroid Stimulating Hormone',
+        750.00
     ),
     (
+        'LT0007',
         'Free T4',
-        'Endocrinology',
-        'Free Thyroxine — thyroid function'
+        'Free Thyroxine',
+        700.00
     ),
     (
+        'LT0008',
         'Urinalysis',
-        'Microbiology',
-        'Urine examination for infection, kidney issues'
+        'Urine examination',
+        120.00
     ),
     (
+        'LT0009',
         'ECG',
-        'Cardiology',
-        'Electrocardiogram — heart rhythm and electrical activity'
+        'Electrocardiogram',
+        500.00
     ),
     (
+        'LT0010',
         'Chest X-Ray',
-        'Imaging',
-        'Radiograph of chest cavity'
+        'Radiograph of chest cavity',
+        600.00
     ),
     (
+        'LT0011',
         'Peak Flow Meter',
-        'Pulmonology',
-        'Measures maximum exhalation speed, used in asthma'
+        'Measures maximum exhalation speed',
+        200.00
     ),
     (
+        'LT0012',
         'ABG',
-        'Pulmonology',
-        'Arterial Blood Gas — oxygen and CO2 levels'
+        'Arterial Blood Gas',
+        950.00
     );
 -- ============================================================
 -- PATIENT CASES
--- doctor_id references: 1=Cruz, 2=Marcos, 3=Lim, 4=Tan, 5=Vega
+-- doctor_id: 1=Cruz, 2=Marcos, 3=Lim, 4=Tan, 5=Vega
+-- PatientID: 1=Maria, 2=Jose, 3=Liza, 4=Roberto, 5=Ana
 -- ============================================================
 INSERT INTO patient_case (
-        patient_id,
+        appoint_status,
+        chief_Complaint,
+        description,
+        PatientID,
         doctor_id,
-        case_code,
-        chief_complaint,
-        diagnosis,
-        treatment_plan,
-        clinical_notes,
-        status,
         date_opened,
         date_closed
     )
-VALUES -- Maria Reyes cases
-    (
-        1,
-        1,
-        'C-2026-031',
+VALUES (
+        'Ongoing',
         'Persistent chest pain and shortness of breath',
-        'Hypertensive urgency with possible angina',
-        'Adjust antihypertensives, refer to cardiology, monitor ECG',
         'Patient reports intermittent chest tightness lasting 3-5 minutes, accompanied by mild dyspnea. BP elevated at 150/95 mmHg on admission.',
-        'open',
+        1,
+        1,
         '2026-05-20',
         NULL
     ),
     (
+        'Closed',
+        'Uncontrolled blood glucose levels',
+        'HbA1c at 9.2% on last check. Patient admits poor dietary compliance.',
         1,
         4,
-        'C-2026-018',
-        'Uncontrolled blood glucose levels',
-        'Poorly controlled Type 2 Diabetes Mellitus',
-        'Adjust Metformin dosage, refer to nutritionist, lifestyle counseling',
-        'HbA1c at 9.2% on last check. Patient admits poor dietary compliance.',
-        'closed',
         '2026-02-03',
         '2026-03-15'
     ),
     (
-        1,
-        1,
-        'C-2025-045',
+        'Closed',
         'Annual physical examination',
-        'Stable hypertension, controlled diabetes',
-        'Continue current medications, repeat labs in 6 months',
         'Routine annual checkup. All vitals stable. BMI 27.4. No new complaints.',
-        'closed',
+        1,
+        1,
         '2025-08-10',
         '2025-08-10'
     ),
-    -- Jose Dela Cruz cases
     (
-        2,
-        2,
-        'C-2026-029',
+        'Ongoing',
         'Productive cough and fatigue for 2 weeks',
-        'COPD exacerbation, rule out pulmonary infection',
-        'Bronchodilator nebulization, sputum culture, refer to pulmonology',
         'Chronic smoker presenting with productive cough, mild hemoptysis, fatigue. SpO2 94% on room air.',
-        'open',
+        2,
+        2,
         '2026-05-15',
         NULL
     ),
-    -- Liza Santos cases
     (
+        'Ongoing',
+        'Recurrent asthma exacerbation',
+        'Third exacerbation this year. Peak flow reading at 68% predicted. Salbutamol nebulization administered in clinic.',
         3,
         1,
-        'C-2026-027',
-        'Recurrent asthma exacerbation',
-        'Moderate persistent bronchial asthma',
-        'Step up controller therapy, review trigger avoidance, pulmonology referral',
-        'Third exacerbation this year. Peak flow reading at 68% predicted. Salbutamol nebulization administered in clinic.',
-        'open',
         '2026-05-10',
         NULL
     ),
-    -- Roberto Mendoza cases
     (
-        4,
-        4,
-        'C-2025-058',
+        'Closed',
         'Routine hypertension follow-up',
-        'Hypertension — well controlled',
-        'Continue Amlodipine 5mg OD, repeat BMP in 3 months',
         'BP 128/82 mmHg on current medication. No complaints. Stable.',
-        'closed',
+        4,
+        4,
         '2025-11-05',
         '2025-11-05'
     ),
-    -- Ana Villanueva cases
     (
+        'Ongoing',
+        'Fatigue and unexplained weight gain',
+        'TSH elevated at 7.8 mIU/L. Patient reports fatigue, cold intolerance, 4kg weight gain over 3 months.',
         5,
         1,
-        'C-2026-030',
-        'Fatigue and unexplained weight gain',
-        'Hypothyroidism — inadequate replacement dose',
-        'Increase Levothyroxine dose pending confirmatory labs, recheck TSH in 6 weeks',
-        'TSH elevated at 7.8 mIU/L. Patient reports fatigue, cold intolerance, 4kg weight gain over 3 months.',
-        'open',
         '2026-05-18',
         NULL
     );
 -- ============================================================
 -- LAB TESTS
--- case_id references the order above (1-7)
--- catalog_id references lab_test_catalog (1-12)
+-- case_id 1-7 in order of inserts above
 -- ============================================================
 INSERT INTO lab_test (
         case_id,
@@ -532,100 +565,93 @@ INSERT INTO lab_test (
         findings,
         ordered_by
     )
-VALUES -- Case 1: Maria Reyes — chest pain
-    (
+VALUES (
         1,
-        9,
+        'LT0009',
         '2026-05-20',
         'Sinus rhythm, no ST-segment changes. Minor T-wave inversion in V4-V5.',
         1
     ),
     (
         1,
-        1,
+        'LT0001',
         '2026-05-20',
         'WBC 8.2 x10³/μL, RBC 4.5 x10⁶/μL, Hgb 13.1 g/dL — within normal limits.',
         1
     ),
-    -- Case 2: Maria Reyes — blood glucose
     (
         2,
-        3,
+        'LT0003',
         '2026-02-03',
         'HbA1c 9.2% — poorly controlled. Target <7%.',
         4
     ),
     (
         2,
-        2,
+        'LT0002',
         '2026-02-03',
         'Fasting blood sugar 182 mg/dL — elevated.',
         4
     ),
-    -- Case 3: Maria Reyes — annual PE
     (
         3,
-        8,
+        'LT0008',
         '2025-08-10',
         'Normal, no proteinuria or glycosuria.',
         1
     ),
     (
         3,
-        5,
+        'LT0005',
         '2025-08-10',
         'Total cholesterol 214 mg/dL, LDL 138 mg/dL — borderline elevated.',
         1
     ),
-    -- Case 4: Jose Dela Cruz — cough
     (
         4,
-        10,
+        'LT0010',
         '2026-05-15',
-        'Mild hyperinflation, no infiltrates or consolidation. Consistent with early COPD.',
+        'Mild hyperinflation, no infiltrates. Consistent with early COPD.',
         2
     ),
     (
         4,
-        1,
+        'LT0001',
         '2026-05-15',
         'WBC 10.1 x10³/μL — slightly elevated, possible infectious component.',
         2
     ),
-    -- Case 5: Liza Santos — asthma
     (
         5,
-        11,
+        'LT0011',
         '2026-05-10',
         '68% of predicted — moderate obstruction.',
         1
     ),
     (
         5,
-        12,
+        'LT0012',
         '2026-05-10',
         'pH 7.42, PaO2 88 mmHg, PaCO2 36 mmHg — mild hypoxemia.',
         1
     ),
-    -- Case 6: Roberto Mendoza — hypertension follow-up
     (
         6,
-        4,
+        'LT0004',
         '2025-11-05',
         'Creatinine 1.0 mg/dL, K+ 4.2 mEq/L — normal renal function.',
         4
     ),
-    -- Case 7: Ana Villanueva — fatigue
     (
         7,
-        6,
+        'LT0006',
         '2026-05-18',
         'TSH 7.8 mIU/L — elevated, consistent with hypothyroidism.',
         1
     ),
     (
         7,
-        7,
+        'LT0007',
         '2026-05-18',
         'Free T4 0.7 ng/dL — low-normal.',
         1
