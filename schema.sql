@@ -2,20 +2,53 @@
 -- CLINIC MANAGEMENT SYSTEM — SCHEMA
 -- ============================================================
 
+DROP TABLE IF EXISTS LabTestCatalog CASCADE;
 DROP TABLE IF EXISTS lab_test CASCADE;
-DROP TABLE IF EXISTS lab_test_catalog CASCADE;
 DROP TABLE IF EXISTS past_surgery CASCADE;
 DROP TABLE IF EXISTS disability CASCADE;
 DROP TABLE IF EXISTS chronic_condition CASCADE;
 DROP TABLE IF EXISTS allergy CASCADE;
 DROP TABLE IF EXISTS clinical_background CASCADE;
-DROP TABLE IF EXISTS vital_stats CASCADE;
+DROP TABLE IF EXISTS vitalStats CASCADE;
+DROP TABLE IF EXISTS Prescription CASCADE;
+DROP TABLE IF EXISTS Medicine CASCADE;
 DROP TABLE IF EXISTS insurance CASCADE;
 DROP TABLE IF EXISTS patient_case CASCADE;
 DROP TABLE IF EXISTS doctor CASCADE;
 DROP TABLE IF EXISTS patient CASCADE;
-DROP TABLE IF EXISTS admin_user CASCADE;
 DROP SEQUENCE IF EXISTS patient_id_seq;
+
+-- ============================================================
+-- MEDICINE
+-- ============================================================
+CREATE TABLE Medicine (
+    med_id VARCHAR(8) PRIMARY KEY, -- 8-digit numerical string
+    medicinename VARCHAR(100) NOT NULL,
+    medicine_type VARCHAR(100),
+    description TEXT
+);
+
+-- ============================================================
+-- PRESCRIPTION
+-- ============================================================
+CREATE TABLE Prescription (
+    prescription_id SERIAL PRIMARY KEY,
+    patient_id INT NOT NULL REFERENCES patient(patient_id) ON DELETE CASCADE,
+    date_prescribed TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ============================================================
+-- PRESCRIPTION ITEM
+-- ============================================================
+CREATE TABLE PrescriptionItem (
+    prescription_id INT NOT NULL REFERENCES Prescription(prescription_id) ON DELETE CASCADE,
+    med_id VARCHAR(8) NOT NULL REFERENCES Medicine(med_id),
+    dosage VARCHAR(50),
+    frequency VARCHAR(50),
+    date_start DATE,
+    date_end DATE,
+    PRIMARY KEY (prescription_id, med_id)
+);
 
 -- ============================================================
 -- ADMIN USERS
@@ -51,7 +84,7 @@ CREATE TABLE doctor (
 CREATE SEQUENCE patient_id_seq START 0;
 
 CREATE TABLE patient (
-    PatientID INT PRIMARY KEY DEFAULT nextval('patient_id_seq'),
+    patient_id INT PRIMARY KEY DEFAULT nextval('patient_id_seq'),
     FirstName VARCHAR(50) NOT NULL,
     LastName VARCHAR(50) NOT NULL,
     Nationality VARCHAR(50),
@@ -75,7 +108,7 @@ CREATE TABLE patient_case (
     appoint_status VARCHAR(20) DEFAULT 'Pending' CHECK (appoint_status IN ('Pending', 'Ongoing', 'Closed')),
     chief_Complaint TEXT NOT NULL, -- Case Name
     description TEXT,
-    PatientID INT NOT NULL REFERENCES patient(PatientID) ON DELETE CASCADE,
+    patient_id INT NOT NULL REFERENCES patient(patient_id) ON DELETE CASCADE,
     doctor_id INT NOT NULL REFERENCES doctor(doctor_id),
     date_opened TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     date_closed TIMESTAMP
@@ -84,15 +117,12 @@ CREATE TABLE patient_case (
 -- ============================================================
 -- VITAL STATS
 -- ============================================================
-CREATE TABLE vital_stats (
+CREATE TABLE vitalStats (
     stat_id SERIAL PRIMARY KEY,
     recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     weight NUMERIC(5, 2), -- in kg
     height NUMERIC(5, 2), -- in cm
-    temperature NUMERIC(4, 1),
-    blood_pressure VARCHAR(20),
-    pulse_rate INT,
-    PatientID INT NOT NULL REFERENCES patient(PatientID) ON DELETE CASCADE
+    patient_id INT NOT NULL REFERENCES patient(patient_id) ON DELETE CASCADE
 );
 
 -- ============================================================
@@ -103,7 +133,7 @@ CREATE TABLE insurance (
     provider VARCHAR(100),
     expiry DATE,
     policy_number VARCHAR(100),
-    PatientID INT NOT NULL REFERENCES patient(PatientID) ON DELETE CASCADE
+    patient_id INT NOT NULL REFERENCES patient(patient_id) ON DELETE CASCADE
 );
 
 -- ============================================================
@@ -114,7 +144,7 @@ CREATE TABLE clinical_background (
     smoking_status VARCHAR(50),
     alcohol_use VARCHAR(50),
     notes TEXT,
-    PatientID INT NOT NULL REFERENCES patient(PatientID) ON DELETE CASCADE
+    patient_id INT NOT NULL REFERENCES patient(patient_id) ON DELETE CASCADE
 );
 
 -- ============================================================
@@ -122,7 +152,7 @@ CREATE TABLE clinical_background (
 -- ============================================================
 CREATE TABLE allergy (
     allergy_id SERIAL PRIMARY KEY,
-    PatientID INT NOT NULL REFERENCES patient(PatientID) ON DELETE CASCADE,
+    patient_id INT NOT NULL REFERENCES patient(patient_id) ON DELETE CASCADE,
     allergen VARCHAR(100) NOT NULL,
     reaction TEXT,
     severity VARCHAR(20) CHECK (severity IN ('mild', 'moderate', 'severe')),
@@ -134,7 +164,7 @@ CREATE TABLE allergy (
 -- ============================================================
 CREATE TABLE chronic_condition (
     condition_id SERIAL PRIMARY KEY,
-    PatientID INT NOT NULL REFERENCES patient(PatientID) ON DELETE CASCADE,
+    patient_id INT NOT NULL REFERENCES patient(patient_id) ON DELETE CASCADE,
     condition_name VARCHAR(100) NOT NULL,
     date_diagnosed DATE,
     status VARCHAR(20),
@@ -146,7 +176,7 @@ CREATE TABLE chronic_condition (
 -- ============================================================
 CREATE TABLE disability (
     disability_id SERIAL PRIMARY KEY,
-    PatientID INT NOT NULL REFERENCES patient(PatientID) ON DELETE CASCADE,
+    patient_id INT NOT NULL REFERENCES patient(patient_id) ON DELETE CASCADE,
     description TEXT NOT NULL,
     congenital BOOLEAN DEFAULT FALSE,
     notes TEXT
@@ -157,7 +187,7 @@ CREATE TABLE disability (
 -- ============================================================
 CREATE TABLE past_surgery (
     surgery_id SERIAL PRIMARY KEY,
-    PatientID INT NOT NULL REFERENCES patient(PatientID) ON DELETE CASCADE,
+    patient_id INT NOT NULL REFERENCES patient(patient_id) ON DELETE CASCADE,
     procedure_name VARCHAR(100) NOT NULL,
     date_performed DATE,
     hospital VARCHAR(255),
