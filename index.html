@@ -756,6 +756,58 @@
       </div>
     </div>
 
+    <!-- ADD VITAL STATS MODAL -->
+    <div id="add-stats-modal" class="modal-overlay">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2 class="auth-title" style="margin:0; font-size:20px;">Record Vital Stats</h2>
+          <button class="modal-close" onclick="closeModal('add-stats-modal')">
+            <svg viewBox="0 0 24 24" style="width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:2;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <form onsubmit="handleAddVitalStat(event)">
+          <div class="form-group">
+            <label class="form-label">Weight (kg)</label>
+            <input type="number" step="0.1" class="form-input" id="stat-weight" required placeholder="e.g. 70.5">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Height (cm)</label>
+            <input type="number" step="0.1" class="form-input" id="stat-height" required placeholder="e.g. 175.0">
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">Record Stats</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ADD/EDIT PRESCRIPTION MODAL -->
+    <div id="prescription-modal" class="modal-overlay">
+      <div class="modal-card" style="max-width: 700px; max-height: 90vh; overflow-y: auto;">
+        <div class="modal-header">
+          <h2 class="auth-title" style="margin:0; font-size:20px;" id="prescription-modal-title">Add Prescription</h2>
+          <button class="modal-close" onclick="closeModal('prescription-modal')">
+            <svg viewBox="0 0 24 24" style="width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:2;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <form onsubmit="handlePrescriptionSubmit(event)">
+          <input type="hidden" id="prescription-edit-id">
+          
+          <div class="form-group" style="margin-bottom: 32px; padding: 20px; background: var(--primary-light); border-radius: var(--radius); border: 1px solid var(--border);">
+            <label class="form-label" style="color: var(--primary);">How many medicines in this prescription? (Max 5)</label>
+            <div style="display: flex; align-items: center; gap: 16px;">
+              <input type="number" id="pres-med-count" class="form-input" value="1" min="1" max="5" style="width: 100px;" onchange="updateMedicineRows(this.value)">
+              <span class="text-3" style="font-size: 13px;">Specify the number of medications to include.</span>
+            </div>
+          </div>
+
+          <div id="prescription-medicines-container">
+            <!-- Medicine rows will be injected here -->
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block" id="pres-submit-btn">Save Prescription</button>
+        </form>
+      </div>
+    </div>
+
     <!-- MAIN APP LAYOUT (Hidden until login) -->
     <div id="app-layer" style="display: none; width: 100%;">
       <aside class="sidebar">
@@ -780,6 +832,10 @@
             <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             <span>My Cases</span>
           </div>
+          <div class="nav-item" onclick="showPage('prescriptions')">
+            <svg viewBox="0 0 24 24"><path d="M10 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="10 2 10 9 17 9"/><path d="M7 13h10M7 17h10"/></svg>
+            <span>My Prescriptions</span>
+          </div>
           <div class="nav-item" onclick="showPage('my-labs')">
             <svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
             <span>My Lab Tests</span>
@@ -794,6 +850,10 @@
           </div>
         </nav>
         <div class="sidebar-footer">
+          <div class="nav-item" style="margin-bottom: 8px;" onclick="showPage('my-stats')">
+            <svg viewBox="0 0 24 24"><path d="M20 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            <span>My Stats</span>
+          </div>
           <div class="nav-item" style="margin-bottom: 8px;" onclick="showPage('settings')">
             <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
             <span>Profile Settings</span>
@@ -851,6 +911,27 @@
               <div class="card-header"><span class="card-title">Recent Activity</span></div>
               <div style="padding: 24px;" id="dashboard-activity">
                 <p style="color: var(--text-3); text-align: center;">No recent activity found.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- MY STATS PAGE -->
+          <div id="page-my-stats" class="page">
+            <div class="card">
+              <div class="card-header">
+                <span class="card-title">My Vital Stats History</span>
+                <button class="btn btn-primary btn-sm" onclick="openAddStats()">Add New Record</button>
+              </div>
+              <div style="padding: 24px;">
+                <div style="display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; align-items: center;">
+                  <div style="display: flex; gap: 8px;">
+                    <button class="btn btn-outline btn-sm" id="btn-stats-sort-by" onclick="toggleStatsSortBy()" style="min-width: 140px;">Sort By: Date</button>
+                    <button class="btn btn-outline btn-sm" id="btn-stats-sort-order" onclick="toggleStatsSortOrder()" style="min-width: 140px;">Order: Descending</button>
+                  </div>
+                </div>
+                <div id="stats-history-list">
+                  <!-- Populated by JS -->
+                </div>
               </div>
             </div>
           </div>
@@ -947,6 +1028,21 @@
              <!-- Populated by JS renderCases() -->
           </div>
 
+          <!-- MY PRESCRIPTIONS PAGE -->
+          <div id="page-prescriptions" class="page">
+            <div class="card">
+              <div class="card-header">
+                <span class="card-title">My Medication Prescriptions</span>
+                <button class="btn btn-primary btn-sm" onclick="openAddPrescription()">Add a Prescription</button>
+              </div>
+              <div style="padding: 24px;">
+                <div id="prescriptions-list" class="info-grid" style="grid-template-columns: 1fr;">
+                  <!-- Populated by JS -->
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- LAB TESTS OFFERED PAGE -->
           <div id="page-lab-catalog" class="page">
             <div class="card">
@@ -978,7 +1074,17 @@
             <div class="card"><div style="padding: 40px; text-align: center; color: var(--text-3);">My Lab Tests module coming soon.</div></div>
           </div>
           <div id="page-medicines" class="page">
-            <div class="card"><div style="padding: 40px; text-align: center; color: var(--text-3);">Medicine Offered module coming soon.</div></div>
+            <div class="card">
+              <div class="card-header"><span class="card-title">Medicine Offered</span></div>
+              <div style="padding: 24px;">
+                <div style="margin-bottom: 24px;">
+                  <input type="text" id="medicine-search" class="form-input" placeholder="Search medicines..." oninput="renderMedicineOffered()">
+                </div>
+                <div id="medicine-offered-list" class="info-grid" style="grid-template-columns: 1fr;">
+                  <!-- Populated by JS -->
+                </div>
+              </div>
+            </div>
           </div>
           <div id="page-about" class="page">
             <div class="card">
@@ -998,6 +1104,32 @@
       let currentUser = null;
       let nextPatientID = 1; 
       let nextCaseID = 1;
+      let nextStatID = 1;
+      let nextPrescriptionID = 1;
+
+      // Medicine Data
+      const medicineCatalog = [
+        { med_id: "00000001", medicinename: "Paracetamol (Acetaminophen)", medicine_type: "Analgesic (Pain reliever) and Antipyretic (Fever reducer)", description: "Used to treat mild-to-moderate pain (like headaches or muscle aches) and to reduce fever. It is gentle on the stomach compared to other pain relievers." },
+        { med_id: "00000002", medicinename: "Ibuprofen", medicine_type: "NSAID (Non-Steroidal Anti-Inflammatory Drug)", description: "Relieves pain, reduces fever, and targets inflammation. Commonly used for arthritis, menstrual cramps, toothaches, and backaches." },
+        { med_id: "00000003", medicinename: "Cetirizine", medicine_type: "Antihistamine (Second-generation)", description: "Provides 24-hour relief from allergy symptoms like sneezing, runny nose, itchy eyes, and hives without causing significant drowsiness." },
+        { med_id: "00000004", medicinename: "Loratadine", medicine_type: "Antihistamine (Non-drowsy)", description: "Another effective daily allergy medication that treats hay fever and skin allergies without causing sleepiness." },
+        { med_id: "00000005", medicinename: "Omeprazole", medicine_type: "Proton Pump Inhibitor (PPI)", description: "Reduces the amount of acid produced in the stomach. Used to treat heartburn, acid reflux, and GERD." },
+        { med_id: "00000006", medicinename: "Ranitidine / Famotidine", medicine_type: "H2 Blocker (Antacid)", description: "Quickly relieves and prevents heartburn and acid indigestion by blocking histamine receptors in the stomach." },
+        { med_id: "00000007", medicinename: "Loperamide", medicine_type: "Anti-diarrheal", description: "Slows down gut movement to help control and relieve sudden, short-term diarrhea." },
+        { med_id: "00000008", medicinename: "Oral Rehydration Salts (ORS)", medicine_type: "Electrolyte Replenisher", description: "A balanced mixture of glucose and salts used to prevent or treat dehydration caused by severe diarrhea or vomiting." },
+        { med_id: "00000009", medicinename: "Metoclopramide", medicine_type: "Antiemetic (Anti-nausea)", description: "Used to treat and prevent nausea and vomiting, often associated with migraines, surgery, or chemotherapy." },
+        { med_id: "00000010", medicinename: "Amoxicillin", medicine_type: "Antibiotic (Penicillin class)", description: "A broad-spectrum antibiotic used to treat a wide variety of bacterial infections, such as middle ear infections, strep throat, and pneumonia. (Requires a prescription)." },
+        { med_id: "00000011", medicinename: "Azithromycin", medicine_type: "Antibiotic (Macrolide class)", description: "A commonly prescribed antibiotic used for respiratory infections, skin infections, and certain sexually transmitted infections. (Requires a prescription)." },
+        { med_id: "00000012", medicinename: "Metformin", medicine_type: "Antidiabetic (Biguanide)", description: "The first-line medication for the treatment of type 2 diabetes, helping to lower blood sugar levels and improve insulin sensitivity. (Requires a prescription)." },
+        { med_id: "00000013", medicinename: "Amlodipine", medicine_type: "Calcium Channel Blocker (Antihypertensive)", description: "Relaxes blood vessels to lower high blood pressure and prevent chest pain (angina). (Requires a prescription)." },
+        { med_id: "00000014", medicinename: "Atorvastatin", medicine_type: "Statin (Cholesterol-lowering drug)", description: "Lowers \"bad\" cholesterol (LDL) and triglycerides while raising \"good\" cholesterol (HDL) to reduce the risk of heart disease and stroke. (Requires a prescription)." },
+        { med_id: "00000015", medicinename: "Salbutamol (Albuterol)", medicine_type: "Bronchodilator (Beta-2 agonist)", description: "A rescue inhaler used to quickly open up the airways during asthma attacks or for chronic obstructive pulmonary disease (COPD). (Requires a prescription)." },
+        { med_id: "00000016", medicinename: "Hydrocortisone Cream", medicine_type: "Topical Corticosteroid", description: "A mild steroid cream used applied to the skin to reduce swelling, itching, and redness caused by eczema, insect bites, or rashes." },
+        { med_id: "00000017", medicinename: "Clotrimazole", medicine_type: "Topical Antifungal", description: "Used to treat fungal skin infections such as athlete's foot, jock itch, ringworm, and vaginal yeast infections." },
+        { med_id: "00000018", medicinename: "Dextromethorphan", medicine_type: "Antitussive (Cough suppressant)", description: "Used to provide temporary relief from a dry, hacking cough by affecting the signals in the brain that trigger the cough reflex." },
+        { med_id: "00000019", medicinename: "Guaifenesin", medicine_type: "Expectorant", description: "Thins and loosens mucus in the chest and airways, making it easier to cough up phlegm during a wet cough." },
+        { med_id: "00000020", medicinename: "Aspirin (Low-Dose)", medicine_type: "Antiplatelet / NSAID", description: "In low doses, it acts as a blood thinner to help prevent blood clots, reducing the risk of a heart attack or stroke in high-risk individuals. (Should be taken under medical supervision)." }
+      ];
 
       // Lab Test Catalog Data
       const labCatalog = [
@@ -1019,6 +1151,9 @@
 
       let labSortBy = 'test_name'; // 'test_name' or 'price'
       let labSortOrder = 'asc'; // 'asc' or 'desc'
+
+      let statsSortBy = 'recorded_at'; // 'recorded_at' or 'stat_id'
+      let statsSortOrder = 'desc'; // 'asc' or 'desc'
 
       // Doctors List
       const doctors = [
@@ -1044,7 +1179,9 @@
           contactNumber: "0917-234-5678",
           emergencyContact: "0917-987-6543",
           password: "password123",
-          cases: []
+          cases: [],
+          vitalStats: [],
+          prescriptions: []
         }
       ];
 
@@ -1077,7 +1214,9 @@
             contactNumber: "***",
             emergencyContact: "***",
             password: "admin",
-            cases: []
+            cases: [],
+            vitalStats: [],
+            prescriptions: []
           };
           enterApp();
           return;
@@ -1119,7 +1258,9 @@
           contactNumber: document.getElementById('reg-contact').value,
           emergencyContact: document.getElementById('reg-emergency').value,
           password: document.getElementById('reg-password').value,
-          cases: []
+          cases: [],
+          vitalStats: [],
+          prescriptions: []
         };
         
         registeredPatients.push(newPatient);
@@ -1196,6 +1337,15 @@
         // Render Cases in My Cases Page
         renderCases();
 
+        // Render Vital Stats
+        renderMyStats();
+
+        // Render Prescriptions
+        renderPrescriptions();
+
+        // Render Medicine Offered
+        renderMedicineOffered();
+
         // Update Lab Catalog Page
         updateLabCatalog();
       }
@@ -1209,6 +1359,8 @@
         const titles = { 
           dashboard: "Dashboard", 
           cases: "My Cases", 
+          prescriptions: "My Prescriptions",
+          'my-stats': "My Stats",
           settings: "Profile Settings",
           'lab-catalog': "Lab Tests Offered",
           'my-labs': "My Lab Tests",
@@ -1223,6 +1375,9 @@
         });
 
         if (name === 'lab-catalog') updateLabCatalog();
+        if (name === 'my-stats') renderMyStats();
+        if (name === 'prescriptions') renderPrescriptions();
+        if (name === 'medicines') renderMedicineOffered();
       }
 
       function updateProfile(e) {
@@ -1468,6 +1623,360 @@
               </div>
               <div style="text-align: right; min-width: 100px;">
                 <div style="font-size: 18px; font-weight: 800; color: var(--primary);">PHP ${test.price.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      /* PRESCRIPTION LOGIC */
+      function openAddPrescription() {
+        document.getElementById('prescription-edit-id').value = '';
+        document.getElementById('prescription-modal-title').textContent = 'Add Prescription';
+        document.getElementById('pres-med-count').value = 1;
+        updateMedicineRows(1);
+        openModal('prescription-modal');
+      }
+
+      function updateMedicineRows(count) {
+        count = Math.min(Math.max(parseInt(count) || 1, 1), 5);
+        const container = document.getElementById('prescription-medicines-container');
+        const currentRows = container.querySelectorAll('.medicine-row').length;
+        
+        if (count > currentRows) {
+          for (let i = currentRows; i < count; i++) {
+            const row = document.createElement('div');
+            row.className = 'medicine-row card';
+            row.style.padding = '20px';
+            row.style.marginBottom = '20px';
+            row.style.borderColor = 'var(--border-strong)';
+            row.innerHTML = `
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <span class="badge" style="background: var(--primary); color: white;">Medicine #${i + 1}</span>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Select Medicine</label>
+                <div class="search-dropdown">
+                  <input type="text" class="form-input med-search" placeholder="Search medicine..." onfocus="filterPrescriptionMedicines(this.value, ${i})" oninput="filterPrescriptionMedicines(this.value, ${i})" autocomplete="off" required>
+                  <input type="hidden" class="med-id">
+                  <div class="search-results med-results"></div>
+                </div>
+              </div>
+              <div class="info-grid">
+                <div class="form-group">
+                  <label class="form-label">Dosage</label>
+                  <input type="text" class="form-input med-dosage" required placeholder="e.g. 500mg">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Frequency</label>
+                  <input type="text" class="form-input med-frequency" required placeholder="e.g. Twice daily">
+                </div>
+              </div>
+              <div class="info-grid">
+                <div class="form-group">
+                  <label class="form-label">Date Start</label>
+                  <input type="date" class="form-input med-start" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Date End</label>
+                  <input type="date" class="form-input med-end" required>
+                </div>
+              </div>
+            `;
+            container.appendChild(row);
+          }
+        } else if (count < currentRows) {
+          for (let i = currentRows; i > count; i--) {
+            container.removeChild(container.lastChild);
+          }
+        }
+      }
+
+      function filterPrescriptionMedicines(query, rowIndex) {
+        const rows = document.querySelectorAll('.medicine-row');
+        const results = rows[rowIndex].querySelector('.med-results');
+        const filtered = medicineCatalog.filter(m => m.medicinename.toLowerCase().includes(query.toLowerCase()));
+        
+        if (filtered.length > 0) {
+          results.innerHTML = filtered.map(m => `
+            <div class="search-item" onclick="selectPrescriptionMedicine('${m.med_id}', '${m.medicinename}', ${rowIndex})">${m.medicinename} <small>(${m.med_id})</small></div>
+          `).join('');
+          results.classList.add('active');
+        } else {
+          results.innerHTML = '<div class="search-item">No medicines found</div>';
+          results.classList.add('active');
+        }
+      }
+
+      function selectPrescriptionMedicine(id, name, rowIndex) {
+        const rows = document.querySelectorAll('.medicine-row');
+        rows[rowIndex].querySelector('.med-id').value = id;
+        rows[rowIndex].querySelector('.med-search').value = name;
+        rows[rowIndex].querySelector('.med-results').classList.remove('active');
+      }
+
+      function handlePrescriptionSubmit(e) {
+        e.preventDefault();
+        const editId = document.getElementById('prescription-edit-id').value;
+        const rows = document.querySelectorAll('.medicine-row');
+        const items = [];
+
+        for (let row of rows) {
+          const medId = row.querySelector('.med-id').value;
+          const medName = row.querySelector('.med-search').value;
+          const dosage = row.querySelector('.med-dosage').value;
+          const frequency = row.querySelector('.med-frequency').value;
+          const start = row.querySelector('.med-start').value;
+          const end = row.querySelector('.med-end').value;
+
+          if (!medId) { alert("Please select a medicine for all entries."); return; }
+          
+          items.push({
+            med_id: medId,
+            medicinename: medName,
+            dosage: dosage,
+            frequency: frequency,
+            date_start: start,
+            date_end: end
+          });
+        }
+
+        if (editId) {
+          const idx = currentUser.prescriptions.findIndex(p => p.prescription_id == editId);
+          if (idx !== -1) {
+            currentUser.prescriptions[idx].items = items;
+            currentUser.prescriptions[idx].date_updated = new Date().toISOString();
+          }
+        } else {
+          const newPres = {
+            prescription_id: nextPrescriptionID++,
+            date_prescribed: new Date().toISOString(),
+            items: items
+          };
+          if (!currentUser.prescriptions) currentUser.prescriptions = [];
+          currentUser.prescriptions.push(newPres);
+        }
+
+        const dbIndex = registeredPatients.findIndex(p => p.PatientID === currentUser.PatientID);
+        if (dbIndex !== -1) {
+          registeredPatients[dbIndex].prescriptions = [...currentUser.prescriptions];
+        }
+
+        closeModal('prescription-modal');
+        renderPrescriptions();
+        alert("Prescription saved successfully!");
+      }
+
+      function renderPrescriptions() {
+        const container = document.getElementById('prescriptions-list');
+        if (!container || !currentUser) return;
+
+        if (!currentUser.prescriptions || currentUser.prescriptions.length === 0) {
+          container.innerHTML = '<p style="color: var(--text-3); text-align: center; padding: 40px;">No prescriptions found. Add one to get started.</p>';
+          return;
+        }
+
+        container.innerHTML = currentUser.prescriptions.map(p => `
+          <div class="card" style="padding: 24px; margin-bottom: 24px; border-left: 4px solid var(--primary);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border);">
+              <div>
+                <span class="badge" style="background: var(--primary-light); color: var(--primary); font-weight: 800;">PRESCRIPTION ID: ${p.prescription_id}</span>
+                <span style="margin-left: 12px; color: var(--text-3); font-size: 12px; font-weight: 600;">ISSUED: ${new Date(p.date_prescribed).toLocaleDateString()}</span>
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <button class="btn btn-outline btn-sm" onclick="editPrescription(${p.prescription_id})">Edit</button>
+                <button class="btn btn-outline btn-sm" style="color: var(--primary); border-color: var(--primary);" onclick="deletePrescription(${p.prescription_id})">Delete</button>
+              </div>
+            </div>
+            <div class="info-grid" style="grid-template-columns: 1fr;">
+              ${p.items.map((item, idx) => `
+                <div style="padding: 16px; background: #fcfafa; border: 1px solid var(--border); border-radius: var(--radius); position: relative;">
+                  <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                    <span style="font-weight: 800; color: var(--primary); font-size: 13px;">#${idx + 1}</span>
+                    <h3 style="font-size: 16px; font-weight: 700; color: var(--text);">${item.medicinename}</h3>
+                    <span style="font-size: 11px; font-weight: 600; color: var(--text-3); background: white; padding: 2px 8px; border: 1px solid var(--border); border-radius: 4px;">${item.med_id}</span>
+                  </div>
+                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px;">
+                    <div>
+                      <span style="color: var(--text-3); font-size: 11px; font-weight: 700; text-transform: uppercase;">Dosage</span>
+                      <div style="font-weight: 600; color: var(--text);">${item.dosage}</div>
+                    </div>
+                    <div>
+                      <span style="color: var(--text-3); font-size: 11px; font-weight: 700; text-transform: uppercase;">Frequency</span>
+                      <div style="font-weight: 600; color: var(--text);">${item.frequency}</div>
+                    </div>
+                    <div>
+                      <span style="color: var(--text-3); font-size: 11px; font-weight: 700; text-transform: uppercase;">Duration</span>
+                      <div style="font-weight: 600; color: var(--text); font-size: 13px;">${item.date_start} to ${item.date_end}</div>
+                    </div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `).join('');
+      }
+
+      function editPrescription(id) {
+        const p = currentUser.prescriptions.find(x => x.prescription_id == id);
+        if (!p) return;
+
+        document.getElementById('prescription-edit-id').value = p.prescription_id;
+        document.getElementById('prescription-modal-title').textContent = 'Edit Prescription';
+        document.getElementById('pres-med-count').value = p.items.length;
+        updateMedicineRows(p.items.length);
+        
+        const rows = document.querySelectorAll('.medicine-row');
+        p.items.forEach((item, i) => {
+          rows[i].querySelector('.med-id').value = item.med_id;
+          rows[i].querySelector('.med-search').value = item.medicinename;
+          rows[i].querySelector('.med-dosage').value = item.dosage;
+          rows[i].querySelector('.med-frequency').value = item.frequency;
+          rows[i].querySelector('.med-start').value = item.date_start;
+          rows[i].querySelector('.med-end').value = item.date_end;
+        });
+        
+        openModal('prescription-modal');
+      }
+
+      function deletePrescription(id) {
+        if (confirm("Are you sure you want to delete this entire prescription?")) {
+          currentUser.prescriptions = currentUser.prescriptions.filter(p => p.prescription_id !== id);
+          
+          const dbIndex = registeredPatients.findIndex(p => p.PatientID === currentUser.PatientID);
+          if (dbIndex !== -1) {
+            registeredPatients[dbIndex].prescriptions = [...currentUser.prescriptions];
+          }
+          
+          renderPrescriptions();
+        }
+      }
+
+      /* MEDICINE OFFERED LOGIC */
+      function renderMedicineOffered() {
+        const container = document.getElementById('medicine-offered-list');
+        if (!container) return;
+
+        const query = document.getElementById('medicine-search').value.toLowerCase();
+        const filtered = medicineCatalog.filter(m => 
+          m.medicinename.toLowerCase().includes(query) || 
+          m.medicine_type.toLowerCase().includes(query)
+        );
+
+        container.innerHTML = filtered.map(m => `
+          <div class="card" style="padding: 20px; margin-bottom: 12px; border-color: var(--border-strong);">
+            <div style="display: flex; align-items: start; gap: 16px;">
+              <div style="width: 40px; height: 40px; background: var(--primary-light); color: var(--primary); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 2;"><path d="M10.5 20.5l10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><path d="M8.5 8.5l7 7"/></svg>
+              </div>
+              <div style="flex: 1;">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 4px;">
+                  <h3 style="font-size: 17px; font-weight: 700; color: var(--text);">${m.medicinename}</h3>
+                  <span style="font-size: 11px; font-weight: 700; color: var(--primary); background: var(--primary-light); padding: 2px 8px; border-radius: 4px; text-transform: uppercase;">${m.med_id}</span>
+                </div>
+                <div style="font-size: 13px; font-weight: 700; color: var(--text-2); margin-bottom: 8px;">Medicine Type: <span style="font-weight: 500;">${m.medicine_type}</span></div>
+                <p style="font-size: 13.5px; color: var(--text-3); line-height: 1.5;">${m.description}</p>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      /* VITAL STATS LOGIC */
+      function openAddStats() {
+        document.getElementById('stat-weight').value = '';
+        document.getElementById('stat-height').value = '';
+        openModal('add-stats-modal');
+      }
+
+      function handleAddVitalStat(e) {
+        e.preventDefault();
+        const weightInput = document.getElementById('stat-weight');
+        const heightInput = document.getElementById('stat-height');
+        
+        const weight = parseFloat(weightInput.value);
+        const height = parseFloat(heightInput.value);
+        
+        if (isNaN(weight) || isNaN(height)) {
+          alert("Please enter valid numbers for weight and height.");
+          return;
+        }
+
+        const newStat = {
+          stat_id: nextStatID++,
+          weight: weight,
+          height: height,
+          recorded_at: new Date().toISOString()
+        };
+
+        if (!currentUser.vitalStats) currentUser.vitalStats = [];
+        currentUser.vitalStats.push(newStat);
+        
+        // Sync with mock DB
+        const dbIndex = registeredPatients.findIndex(p => p.PatientID === currentUser.PatientID);
+        if (dbIndex !== -1) {
+          registeredPatients[dbIndex].vitalStats = [...currentUser.vitalStats];
+        }
+
+        closeModal('add-stats-modal');
+        renderMyStats();
+        alert("Vital stats recorded successfully!");
+        
+        // Clear inputs for next time
+        weightInput.value = '';
+        heightInput.value = '';
+      }
+
+      function toggleStatsSortBy() {
+        statsSortBy = (statsSortBy === 'recorded_at') ? 'stat_id' : 'recorded_at';
+        document.getElementById('btn-stats-sort-by').textContent = `Sort By: ${statsSortBy === 'recorded_at' ? 'Date' : 'Stat ID'}`;
+        renderMyStats();
+      }
+
+      function toggleStatsSortOrder() {
+        statsSortOrder = (statsSortOrder === 'asc') ? 'desc' : 'asc';
+        document.getElementById('btn-stats-sort-order').textContent = `Order: ${statsSortOrder === 'asc' ? 'Ascending' : 'Descending'}`;
+        renderMyStats();
+      }
+
+      function renderMyStats() {
+        const container = document.getElementById('stats-history-list');
+        if (!container || !currentUser) return;
+
+        if (!currentUser.vitalStats) currentUser.vitalStats = [];
+
+        if (currentUser.vitalStats.length === 0) {
+          container.innerHTML = '<p style="color: var(--text-3); text-align: center; padding: 20px;">No vital stats recorded yet.</p>';
+          return;
+        }
+
+        let sorted = [...currentUser.vitalStats];
+        sorted.sort((a, b) => {
+          let valA = a[statsSortBy];
+          let valB = b[statsSortBy];
+          if (valA < valB) return statsSortOrder === 'asc' ? -1 : 1;
+          if (valA > valB) return statsSortOrder === 'asc' ? 1 : -1;
+          return 0;
+        });
+
+        container.innerHTML = sorted.map(s => `
+          <div class="card" style="padding: 16px; margin-bottom: 12px; border-color: var(--border-strong);">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div style="width: 100%;">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+                  <span style="font-size: 12px; font-weight: 700; color: var(--text-3);">STAT_ID: <span style="color: var(--primary);">${s.stat_id}</span></span>
+                  <span style="font-size: 12px; font-weight: 700; color: var(--text-3); margin-left: auto;">DATERECORDED: <span style="color: var(--text);">${new Date(s.recorded_at).toLocaleString()}</span></span>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                  <div style="background: var(--primary-light); padding: 12px; border-radius: var(--radius); border: 1px solid var(--border);">
+                    <span style="color: var(--text-3); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;">Weight</span>
+                    <div style="font-size: 20px; font-weight: 900; color: var(--primary); margin-top: 4px;">${s.weight} <span style="font-size: 12px; font-weight: 500;">kg</span></div>
+                  </div>
+                  <div style="background: var(--primary-light); padding: 12px; border-radius: var(--radius); border: 1px solid var(--border);">
+                    <span style="color: var(--text-3); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;">Height</span>
+                    <div style="font-size: 20px; font-weight: 900; color: var(--primary); margin-top: 4px;">${s.height} <span style="font-size: 12px; font-weight: 500;">cm</span></div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
