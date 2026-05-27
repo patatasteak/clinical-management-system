@@ -166,6 +166,11 @@
         font-family: inherit;
       }
 
+      .btn-sm {
+        padding: 8px 16px;
+        font-size: 13px;
+      }
+
       .btn-primary {
         background: var(--gradient);
         color: white;
@@ -282,6 +287,7 @@
         display: flex;
         flex-direction: column;
         gap: 4px;
+        overflow-y: auto;
       }
 
       .nav-label {
@@ -313,13 +319,6 @@
         position: relative;
         overflow: hidden;
       }
-
-      /* Section-by-section Animation */
-      .nav-item:nth-child(1) { transition-delay: 0.05s; }
-      .nav-item:nth-child(2) { transition-delay: 0.1s; }
-      .nav-item:nth-child(3) { transition-delay: 0.15s; }
-      .nav-item:nth-child(4) { transition-delay: 0.2s; }
-      .nav-item:nth-child(5) { transition-delay: 0.25s; }
 
       .nav-item:hover {
         background: var(--primary-light);
@@ -415,9 +414,9 @@
       }
 
       .page { display: none; }
-      .page.active { 
-        display: block; 
-        animation: pageIn 0.5s cubic-bezier(0.4, 0, 0.2, 1); 
+      .page.active {
+        display: block;
+        animation: pageIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
       }
 
       @keyframes pageIn {
@@ -595,6 +594,102 @@
         transition: background 0.2s;
       }
       .search-item:hover { background: var(--primary-light); }
+
+      /* LAB TESTS STATUS BADGES */
+      .status-pending {
+        background: var(--surface-2); color: var(--text-2);
+        border: 1px solid var(--border-strong);
+        padding: 4px 12px; border-radius: 20px;
+        font-size: 12px; font-weight: 700;
+      }
+      .status-available {
+        background: var(--primary-light); color: var(--primary);
+        border: 1px solid var(--border-strong);
+        padding: 4px 12px; border-radius: 20px;
+        font-size: 12px; font-weight: 700;
+      }
+
+      /* LAB TEST CARD */
+      .lab-test-card {
+        padding: 20px;
+        margin-bottom: 16px;
+        border: 1px solid var(--border-strong);
+        border-radius: var(--radius-lg);
+        background: white;
+        transition: var(--transition);
+        border-left: 4px solid var(--border-strong);
+      }
+      .lab-test-card:hover {
+        box-shadow: 0 8px 20px rgba(197,48,48,0.1);
+        transform: translateY(-1px);
+      }
+      .lab-test-card.has-findings {
+        border-left-color: var(--primary);
+      }
+
+      /* FINDINGS TEXTAREA */
+      .findings-area {
+        width: 100%;
+        background: var(--surface-2);
+        border: 1px solid var(--border-strong);
+        border-radius: var(--radius);
+        padding: 12px 16px;
+        font-family: "DM Mono", monospace;
+        font-size: 13px;
+        color: var(--text);
+        resize: vertical;
+        min-height: 80px;
+        transition: var(--transition);
+      }
+      .findings-area:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(197,48,48,0.1);
+      }
+
+      /* EMPTY STATE */
+      .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: var(--text-3);
+      }
+      .empty-state svg {
+        width: 64px; height: 64px;
+        stroke: var(--border-strong);
+        fill: none;
+        stroke-width: 1.5;
+        margin: 0 auto 16px;
+        display: block;
+      }
+      .empty-state h3 {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--text-2);
+        margin-bottom: 8px;
+      }
+
+      /* FILTER TABS */
+      .filter-tabs {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .filter-tab {
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        border: 2px solid var(--border-strong);
+        background: white;
+        color: var(--text-2);
+        transition: var(--transition);
+      }
+      .filter-tab:hover, .filter-tab.active {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: white;
+      }
     </style>
   </head>
   <body>
@@ -738,9 +833,7 @@
             <div class="search-dropdown">
               <input type="text" class="form-input" id="doctor-search" placeholder="Search doctor..." onfocus="filterDoctors(this.value)" oninput="filterDoctors(this.value)" autocomplete="off">
               <input type="hidden" id="case-doctor-id">
-              <div id="doctor-results" class="search-results">
-                <!-- Doctors populated by JS -->
-              </div>
+              <div id="doctor-results" class="search-results"></div>
             </div>
           </div>
           <div class="form-group" id="edit-status-group" style="display:none;">
@@ -790,25 +883,101 @@
         </div>
         <form onsubmit="handlePrescriptionSubmit(event)">
           <input type="hidden" id="prescription-edit-id">
-          
           <div class="form-group" style="margin-bottom: 32px; padding: 20px; background: var(--primary-light); border-radius: var(--radius); border: 1px solid var(--border);">
             <label class="form-label" style="color: var(--primary);">How many medicines in this prescription? (Max 5)</label>
             <div style="display: flex; align-items: center; gap: 16px;">
               <input type="number" id="pres-med-count" class="form-input" value="1" min="1" max="5" style="width: 100px;" onchange="updateMedicineRows(this.value)">
-              <span class="text-3" style="font-size: 13px;">Specify the number of medications to include.</span>
+              <span style="font-size: 13px; color: var(--text-3);">Specify the number of medications to include.</span>
             </div>
           </div>
-
-          <div id="prescription-medicines-container">
-            <!-- Medicine rows will be injected here -->
-          </div>
-
+          <div id="prescription-medicines-container"></div>
           <button type="submit" class="btn btn-primary btn-block" id="pres-submit-btn">Save Prescription</button>
         </form>
       </div>
     </div>
 
-    <!-- MAIN APP LAYOUT (Hidden until login) -->
+    <!-- ORDER LAB TEST MODAL -->
+    <div id="order-lab-modal" class="modal-overlay">
+      <div class="modal-card" style="max-width: 560px;">
+        <div class="modal-header">
+          <h2 class="auth-title" style="margin:0; font-size:20px;" id="order-lab-modal-title">Order Lab Test</h2>
+          <button class="modal-close" onclick="closeModal('order-lab-modal')">
+            <svg viewBox="0 0 24 24" style="width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:2;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <form onsubmit="handleOrderLabTest(event)">
+          <input type="hidden" id="lab-edit-id">
+
+          <!-- Linked Case -->
+          <div class="form-group">
+            <label class="form-label">Linked Case</label>
+            <select class="form-input" id="lab-case-id" required>
+              <option value="">-- Select a Case --</option>
+            </select>
+          </div>
+
+          <!-- Lab Test from Catalog (searchable) -->
+          <div class="form-group">
+            <label class="form-label">Lab Test</label>
+            <div class="search-dropdown">
+              <input type="text" class="form-input" id="lab-catalog-search" placeholder="Search test..." onfocus="filterLabCatalogSearch(this.value)" oninput="filterLabCatalogSearch(this.value)" autocomplete="off">
+              <input type="hidden" id="lab-catalog-id">
+              <div id="lab-catalog-results" class="search-results"></div>
+            </div>
+          </div>
+
+          <!-- Date Taken -->
+          <div class="form-group">
+            <label class="form-label">Date Taken</label>
+            <input type="date" class="form-input" id="lab-date-taken" required>
+          </div>
+
+          <!-- Ordering Doctor -->
+          <div class="form-group">
+            <label class="form-label">Ordered By (Doctor)</label>
+            <div class="search-dropdown">
+              <input type="text" class="form-input" id="lab-doctor-search" placeholder="Search doctor..." onfocus="filterLabDoctors(this.value)" oninput="filterLabDoctors(this.value)" autocomplete="off">
+              <input type="hidden" id="lab-doctor-id">
+              <div id="lab-doctor-results" class="search-results"></div>
+            </div>
+          </div>
+
+          <!-- Findings (optional at order time) -->
+          <div class="form-group">
+            <label class="form-label">Findings <span style="font-weight:400; text-transform:none; color:var(--text-3);">(optional — can be added later)</span></label>
+            <textarea class="findings-area form-input" id="lab-findings" style="height: 80px; background: white;" placeholder="Leave blank if results are not yet available..."></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block" id="lab-submit-btn">Order Lab Test</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- EDIT FINDINGS MODAL -->
+    <div id="edit-findings-modal" class="modal-overlay">
+      <div class="modal-card" style="max-width: 500px;">
+        <div class="modal-header">
+          <h2 class="auth-title" style="margin:0; font-size:20px;">Update Findings</h2>
+          <button class="modal-close" onclick="closeModal('edit-findings-modal')">
+            <svg viewBox="0 0 24 24" style="width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:2;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <form onsubmit="handleUpdateFindings(event)">
+          <input type="hidden" id="findings-lab-id">
+          <div style="margin-bottom: 20px; padding: 12px 16px; background: var(--primary-light); border-radius: var(--radius); border-left: 3px solid var(--primary);">
+            <div style="font-size: 13px; font-weight: 700; color: var(--primary);" id="findings-test-name-label">—</div>
+            <div style="font-size: 12px; color: var(--text-3); margin-top: 4px;" id="findings-case-label">—</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Findings / Results</label>
+            <textarea class="findings-area" id="findings-text" style="min-height: 120px;" placeholder="Enter lab test results and findings here..."></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">Save Findings</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- MAIN APP LAYOUT -->
     <div id="app-layer" style="display: none; width: 100%;">
       <aside class="sidebar">
         <div class="sidebar-logo">
@@ -879,6 +1048,7 @@
         </header>
 
         <div class="content">
+
           <!-- DASHBOARD PAGE -->
           <div id="page-dashboard" class="page active">
             <div style="margin-bottom: 24px;">
@@ -899,14 +1069,12 @@
                 <div class="stat-value" id="stat-labs">0</div>
               </div>
             </div>
-            
             <div style="display: flex; justify-content: flex-end; margin-bottom: 12px;">
               <button class="btn btn-primary" onclick="openCreateCase()">
                 <svg viewBox="0 0 24 24" style="width:16px; height:16px; stroke:white; fill:none; stroke-width:2.5;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 Create Case
               </button>
             </div>
-
             <div class="card">
               <div class="card-header"><span class="card-title">Recent Activity</span></div>
               <div style="padding: 24px;" id="dashboard-activity">
@@ -929,9 +1097,7 @@
                     <button class="btn btn-outline btn-sm" id="btn-stats-sort-order" onclick="toggleStatsSortOrder()" style="min-width: 140px;">Order: Descending</button>
                   </div>
                 </div>
-                <div id="stats-history-list">
-                  <!-- Populated by JS -->
-                </div>
+                <div id="stats-history-list"></div>
               </div>
             </div>
           </div>
@@ -947,7 +1113,6 @@
                 </div>
                 <p class="text-3" style="margin-top: 12px;">Patient Account</p>
               </div>
-              
               <div class="card">
                 <div class="card-header"><span class="card-title">Personal Attributes</span></div>
                 <div style="padding: 24px;">
@@ -1022,11 +1187,9 @@
               </div>
             </div>
           </div>
-          
+
           <!-- MY CASES PAGE -->
-          <div id="page-cases" class="page">
-             <!-- Populated by JS renderCases() -->
-          </div>
+          <div id="page-cases" class="page"></div>
 
           <!-- MY PRESCRIPTIONS PAGE -->
           <div id="page-prescriptions" class="page">
@@ -1036,9 +1199,54 @@
                 <button class="btn btn-primary btn-sm" onclick="openAddPrescription()">Add a Prescription</button>
               </div>
               <div style="padding: 24px;">
-                <div id="prescriptions-list" class="info-grid" style="grid-template-columns: 1fr;">
-                  <!-- Populated by JS -->
+                <div id="prescriptions-list" class="info-grid" style="grid-template-columns: 1fr;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- MY LAB TESTS PAGE -->
+          <div id="page-my-labs" class="page">
+            <div class="card">
+              <div class="card-header">
+                <span class="card-title">My Lab Tests</span>
+                <button class="btn btn-primary btn-sm" onclick="openOrderLabTest()">
+                  <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:white;fill:none;stroke-width:2.5;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  Order Lab Test
+                </button>
+              </div>
+              <div style="padding: 24px;">
+
+                <!-- Summary banner -->
+                <div id="lab-summary-banner" style="display: none; margin-bottom: 24px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+                  <div style="background: var(--primary-light); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; text-align: center;">
+                    <div style="font-size: 28px; font-weight: 900; color: var(--primary);" id="lab-count-total">0</div>
+                    <div style="font-size: 12px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.05em;">Total Tests</div>
+                  </div>
+                  <div style="background: #fef9c3; border: 1px solid #fde047; border-radius: var(--radius); padding: 16px; text-align: center;">
+                    <div style="font-size: 28px; font-weight: 900; color: #854d0e;" id="lab-count-pending">0</div>
+                    <div style="font-size: 12px; font-weight: 700; color: #854d0e; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.7;">Pending Results</div>
+                  </div>
+                  <div style="background: #dcfce7; border: 1px solid #86efac; border-radius: var(--radius); padding: 16px; text-align: center;">
+                    <div style="font-size: 28px; font-weight: 900; color: #166534;" id="lab-count-available">0</div>
+                    <div style="font-size: 12px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.7;">Results Available</div>
+                  </div>
                 </div>
+
+                <!-- Filters -->
+                <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; align-items: center;">
+                  <div class="filter-tabs" id="lab-filter-tabs">
+                    <div class="filter-tab active" onclick="setLabFilter('all', this)">All</div>
+                    <div class="filter-tab" onclick="setLabFilter('pending', this)">Pending Results</div>
+                    <div class="filter-tab" onclick="setLabFilter('available', this)">Results Available</div>
+                  </div>
+                  <div style="margin-left: auto;">
+                    <select class="form-input" id="lab-case-filter" onchange="renderMyLabTests()" style="padding: 8px 14px; font-size: 13px;">
+                      <option value="">All Cases</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div id="my-lab-tests-list"></div>
               </div>
             </div>
           </div>
@@ -1050,7 +1258,6 @@
                 <span class="card-title">Laboratory Tests Offered</span>
               </div>
               <div style="padding: 24px;">
-                <!-- Toolbar: Search and Sort -->
                 <div style="display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; align-items: center;">
                   <div style="flex: 1; min-width: 200px;">
                     <input type="text" id="lab-search" class="form-input" placeholder="Search test name..." oninput="updateLabCatalog()">
@@ -1060,19 +1267,12 @@
                     <button class="btn btn-outline btn-sm" id="btn-sort-order" onclick="toggleSortOrder()" style="min-width: 140px;">Order: Ascending</button>
                   </div>
                 </div>
-
-                <!-- Catalog Grid -->
-                <div id="lab-catalog-list" class="info-grid" style="grid-template-columns: 1fr;">
-                  <!-- Populated by JS -->
-                </div>
+                <div id="lab-catalog-list" class="info-grid" style="grid-template-columns: 1fr;"></div>
               </div>
             </div>
           </div>
 
-          <!-- PLACEHOLDER PAGES -->
-          <div id="page-my-labs" class="page">
-            <div class="card"><div style="padding: 40px; text-align: center; color: var(--text-3);">My Lab Tests module coming soon.</div></div>
-          </div>
+          <!-- MEDICINES PAGE -->
           <div id="page-medicines" class="page">
             <div class="card">
               <div class="card-header"><span class="card-title">Medicine Offered</span></div>
@@ -1080,12 +1280,12 @@
                 <div style="margin-bottom: 24px;">
                   <input type="text" id="medicine-search" class="form-input" placeholder="Search medicines..." oninput="renderMedicineOffered()">
                 </div>
-                <div id="medicine-offered-list" class="info-grid" style="grid-template-columns: 1fr;">
-                  <!-- Populated by JS -->
-                </div>
+                <div id="medicine-offered-list" class="info-grid" style="grid-template-columns: 1fr;"></div>
               </div>
             </div>
           </div>
+
+          <!-- ABOUT PAGE -->
           <div id="page-about" class="page">
             <div class="card">
               <div class="card-header"><span class="card-title">About ClinicMS</span></div>
@@ -1101,13 +1301,20 @@
     </div>
 
     <script>
+      // ============================================================
+      // GLOBALS
+      // ============================================================
       let currentUser = null;
-      let nextPatientID = 1; 
+      let nextPatientID = 1;
       let nextCaseID = 1;
       let nextStatID = 1;
       let nextPrescriptionID = 1;
+      let nextLabTestID = 1;
+      let labFilter = 'all';
 
-      // Medicine Data
+      // ============================================================
+      // MEDICINE CATALOG
+      // ============================================================
       const medicineCatalog = [
         { med_id: "00000001", medicinename: "Paracetamol (Acetaminophen)", medicine_type: "Analgesic (Pain reliever) and Antipyretic (Fever reducer)", description: "Used to treat mild-to-moderate pain (like headaches or muscle aches) and to reduce fever. It is gentle on the stomach compared to other pain relievers." },
         { med_id: "00000002", medicinename: "Ibuprofen", medicine_type: "NSAID (Non-Steroidal Anti-Inflammatory Drug)", description: "Relieves pain, reduces fever, and targets inflammation. Commonly used for arthritis, menstrual cramps, toothaches, and backaches." },
@@ -1131,7 +1338,9 @@
         { med_id: "00000020", medicinename: "Aspirin (Low-Dose)", medicine_type: "Antiplatelet / NSAID", description: "In low doses, it acts as a blood thinner to help prevent blood clots, reducing the risk of a heart attack or stroke in high-risk individuals. (Should be taken under medical supervision)." }
       ];
 
-      // Lab Test Catalog Data
+      // ============================================================
+      // LAB TEST CATALOG
+      // ============================================================
       const labCatalog = [
         { catalog_id: "LT0001", test_name: "Complete Blood Count (CBC)", description: "A routine blood test used to evaluate your overall health and detect a wide range of disorders, including anemia and infection.", price: 280.00 },
         { catalog_id: "LT0002", test_name: "Urinalysis", description: "A microscopic and chemical analysis of urine used to detect track tract infections, kidney disease, and diabetes.", price: 110.00 },
@@ -1149,13 +1358,14 @@
         { catalog_id: "LT0014", test_name: "HIV 1 & 2 Screening", description: "A blood test utilizing antigen and antibody detection to screen for HIV infection.", price: 1200.00 }
       ];
 
-      let labSortBy = 'test_name'; // 'test_name' or 'price'
-      let labSortOrder = 'asc'; // 'asc' or 'desc'
+      let labSortBy = 'test_name';
+      let labSortOrder = 'asc';
+      let statsSortBy = 'recorded_at';
+      let statsSortOrder = 'desc';
 
-      let statsSortBy = 'recorded_at'; // 'recorded_at' or 'stat_id'
-      let statsSortOrder = 'desc'; // 'asc' or 'desc'
-
-      // Doctors List
+      // ============================================================
+      // DOCTORS
+      // ============================================================
       const doctors = [
         { id: 1, name: "Dr. Tyrone Cular" },
         { id: 2, name: "Dr. Raeil Fototana" },
@@ -1164,7 +1374,9 @@
         { id: 5, name: "Dr. Ryan Jayme" }
       ];
 
-      // Mock Database
+      // ============================================================
+      // MOCK DATABASE — seed patient with sample lab tests
+      // ============================================================
       const registeredPatients = [
         {
           PatientID: 0,
@@ -1179,16 +1391,88 @@
           contactNumber: "0917-234-5678",
           emergencyContact: "0917-987-6543",
           password: "password123",
-          cases: [],
-          vitalStats: [],
-          prescriptions: []
+          cases: [
+            {
+              case_id: 1,
+              chief_Complaint: "Persistent Chest Pain",
+              description: "Intermittent chest tightness lasting 3-5 minutes",
+              doctor_id: 1,
+              doctor_name: "Dr. Tyrone Cular",
+              appoint_status: "Ongoing",
+              date_opened: "Jan 15, 2026"
+            },
+            {
+              case_id: 2,
+              chief_Complaint: "Annual Physical Examination",
+              description: "Routine annual checkup",
+              doctor_id: 4,
+              doctor_name: "Dr. Stephanie Comendador",
+              appoint_status: "Closed",
+              date_opened: "Mar 10, 2025"
+            }
+          ],
+          vitalStats: [
+            { stat_id: 1, weight: 60.2, height: 165.0, recorded_at: "2026-05-28T09:00:00.000Z" },
+            { stat_id: 2, weight: 55.5, height: 165.0, recorded_at: "2010-05-20T14:30:00.000Z" }
+          ],
+          prescriptions: [],
+          labTests: [
+            {
+              test_id: 1,
+              case_id: 1,
+              catalog_id: "LT0001",
+              test_name: "Complete Blood Count (CBC)",
+              date_taken: "2026-01-20",
+              findings: "WBC: 7.2 × 10⁹/L (Normal)\nRBC: 4.5 × 10¹²/L (Normal)\nHemoglobin: 13.8 g/dL (Normal)\nHematocrit: 41.2% (Normal)\nPlatelets: 250 × 10⁹/L (Normal)\nConclusion: All values within normal range.",
+              ordered_by: 1,
+              ordered_by_name: "Dr. Tyrone Cular"
+            },
+            {
+              test_id: 2,
+              case_id: 1,
+              catalog_id: "LT0005",
+              test_name: "Lipid Profile",
+              date_taken: "2026-01-20",
+              findings: "",
+              ordered_by: 1,
+              ordered_by_name: "Dr. Tyrone Cular"
+            },
+            {
+              test_id: 3,
+              case_id: 2,
+              catalog_id: "LT0004",
+              test_name: "Fasting Blood Sugar (FBS)",
+              date_taken: "2025-03-12",
+              findings: "FBS: 92 mg/dL\nStatus: Normal (reference range: 70–100 mg/dL)\nNo signs of insulin resistance.",
+              ordered_by: 4,
+              ordered_by_name: "Dr. Stephanie Comendador"
+            }
+          ]
         }
       ];
 
+      // set next IDs past seeded data
+      nextCaseID = 3;
+      nextStatID = 3;
+      nextLabTestID = 4;
+
+      // ============================================================
+      // HELPERS
+      // ============================================================
       function formatPatientID(id) {
         return id.toString().padStart(6, '0');
       }
 
+      function openModal(id) {
+        document.getElementById(id).classList.add('active');
+      }
+      function closeModal(id) {
+        document.getElementById(id).classList.remove('active');
+      }
+
+      // ============================================================
+      // AUTH
+      // ============================================================
       function switchAuth(view) {
         document.getElementById('login-view').style.display = view === 'login' ? 'block' : 'none';
         document.getElementById('register-view').style.display = view === 'register' ? 'block' : 'none';
@@ -1198,48 +1482,27 @@
         e.preventDefault();
         const inputID = document.getElementById('login-id').value;
         const pass = document.getElementById('login-password').value;
-        
-        // Admin Backdoor
+
         if (inputID === '000000' && pass === 'admin') {
           currentUser = {
-            PatientID: 0,
-            FirstName: "Admin",
-            LastName: "Account",
-            Nationality: "***",
-            Sex: "other",
-            BloodType: "O+",
-            email: "admin@gmail.com",
-            birthday: "1970-01-01",
-            Address: "***",
-            contactNumber: "***",
-            emergencyContact: "***",
-            password: "admin",
-            cases: [],
-            vitalStats: [],
-            prescriptions: []
+            PatientID: 0, FirstName: "Admin", LastName: "Account",
+            Nationality: "***", Sex: "other", BloodType: "O+",
+            email: "admin@gmail.com", birthday: "1970-01-01",
+            Address: "***", contactNumber: "***", emergencyContact: "***",
+            password: "admin", cases: [], vitalStats: [], prescriptions: [], labTests: []
           };
-          enterApp();
-          return;
+          enterApp(); return;
         }
 
         const numericID = parseInt(inputID, 10);
         const patient = registeredPatients.find(p => p.PatientID === numericID);
-        
         if (patient) {
-          if (patient.password === pass) {
-            currentUser = patient;
-            enterApp();
-          } else {
-            alert("Incorrect password. Please try again.");
-          }
+          if (patient.password === pass) { currentUser = patient; enterApp(); }
+          else alert("Incorrect password. Please try again.");
         } else {
-          alert("PatientID not found in our database. Please register first.");
+          alert("PatientID not found. Please register first.");
           switchAuth('register');
         }
-      }
-
-      function toggleSidebar() {
-        document.body.classList.toggle('collapsed');
       }
 
       function handleRegister(e) {
@@ -1258,15 +1521,11 @@
           contactNumber: document.getElementById('reg-contact').value,
           emergencyContact: document.getElementById('reg-emergency').value,
           password: document.getElementById('reg-password').value,
-          cases: [],
-          vitalStats: [],
-          prescriptions: []
+          cases: [], vitalStats: [], prescriptions: [], labTests: []
         };
-        
         registeredPatients.push(newPatient);
         currentUser = newPatient;
-        
-        alert(`Registration successful! Your unique PatientID is ${formatPatientID(pid)}. Please remember this for logging in.`);
+        alert(`Registration successful! Your PatientID is ${formatPatientID(pid)}. Remember this for logging in.`);
         enterApp();
       }
 
@@ -1282,47 +1541,56 @@
         document.getElementById('auth-layer').style.display = 'flex';
         document.getElementById('app-layer').style.display = 'none';
         switchAuth('login');
-        // Clear login fields
         document.getElementById('login-id').value = '';
         document.getElementById('login-password').value = '';
       }
 
+      function toggleSidebar() {
+        document.body.classList.toggle('collapsed');
+      }
+
+      // ============================================================
+      // UI UPDATE
+      // ============================================================
       function updateUI() {
         if (!currentUser) return;
+        if (!currentUser.labTests) currentUser.labTests = [];
+
         const initials = (currentUser.FirstName[0] + currentUser.LastName[0]).toUpperCase();
         const fullName = `${currentUser.FirstName} ${currentUser.LastName}`;
         const formattedID = formatPatientID(currentUser.PatientID);
-        
-        // Header & Dashboard
+
         document.getElementById('user-initials').textContent = initials;
         document.getElementById('user-display-name').textContent = fullName;
-        document.getElementById('dashboard-welcome').textContent = `Welcome back, ${currentUser.FirstName} ${currentUser.LastName}`;
-        
-        // Dynamic Stats
+        document.getElementById('dashboard-welcome').textContent = `Welcome back, ${fullName}`;
+
         const activeCount = currentUser.cases.filter(c => c.appoint_status !== 'Closed').length;
+        const pendingLabs = currentUser.labTests.filter(t => !t.findings || t.findings.trim() === '').length;
         document.getElementById('stat-active').textContent = activeCount;
         document.getElementById('stat-appointments').textContent = activeCount;
-        document.getElementById('stat-labs').textContent = 0; // Labs not yet implemented
+        document.getElementById('stat-labs').textContent = pendingLabs;
 
-        // Recent Activity
         const activityContainer = document.getElementById('dashboard-activity');
-        if (currentUser.cases.length === 0) {
+        const recentItems = [
+          ...currentUser.cases.map(c => ({ type: 'Case', label: c.chief_Complaint, sub: `${c.appoint_status} • ${c.doctor_name}`, date: c.date_opened })),
+          ...currentUser.labTests.map(t => ({ type: 'Lab', label: t.test_name, sub: `${t.findings ? 'Results Available' : 'Pending Results'} • ${t.ordered_by_name}`, date: t.date_taken }))
+        ].slice(-5).reverse();
+
+        if (recentItems.length === 0) {
           activityContainer.innerHTML = '<p style="color: var(--text-3); text-align: center;">No recent activity found.</p>';
         } else {
-          activityContainer.innerHTML = currentUser.cases.slice(-3).reverse().map(c => `
-            <div style="padding: 12px 0; border-bottom: 1px solid var(--border); last-child: border-bottom-none;">
-              <p style="font-weight: 600; font-size: 13px;">${c.appoint_status} Case: ${c.chief_Complaint}</p>
-              <p style="font-size: 11px; color: var(--text-3);">Handled by ${c.doctor_name} • ${c.date_opened}</p>
+          activityContainer.innerHTML = recentItems.map(item => `
+            <div style="padding: 12px 0; border-bottom: 1px solid var(--border);">
+              <p style="font-weight: 600; font-size: 13px;">[${item.type}] ${item.label}</p>
+              <p style="font-size: 11px; color: var(--text-3);">${item.sub} • ${item.date}</p>
             </div>
           `).join('');
         }
 
-        // Settings Page
         document.getElementById('settings-avatar').textContent = initials;
         document.getElementById('settings-full-name').textContent = fullName;
         document.getElementById('settings-patient-id').textContent = `ID: ${formattedID}`;
 
-        // Fill settings form
         document.getElementById('set-fname').value = currentUser.FirstName;
         document.getElementById('set-lname').value = currentUser.LastName;
         document.getElementById('set-nationality').value = currentUser.Nationality;
@@ -1334,50 +1602,37 @@
         document.getElementById('set-contact').value = currentUser.contactNumber;
         document.getElementById('set-emergency').value = currentUser.emergencyContact;
 
-        // Render Cases in My Cases Page
         renderCases();
-
-        // Render Vital Stats
         renderMyStats();
-
-        // Render Prescriptions
         renderPrescriptions();
-
-        // Render Medicine Offered
         renderMedicineOffered();
-
-        // Update Lab Catalog Page
         updateLabCatalog();
+        renderMyLabTests();
       }
 
       function showPage(name) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         const targetPage = document.getElementById('page-' + name);
         if (targetPage) targetPage.classList.add('active');
-        
+
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        const titles = { 
-          dashboard: "Dashboard", 
-          cases: "My Cases", 
-          prescriptions: "My Prescriptions",
-          'my-stats': "My Stats",
-          settings: "Profile Settings",
-          'lab-catalog': "Lab Tests Offered",
-          'my-labs': "My Lab Tests",
-          'medicines': "Medicine Offered",
-          'about': "About ClinicMS"
+        const titles = {
+          dashboard: "Dashboard", cases: "My Cases", prescriptions: "My Prescriptions",
+          'my-stats': "My Stats", settings: "Profile Settings",
+          'lab-catalog': "Lab Tests Offered", 'my-labs': "My Lab Tests",
+          'medicines': "Medicine Offered", 'about': "About ClinicMS"
         };
         document.getElementById('page-title').textContent = titles[name] || "ClinicMS";
-        
-        // Find matching nav item
+
         document.querySelectorAll('.nav-item').forEach(item => {
-           if (item.textContent.toLowerCase().trim().includes(titles[name] ? titles[name].toLowerCase() : '')) item.classList.add('active');
+          if (item.textContent.toLowerCase().trim().includes((titles[name] || '').toLowerCase())) item.classList.add('active');
         });
 
         if (name === 'lab-catalog') updateLabCatalog();
         if (name === 'my-stats') renderMyStats();
         if (name === 'prescriptions') renderPrescriptions();
         if (name === 'medicines') renderMedicineOffered();
+        if (name === 'my-labs') renderMyLabTests();
       }
 
       function updateProfile(e) {
@@ -1392,24 +1647,15 @@
         currentUser.Address = document.getElementById('set-address').value;
         currentUser.contactNumber = document.getElementById('set-contact').value;
         currentUser.emergencyContact = document.getElementById('set-emergency').value;
-        
         const dbIndex = registeredPatients.findIndex(p => p.PatientID === currentUser.PatientID);
-        if (dbIndex !== -1) {
-          registeredPatients[dbIndex] = { ...currentUser };
-        }
-        
-        alert("Profile attributes updated successfully! Database tuple synchronized.");
+        if (dbIndex !== -1) registeredPatients[dbIndex] = { ...currentUser };
+        alert("Profile updated successfully!");
         updateUI();
       }
 
-      /* CASE MANAGEMENT */
-      function openModal(id) {
-        document.getElementById(id).classList.add('active');
-      }
-      function closeModal(id) {
-        document.getElementById(id).classList.remove('active');
-      }
-
+      // ============================================================
+      // CASES
+      // ============================================================
       function openCreateCase() {
         document.getElementById('case-edit-id').value = '';
         document.getElementById('case-name').value = '';
@@ -1418,24 +1664,17 @@
         document.getElementById('case-doctor-id').value = '';
         document.getElementById('edit-status-group').style.display = 'none';
         document.getElementById('case-submit-btn').textContent = 'Register Case';
-        openModal('create-case-modal');
-        // Do NOT auto-show dropdown here
         document.getElementById('doctor-results').classList.remove('active');
+        openModal('create-case-modal');
       }
 
       function filterDoctors(query) {
         const results = document.getElementById('doctor-results');
         const filtered = doctors.filter(d => d.name.toLowerCase().includes(query.toLowerCase()));
-        
-        if (filtered.length > 0) {
-          results.innerHTML = filtered.map(d => `
-            <div class="search-item" onclick="selectDoctor(${d.id}, '${d.name}')">${d.name}</div>
-          `).join('');
-          results.classList.add('active');
-        } else {
-          results.innerHTML = '<div class="search-item">No doctors found</div>';
-          results.classList.add('active');
-        }
+        results.innerHTML = filtered.length > 0
+          ? filtered.map(d => `<div class="search-item" onclick="selectDoctor(${d.id}, '${d.name}')">${d.name}</div>`).join('')
+          : '<div class="search-item">No doctors found</div>';
+        results.classList.add('active');
       }
 
       function selectDoctor(id, name) {
@@ -1444,13 +1683,6 @@
         document.getElementById('doctor-results').classList.remove('active');
       }
 
-      // Close dropdown when clicking outside
-      document.addEventListener('click', (e) => {
-        if (!e.target.closest('.search-dropdown')) {
-          document.getElementById('doctor-results').classList.remove('active');
-        }
-      });
-
       function handleCreateCase(e) {
         e.preventDefault();
         const editId = document.getElementById('case-edit-id').value;
@@ -1458,11 +1690,9 @@
         const desc = document.getElementById('case-desc').value;
         const docId = document.getElementById('case-doctor-id').value;
         const docName = document.getElementById('doctor-search').value;
-        
         if (!docId) { alert("Please select a doctor from the list."); return; }
 
         if (editId) {
-          // Edit
           const idx = currentUser.cases.findIndex(c => c.case_id == editId);
           if (idx !== -1) {
             currentUser.cases[idx].chief_Complaint = name;
@@ -1472,8 +1702,7 @@
             currentUser.cases[idx].appoint_status = document.getElementById('case-status').value;
           }
         } else {
-          // Create
-          const newCase = {
+          currentUser.cases.push({
             case_id: nextCaseID++,
             chief_Complaint: name,
             description: desc,
@@ -1481,10 +1710,8 @@
             doctor_name: docName,
             appoint_status: 'Pending',
             date_opened: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-          };
-          currentUser.cases.push(newCase);
+          });
         }
-
         closeModal('create-case-modal');
         updateUI();
       }
@@ -1493,143 +1720,97 @@
         const container = document.getElementById('page-cases');
         if (!container) return;
         if (currentUser.cases.length === 0) {
-          container.innerHTML = `
-            <div class="card">
-              <div class="card-header"><span class="card-title">Medical Case History</span></div>
-              <div style="padding: 40px; text-align: center; color: var(--text-3);">
-                No case history found for this account. <br>
-                <button class="btn btn-primary mt-4" onclick="openCreateCase()">Create Your First Case</button>
-              </div>
-            </div>`;
+          container.innerHTML = `<div class="card"><div class="card-header"><span class="card-title">Medical Case History</span></div><div style="padding: 40px; text-align: center; color: var(--text-3);">No case history found.<br><button class="btn btn-primary mt-4" onclick="openCreateCase()">Create Your First Case</button></div></div>`;
           return;
         }
-
-        const getStatusStyles = (status) => {
-          switch(status) {
-            case 'Pending': return 'background: #ecfdf5; color: #065f46;'; // Green
-            case 'Ongoing': return 'background: #fffbeb; color: #92400e;'; // Yellow
-            case 'Closed': return 'background: #fef2f2; color: #991b1b;'; // Red
-            default: return 'background: #f3f4f6; color: #374151;';
-          }
+        const getStatusStyles = (s) => {
+          if (s === 'Pending') return 'background: #ecfdf5; color: #065f46;';
+          if (s === 'Ongoing') return 'background: #fffbeb; color: #92400e;';
+          return 'background: #fef2f2; color: #991b1b;';
         };
-
-        container.innerHTML = `
-          <div class="card">
-            <div class="card-header">
-              <span class="card-title">Medical Case History</span>
-              <button class="btn btn-primary btn-sm" onclick="openCreateCase()">New Case</button>
-            </div>
-            <div style="padding: 24px;">
-              <div class="info-grid" style="grid-template-columns: 1fr;">
-                ${currentUser.cases.map(c => `
-                  <div class="card" style="padding: 16px; margin-bottom: 12px; border-color: var(--border-strong);">
-                    <div style="display:flex; justify-content:space-between; align-items:start;">
-                      <div>
-                        <h3 style="font-size: 16px; font-weight: 700; color: var(--primary);">${c.chief_Complaint}</h3>
-                        <p style="font-size: 13px; color: var(--text-2); margin-top: 4px;">${c.description}</p>
-                        <div style="margin-top: 12px; font-size: 12px; color: var(--text-3);">
-                          Doctor: <span style="color: var(--text); font-weight: 600;">${c.doctor_name}</span> • 
-                          Opened: <span style="color: var(--text); font-weight: 600;">${c.date_opened}</span>
-                        </div>
-                      </div>
-                      <div style="text-align: right; display: flex; flex-direction: column; gap: 8px;">
-                        <span class="badge" style="${getStatusStyles(c.appoint_status)} border: 1px solid currentColor; opacity: 0.9;">
-                          ${c.appoint_status}
-                        </span>
-                        <button class="btn btn-outline btn-sm" onclick="editCase(${c.case_id})">Edit Case</button>
-                        <button class="btn btn-outline btn-sm" style="color: var(--primary); border-color: var(--primary);" onclick="removeCase(${c.case_id})">Remove Case</button>
-                      </div>
-                    </div>
-                  </div>
-                `).join('')}
+        container.innerHTML = `<div class="card"><div class="card-header"><span class="card-title">Medical Case History</span><button class="btn btn-primary btn-sm" onclick="openCreateCase()">New Case</button></div><div style="padding: 24px;">${
+          currentUser.cases.map(c => `
+            <div class="card" style="padding: 16px; margin-bottom: 12px; border-color: var(--border-strong);">
+              <div style="display:flex; justify-content:space-between; align-items:start;">
+                <div>
+                  <h3 style="font-size: 16px; font-weight: 700; color: var(--primary);">${c.chief_Complaint}</h3>
+                  <p style="font-size: 13px; color: var(--text-2); margin-top: 4px;">${c.description}</p>
+                  <div style="margin-top: 12px; font-size: 12px; color: var(--text-3);">Doctor: <strong>${c.doctor_name}</strong> • Opened: <strong>${c.date_opened}</strong></div>
+                </div>
+                <div style="text-align: right; display: flex; flex-direction: column; gap: 8px;">
+                  <span class="badge" style="${getStatusStyles(c.appoint_status)} border: 1px solid currentColor; opacity: 0.9;">${c.appoint_status}</span>
+                  <button class="btn btn-outline btn-sm" onclick="editCase(${c.case_id})">Edit Case</button>
+                  <button class="btn btn-outline btn-sm" style="color: var(--primary); border-color: var(--primary);" onclick="removeCase(${c.case_id})">Remove</button>
+                </div>
               </div>
-            </div>
-          </div>`;
-      }
-
-      function removeCase(id) {
-        if (confirm("Are you sure you want to remove this medical case? This action cannot be undone.")) {
-          currentUser.cases = currentUser.cases.filter(c => c.case_id !== id);
-          
-          const dbIndex = registeredPatients.findIndex(p => p.PatientID === currentUser.PatientID);
-          if (dbIndex !== -1) {
-            registeredPatients[dbIndex].cases = [...currentUser.cases];
-          }
-          
-          updateUI();
-        }
+            </div>`).join('')
+        }</div></div>`;
       }
 
       function editCase(id) {
         const c = currentUser.cases.find(x => x.case_id == id);
         if (!c) return;
-
         document.getElementById('case-edit-id').value = c.case_id;
         document.getElementById('case-name').value = c.chief_Complaint;
         document.getElementById('case-desc').value = c.description;
         document.getElementById('doctor-search').value = c.doctor_name;
         document.getElementById('case-doctor-id').value = c.doctor_id;
         document.getElementById('case-status').value = c.appoint_status;
-        
         document.getElementById('edit-status-group').style.display = 'block';
         document.getElementById('case-submit-btn').textContent = 'Update Case';
         openModal('create-case-modal');
       }
 
-      /* LAB CATALOG LOGIC */
+      function removeCase(id) {
+        if (confirm("Remove this medical case? This cannot be undone.")) {
+          currentUser.cases = currentUser.cases.filter(c => c.case_id !== id);
+          updateUI();
+        }
+      }
+
+      // ============================================================
+      // LAB CATALOG PAGE
+      // ============================================================
       function toggleSortBy() {
         labSortBy = (labSortBy === 'test_name') ? 'price' : 'test_name';
         document.getElementById('btn-sort-by').textContent = `Sort By: ${labSortBy === 'test_name' ? 'Name' : 'Price'}`;
         updateLabCatalog();
       }
-
       function toggleSortOrder() {
         labSortOrder = (labSortOrder === 'asc') ? 'desc' : 'asc';
         document.getElementById('btn-sort-order').textContent = `Order: ${labSortOrder === 'asc' ? 'Ascending' : 'Descending'}`;
         updateLabCatalog();
       }
-
       function updateLabCatalog() {
         const container = document.getElementById('lab-catalog-list');
         if (!container) return;
-
-        const query = document.getElementById('lab-search').value.toLowerCase();
-        
-        let filtered = labCatalog.filter(test => test.test_name.toLowerCase().includes(query));
-
+        const query = (document.getElementById('lab-search').value || '').toLowerCase();
+        let filtered = labCatalog.filter(t => t.test_name.toLowerCase().includes(query));
         filtered.sort((a, b) => {
-          let valA = a[labSortBy];
-          let valB = b[labSortBy];
-          
-          if (typeof valA === 'string') {
-            valA = valA.toLowerCase();
-            valB = valB.toLowerCase();
-          }
-
-          if (valA < valB) return labSortOrder === 'asc' ? -1 : 1;
-          if (valA > valB) return labSortOrder === 'asc' ? 1 : -1;
-          return 0;
-        }); 
-
-        container.innerHTML = filtered.map(test => `
-          <div class="card" style="padding: 20px; margin-bottom: 12px; border-color: var(--border-strong); position: relative;">
+          let va = a[labSortBy], vb = b[labSortBy];
+          if (typeof va === 'string') { va = va.toLowerCase(); vb = vb.toLowerCase(); }
+          return va < vb ? (labSortOrder === 'asc' ? -1 : 1) : va > vb ? (labSortOrder === 'asc' ? 1 : -1) : 0;
+        });
+        container.innerHTML = filtered.map(t => `
+          <div class="card" style="padding: 20px; margin-bottom: 12px; border-color: var(--border-strong);">
             <div style="display: flex; justify-content: space-between; align-items: start; gap: 20px;">
               <div style="flex: 1;">
                 <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-                  <span style="font-family: 'DM Mono', monospace; font-size: 11px; background: var(--primary-light); color: var(--primary); padding: 2px 8px; border-radius: 4px;">${test.catalog_id}</span>
-                  <h3 style="font-size: 16px; font-weight: 700; color: var(--text);">${test.test_name}</h3>
+                  <span style="font-family: 'DM Mono', monospace; font-size: 11px; background: var(--primary-light); color: var(--primary); padding: 2px 8px; border-radius: 4px;">${t.catalog_id}</span>
+                  <h3 style="font-size: 16px; font-weight: 700; color: var(--text);">${t.test_name}</h3>
                 </div>
-                <p style="font-size: 13.5px; color: var(--text-2); line-height: 1.5;">${test.description}</p>
+                <p style="font-size: 13.5px; color: var(--text-2); line-height: 1.5;">${t.description}</p>
               </div>
               <div style="text-align: right; min-width: 100px;">
-                <div style="font-size: 18px; font-weight: 800; color: var(--primary);">PHP ${test.price.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+                <div style="font-size: 18px; font-weight: 800; color: var(--primary);">PHP ${t.price.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
               </div>
             </div>
-          </div>
-        `).join('');
+          </div>`).join('');
       }
 
-      /* PRESCRIPTION LOGIC */
+      // ============================================================
+      // PRESCRIPTIONS
+      // ============================================================
       function openAddPrescription() {
         document.getElementById('prescription-edit-id').value = '';
         document.getElementById('prescription-modal-title').textContent = 'Add Prescription';
@@ -1642,18 +1823,13 @@
         count = Math.min(Math.max(parseInt(count) || 1, 1), 5);
         const container = document.getElementById('prescription-medicines-container');
         const currentRows = container.querySelectorAll('.medicine-row').length;
-        
         if (count > currentRows) {
           for (let i = currentRows; i < count; i++) {
             const row = document.createElement('div');
             row.className = 'medicine-row card';
-            row.style.padding = '20px';
-            row.style.marginBottom = '20px';
-            row.style.borderColor = 'var(--border-strong)';
+            row.style.cssText = 'padding: 20px; margin-bottom: 20px; border-color: var(--border-strong);';
             row.innerHTML = `
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                <span class="badge" style="background: var(--primary); color: white;">Medicine #${i + 1}</span>
-              </div>
+              <div style="margin-bottom: 16px;"><span class="badge" style="background: var(--primary); color: white;">Medicine #${i + 1}</span></div>
               <div class="form-group">
                 <label class="form-label">Select Medicine</label>
                 <div class="search-dropdown">
@@ -1663,32 +1839,17 @@
                 </div>
               </div>
               <div class="info-grid">
-                <div class="form-group">
-                  <label class="form-label">Dosage</label>
-                  <input type="text" class="form-input med-dosage" required placeholder="e.g. 500mg">
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Frequency</label>
-                  <input type="text" class="form-input med-frequency" required placeholder="e.g. Twice daily">
-                </div>
+                <div class="form-group"><label class="form-label">Dosage</label><input type="text" class="form-input med-dosage" required placeholder="e.g. 500mg"></div>
+                <div class="form-group"><label class="form-label">Frequency</label><input type="text" class="form-input med-frequency" required placeholder="e.g. Twice daily"></div>
               </div>
               <div class="info-grid">
-                <div class="form-group">
-                  <label class="form-label">Date Start</label>
-                  <input type="date" class="form-input med-start" required>
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Date End</label>
-                  <input type="date" class="form-input med-end" required>
-                </div>
-              </div>
-            `;
+                <div class="form-group"><label class="form-label">Date Start</label><input type="date" class="form-input med-start" required></div>
+                <div class="form-group"><label class="form-label">Date End</label><input type="date" class="form-input med-end" required></div>
+              </div>`;
             container.appendChild(row);
           }
-        } else if (count < currentRows) {
-          for (let i = currentRows; i > count; i--) {
-            container.removeChild(container.lastChild);
-          }
+        } else {
+          for (let i = currentRows; i > count; i--) container.removeChild(container.lastChild);
         }
       }
 
@@ -1696,16 +1857,10 @@
         const rows = document.querySelectorAll('.medicine-row');
         const results = rows[rowIndex].querySelector('.med-results');
         const filtered = medicineCatalog.filter(m => m.medicinename.toLowerCase().includes(query.toLowerCase()));
-        
-        if (filtered.length > 0) {
-          results.innerHTML = filtered.map(m => `
-            <div class="search-item" onclick="selectPrescriptionMedicine('${m.med_id}', '${m.medicinename}', ${rowIndex})">${m.medicinename} <small>(${m.med_id})</small></div>
-          `).join('');
-          results.classList.add('active');
-        } else {
-          results.innerHTML = '<div class="search-item">No medicines found</div>';
-          results.classList.add('active');
-        }
+        results.innerHTML = filtered.length > 0
+          ? filtered.map(m => `<div class="search-item" onclick="selectPrescriptionMedicine('${m.med_id}', '${m.medicinename}', ${rowIndex})">${m.medicinename} <small>(${m.med_id})</small></div>`).join('')
+          : '<div class="search-item">No medicines found</div>';
+        results.classList.add('active');
       }
 
       function selectPrescriptionMedicine(id, name, rowIndex) {
@@ -1720,48 +1875,25 @@
         const editId = document.getElementById('prescription-edit-id').value;
         const rows = document.querySelectorAll('.medicine-row');
         const items = [];
-
         for (let row of rows) {
           const medId = row.querySelector('.med-id').value;
-          const medName = row.querySelector('.med-search').value;
-          const dosage = row.querySelector('.med-dosage').value;
-          const frequency = row.querySelector('.med-frequency').value;
-          const start = row.querySelector('.med-start').value;
-          const end = row.querySelector('.med-end').value;
-
           if (!medId) { alert("Please select a medicine for all entries."); return; }
-          
           items.push({
             med_id: medId,
-            medicinename: medName,
-            dosage: dosage,
-            frequency: frequency,
-            date_start: start,
-            date_end: end
+            medicinename: row.querySelector('.med-search').value,
+            dosage: row.querySelector('.med-dosage').value,
+            frequency: row.querySelector('.med-frequency').value,
+            date_start: row.querySelector('.med-start').value,
+            date_end: row.querySelector('.med-end').value
           });
         }
-
         if (editId) {
           const idx = currentUser.prescriptions.findIndex(p => p.prescription_id == editId);
-          if (idx !== -1) {
-            currentUser.prescriptions[idx].items = items;
-            currentUser.prescriptions[idx].date_updated = new Date().toISOString();
-          }
+          if (idx !== -1) { currentUser.prescriptions[idx].items = items; currentUser.prescriptions[idx].date_updated = new Date().toISOString(); }
         } else {
-          const newPres = {
-            prescription_id: nextPrescriptionID++,
-            date_prescribed: new Date().toISOString(),
-            items: items
-          };
           if (!currentUser.prescriptions) currentUser.prescriptions = [];
-          currentUser.prescriptions.push(newPres);
+          currentUser.prescriptions.push({ prescription_id: nextPrescriptionID++, date_prescribed: new Date().toISOString(), items });
         }
-
-        const dbIndex = registeredPatients.findIndex(p => p.PatientID === currentUser.PatientID);
-        if (dbIndex !== -1) {
-          registeredPatients[dbIndex].prescriptions = [...currentUser.prescriptions];
-        }
-
         closeModal('prescription-modal');
         renderPrescriptions();
         alert("Prescription saved successfully!");
@@ -1770,62 +1902,45 @@
       function renderPrescriptions() {
         const container = document.getElementById('prescriptions-list');
         if (!container || !currentUser) return;
-
         if (!currentUser.prescriptions || currentUser.prescriptions.length === 0) {
-          container.innerHTML = '<p style="color: var(--text-3); text-align: center; padding: 40px;">No prescriptions found. Add one to get started.</p>';
+          container.innerHTML = '<p style="color: var(--text-3); text-align: center; padding: 40px;">No prescriptions found.</p>';
           return;
         }
-
         container.innerHTML = currentUser.prescriptions.map(p => `
           <div class="card" style="padding: 24px; margin-bottom: 24px; border-left: 4px solid var(--primary);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border);">
               <div>
-                <span class="badge" style="background: var(--primary-light); color: var(--primary); font-weight: 800;">PRESCRIPTION ID: ${p.prescription_id}</span>
-                <span style="margin-left: 12px; color: var(--text-3); font-size: 12px; font-weight: 600;">ISSUED: ${new Date(p.date_prescribed).toLocaleDateString()}</span>
+                <span class="badge">PRESCRIPTION ID: ${p.prescription_id}</span>
+                <span style="margin-left: 12px; color: var(--text-3); font-size: 12px;">ISSUED: ${new Date(p.date_prescribed).toLocaleDateString()}</span>
               </div>
               <div style="display: flex; gap: 8px;">
                 <button class="btn btn-outline btn-sm" onclick="editPrescription(${p.prescription_id})">Edit</button>
                 <button class="btn btn-outline btn-sm" style="color: var(--primary); border-color: var(--primary);" onclick="deletePrescription(${p.prescription_id})">Delete</button>
               </div>
             </div>
-            <div class="info-grid" style="grid-template-columns: 1fr;">
-              ${p.items.map((item, idx) => `
-                <div style="padding: 16px; background: #fcfafa; border: 1px solid var(--border); border-radius: var(--radius); position: relative;">
-                  <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                    <span style="font-weight: 800; color: var(--primary); font-size: 13px;">#${idx + 1}</span>
-                    <h3 style="font-size: 16px; font-weight: 700; color: var(--text);">${item.medicinename}</h3>
-                    <span style="font-size: 11px; font-weight: 600; color: var(--text-3); background: white; padding: 2px 8px; border: 1px solid var(--border); border-radius: 4px;">${item.med_id}</span>
-                  </div>
-                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px;">
-                    <div>
-                      <span style="color: var(--text-3); font-size: 11px; font-weight: 700; text-transform: uppercase;">Dosage</span>
-                      <div style="font-weight: 600; color: var(--text);">${item.dosage}</div>
-                    </div>
-                    <div>
-                      <span style="color: var(--text-3); font-size: 11px; font-weight: 700; text-transform: uppercase;">Frequency</span>
-                      <div style="font-weight: 600; color: var(--text);">${item.frequency}</div>
-                    </div>
-                    <div>
-                      <span style="color: var(--text-3); font-size: 11px; font-weight: 700; text-transform: uppercase;">Duration</span>
-                      <div style="font-weight: 600; color: var(--text); font-size: 13px;">${item.date_start} to ${item.date_end}</div>
-                    </div>
-                  </div>
+            ${p.items.map((item, idx) => `
+              <div style="padding: 16px; background: #fcfafa; border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 12px;">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                  <span style="font-weight: 800; color: var(--primary);">#${idx + 1}</span>
+                  <h3 style="font-size: 16px; font-weight: 700;">${item.medicinename}</h3>
+                  <span style="font-size: 11px; color: var(--text-3); background: white; padding: 2px 8px; border: 1px solid var(--border); border-radius: 4px;">${item.med_id}</span>
                 </div>
-              `).join('')}
-            </div>
-          </div>
-        `).join('');
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px;">
+                  <div><div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-3);">Dosage</div><div style="font-weight: 600;">${item.dosage}</div></div>
+                  <div><div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-3);">Frequency</div><div style="font-weight: 600;">${item.frequency}</div></div>
+                  <div><div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-3);">Duration</div><div style="font-weight: 600; font-size: 13px;">${item.date_start} to ${item.date_end}</div></div>
+                </div>
+              </div>`).join('')}
+          </div>`).join('');
       }
 
       function editPrescription(id) {
         const p = currentUser.prescriptions.find(x => x.prescription_id == id);
         if (!p) return;
-
         document.getElementById('prescription-edit-id').value = p.prescription_id;
         document.getElementById('prescription-modal-title').textContent = 'Edit Prescription';
         document.getElementById('pres-med-count').value = p.items.length;
         updateMedicineRows(p.items.length);
-        
         const rows = document.querySelectorAll('.medicine-row');
         p.items.forEach((item, i) => {
           rows[i].querySelector('.med-id').value = item.med_id;
@@ -1835,34 +1950,24 @@
           rows[i].querySelector('.med-start').value = item.date_start;
           rows[i].querySelector('.med-end').value = item.date_end;
         });
-        
         openModal('prescription-modal');
       }
 
       function deletePrescription(id) {
-        if (confirm("Are you sure you want to delete this entire prescription?")) {
+        if (confirm("Delete this prescription?")) {
           currentUser.prescriptions = currentUser.prescriptions.filter(p => p.prescription_id !== id);
-          
-          const dbIndex = registeredPatients.findIndex(p => p.PatientID === currentUser.PatientID);
-          if (dbIndex !== -1) {
-            registeredPatients[dbIndex].prescriptions = [...currentUser.prescriptions];
-          }
-          
           renderPrescriptions();
         }
       }
 
-      /* MEDICINE OFFERED LOGIC */
+      // ============================================================
+      // MEDICINE OFFERED
+      // ============================================================
       function renderMedicineOffered() {
         const container = document.getElementById('medicine-offered-list');
         if (!container) return;
-
-        const query = document.getElementById('medicine-search').value.toLowerCase();
-        const filtered = medicineCatalog.filter(m => 
-          m.medicinename.toLowerCase().includes(query) || 
-          m.medicine_type.toLowerCase().includes(query)
-        );
-
+        const query = (document.getElementById('medicine-search').value || '').toLowerCase();
+        const filtered = medicineCatalog.filter(m => m.medicinename.toLowerCase().includes(query) || m.medicine_type.toLowerCase().includes(query));
         container.innerHTML = filtered.map(m => `
           <div class="card" style="padding: 20px; margin-bottom: 12px; border-color: var(--border-strong);">
             <div style="display: flex; align-items: start; gap: 16px;">
@@ -1871,18 +1976,19 @@
               </div>
               <div style="flex: 1;">
                 <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 4px;">
-                  <h3 style="font-size: 17px; font-weight: 700; color: var(--text);">${m.medicinename}</h3>
-                  <span style="font-size: 11px; font-weight: 700; color: var(--primary); background: var(--primary-light); padding: 2px 8px; border-radius: 4px; text-transform: uppercase;">${m.med_id}</span>
+                  <h3 style="font-size: 17px; font-weight: 700;">${m.medicinename}</h3>
+                  <span style="font-size: 11px; font-weight: 700; color: var(--primary); background: var(--primary-light); padding: 2px 8px; border-radius: 4px;">${m.med_id}</span>
                 </div>
-                <div style="font-size: 13px; font-weight: 700; color: var(--text-2); margin-bottom: 8px;">Medicine Type: <span style="font-weight: 500;">${m.medicine_type}</span></div>
+                <div style="font-size: 13px; font-weight: 700; color: var(--text-2); margin-bottom: 8px;">Type: <span style="font-weight: 500;">${m.medicine_type}</span></div>
                 <p style="font-size: 13.5px; color: var(--text-3); line-height: 1.5;">${m.description}</p>
               </div>
             </div>
-          </div>
-        `).join('');
+          </div>`).join('');
       }
 
-      /* VITAL STATS LOGIC */
+      // ============================================================
+      // VITAL STATS
+      // ============================================================
       function openAddStats() {
         document.getElementById('stat-weight').value = '';
         document.getElementById('stat-height').value = '';
@@ -1891,40 +1997,14 @@
 
       function handleAddVitalStat(e) {
         e.preventDefault();
-        const weightInput = document.getElementById('stat-weight');
-        const heightInput = document.getElementById('stat-height');
-        
-        const weight = parseFloat(weightInput.value);
-        const height = parseFloat(heightInput.value);
-        
-        if (isNaN(weight) || isNaN(height)) {
-          alert("Please enter valid numbers for weight and height.");
-          return;
-        }
-
-        const newStat = {
-          stat_id: nextStatID++,
-          weight: weight,
-          height: height,
-          recorded_at: new Date().toISOString()
-        };
-
+        const weight = parseFloat(document.getElementById('stat-weight').value);
+        const height = parseFloat(document.getElementById('stat-height').value);
+        if (isNaN(weight) || isNaN(height)) { alert("Please enter valid numbers."); return; }
         if (!currentUser.vitalStats) currentUser.vitalStats = [];
-        currentUser.vitalStats.push(newStat);
-        
-        // Sync with mock DB
-        const dbIndex = registeredPatients.findIndex(p => p.PatientID === currentUser.PatientID);
-        if (dbIndex !== -1) {
-          registeredPatients[dbIndex].vitalStats = [...currentUser.vitalStats];
-        }
-
+        currentUser.vitalStats.push({ stat_id: nextStatID++, weight, height, recorded_at: new Date().toISOString() });
         closeModal('add-stats-modal');
         renderMyStats();
-        alert("Vital stats recorded successfully!");
-        
-        // Clear inputs for next time
-        weightInput.value = '';
-        heightInput.value = '';
+        alert("Vital stats recorded!");
       }
 
       function toggleStatsSortBy() {
@@ -1932,7 +2012,6 @@
         document.getElementById('btn-stats-sort-by').textContent = `Sort By: ${statsSortBy === 'recorded_at' ? 'Date' : 'Stat ID'}`;
         renderMyStats();
       }
-
       function toggleStatsSortOrder() {
         statsSortOrder = (statsSortOrder === 'asc') ? 'desc' : 'asc';
         document.getElementById('btn-stats-sort-order').textContent = `Order: ${statsSortOrder === 'asc' ? 'Ascending' : 'Descending'}`;
@@ -1942,47 +2021,345 @@
       function renderMyStats() {
         const container = document.getElementById('stats-history-list');
         if (!container || !currentUser) return;
-
         if (!currentUser.vitalStats) currentUser.vitalStats = [];
-
         if (currentUser.vitalStats.length === 0) {
           container.innerHTML = '<p style="color: var(--text-3); text-align: center; padding: 20px;">No vital stats recorded yet.</p>';
           return;
         }
-
-        let sorted = [...currentUser.vitalStats];
-        sorted.sort((a, b) => {
-          let valA = a[statsSortBy];
-          let valB = b[statsSortBy];
-          if (valA < valB) return statsSortOrder === 'asc' ? -1 : 1;
-          if (valA > valB) return statsSortOrder === 'asc' ? 1 : -1;
-          return 0;
+        let sorted = [...currentUser.vitalStats].sort((a, b) => {
+          let va = a[statsSortBy], vb = b[statsSortBy];
+          return va < vb ? (statsSortOrder === 'asc' ? -1 : 1) : va > vb ? (statsSortOrder === 'asc' ? 1 : -1) : 0;
         });
-
         container.innerHTML = sorted.map(s => `
           <div class="card" style="padding: 16px; margin-bottom: 12px; border-color: var(--border-strong);">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <div style="width: 100%;">
-                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
-                  <span style="font-size: 12px; font-weight: 700; color: var(--text-3);">STAT_ID: <span style="color: var(--primary);">${s.stat_id}</span></span>
-                  <span style="font-size: 12px; font-weight: 700; color: var(--text-3); margin-left: auto;">DATERECORDED: <span style="color: var(--text);">${new Date(s.recorded_at).toLocaleString()}</span></span>
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
-                  <div style="background: var(--primary-light); padding: 12px; border-radius: var(--radius); border: 1px solid var(--border);">
-                    <span style="color: var(--text-3); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;">Weight</span>
-                    <div style="font-size: 20px; font-weight: 900; color: var(--primary); margin-top: 4px;">${s.weight} <span style="font-size: 12px; font-weight: 500;">kg</span></div>
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+              <span style="font-size: 12px; font-weight: 700; color: var(--text-3);">STAT_ID: <span style="color: var(--primary);">${s.stat_id}</span></span>
+              <span style="font-size: 12px; font-weight: 700; color: var(--text-3); margin-left: auto;">RECORDED: <span style="color: var(--text);">${new Date(s.recorded_at).toLocaleString()}</span></span>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+              <div style="background: var(--primary-light); padding: 12px; border-radius: var(--radius); border: 1px solid var(--border);">
+                <span style="color: var(--text-3); font-size: 11px; font-weight: 800; text-transform: uppercase;">Weight</span>
+                <div style="font-size: 20px; font-weight: 900; color: var(--primary); margin-top: 4px;">${s.weight} <span style="font-size: 12px; font-weight: 500;">kg</span></div>
+              </div>
+              <div style="background: var(--primary-light); padding: 12px; border-radius: var(--radius); border: 1px solid var(--border);">
+                <span style="color: var(--text-3); font-size: 11px; font-weight: 800; text-transform: uppercase;">Height</span>
+                <div style="font-size: 20px; font-weight: 900; color: var(--primary); margin-top: 4px;">${s.height} <span style="font-size: 12px; font-weight: 500;">cm</span></div>
+              </div>
+            </div>
+          </div>`).join('');
+      }
+
+      // ============================================================
+      // MY LAB TESTS — FULL IMPLEMENTATION
+      // ============================================================
+
+      /** Populate case dropdowns in both order modal and filter */
+      function populateLabCaseDropdowns() {
+        // Order modal case select
+        const caseSelect = document.getElementById('lab-case-id');
+        caseSelect.innerHTML = '<option value="">-- Select a Case --</option>';
+        currentUser.cases.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.case_id;
+          opt.textContent = `[${c.case_id}] ${c.chief_Complaint} (${c.appoint_status})`;
+          caseSelect.appendChild(opt);
+        });
+
+        // Filter dropdown on page
+        const filterSelect = document.getElementById('lab-case-filter');
+        filterSelect.innerHTML = '<option value="">All Cases</option>';
+        currentUser.cases.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.case_id;
+          opt.textContent = c.chief_Complaint;
+          filterSelect.appendChild(opt);
+        });
+      }
+
+      function filterLabCatalogSearch(query) {
+        const results = document.getElementById('lab-catalog-results');
+        const filtered = labCatalog.filter(t => t.test_name.toLowerCase().includes(query.toLowerCase()) || t.catalog_id.toLowerCase().includes(query.toLowerCase()));
+        results.innerHTML = filtered.length > 0
+          ? filtered.map(t => `<div class="search-item" onclick="selectLabCatalog('${t.catalog_id}', '${t.test_name.replace(/'/g, "\\'")}')"><strong>${t.catalog_id}</strong> — ${t.test_name}</div>`).join('')
+          : '<div class="search-item">No tests found</div>';
+        results.classList.add('active');
+      }
+
+      function selectLabCatalog(id, name) {
+        document.getElementById('lab-catalog-id').value = id;
+        document.getElementById('lab-catalog-search').value = name;
+        document.getElementById('lab-catalog-results').classList.remove('active');
+      }
+
+      function filterLabDoctors(query) {
+        const results = document.getElementById('lab-doctor-results');
+        const filtered = doctors.filter(d => d.name.toLowerCase().includes(query.toLowerCase()));
+        results.innerHTML = filtered.length > 0
+          ? filtered.map(d => `<div class="search-item" onclick="selectLabDoctor(${d.id}, '${d.name}')">${d.name}</div>`).join('')
+          : '<div class="search-item">No doctors found</div>';
+        results.classList.add('active');
+      }
+
+      function selectLabDoctor(id, name) {
+        document.getElementById('lab-doctor-id').value = id;
+        document.getElementById('lab-doctor-search').value = name;
+        document.getElementById('lab-doctor-results').classList.remove('active');
+      }
+
+      function openOrderLabTest() {
+        if (currentUser.cases.length === 0) {
+          alert("You need at least one case before ordering a lab test. Please create a case first.");
+          showPage('cases');
+          return;
+        }
+        // Reset form
+        document.getElementById('lab-edit-id').value = '';
+        document.getElementById('order-lab-modal-title').textContent = 'Order Lab Test';
+        document.getElementById('lab-catalog-search').value = '';
+        document.getElementById('lab-catalog-id').value = '';
+        document.getElementById('lab-doctor-search').value = '';
+        document.getElementById('lab-doctor-id').value = '';
+        document.getElementById('lab-findings').value = '';
+        document.getElementById('lab-date-taken').value = new Date().toISOString().split('T')[0];
+        document.getElementById('lab-submit-btn').textContent = 'Order Lab Test';
+
+        populateLabCaseDropdowns();
+        document.getElementById('lab-catalog-results').classList.remove('active');
+        document.getElementById('lab-doctor-results').classList.remove('active');
+        openModal('order-lab-modal');
+      }
+
+      function editLabTest(id) {
+        const t = currentUser.labTests.find(x => x.test_id == id);
+        if (!t) return;
+
+        document.getElementById('lab-edit-id').value = t.test_id;
+        document.getElementById('order-lab-modal-title').textContent = 'Edit Lab Test';
+        document.getElementById('lab-submit-btn').textContent = 'Update Lab Test';
+
+        populateLabCaseDropdowns();
+        document.getElementById('lab-case-id').value = t.case_id;
+        document.getElementById('lab-catalog-search').value = t.test_name;
+        document.getElementById('lab-catalog-id').value = t.catalog_id;
+        document.getElementById('lab-doctor-search').value = t.ordered_by_name;
+        document.getElementById('lab-doctor-id').value = t.ordered_by;
+        document.getElementById('lab-date-taken').value = t.date_taken;
+        document.getElementById('lab-findings').value = t.findings || '';
+
+        document.getElementById('lab-catalog-results').classList.remove('active');
+        document.getElementById('lab-doctor-results').classList.remove('active');
+        openModal('order-lab-modal');
+      }
+
+      function handleOrderLabTest(e) {
+        e.preventDefault();
+        const editId = document.getElementById('lab-edit-id').value;
+        const caseId = parseInt(document.getElementById('lab-case-id').value);
+        const catalogId = document.getElementById('lab-catalog-id').value;
+        const testName = document.getElementById('lab-catalog-search').value;
+        const doctorId = parseInt(document.getElementById('lab-doctor-id').value);
+        const doctorName = document.getElementById('lab-doctor-search').value;
+        const dateTaken = document.getElementById('lab-date-taken').value;
+        const findings = document.getElementById('lab-findings').value.trim();
+
+        if (!catalogId) { alert("Please select a lab test from the catalog."); return; }
+        if (!doctorId) { alert("Please select an ordering doctor."); return; }
+        if (!caseId) { alert("Please select a linked case."); return; }
+
+        if (!currentUser.labTests) currentUser.labTests = [];
+
+        if (editId) {
+          const idx = currentUser.labTests.findIndex(t => t.test_id == editId);
+          if (idx !== -1) {
+            currentUser.labTests[idx] = {
+              ...currentUser.labTests[idx],
+              case_id: caseId, catalog_id: catalogId, test_name: testName,
+              ordered_by: doctorId, ordered_by_name: doctorName,
+              date_taken: dateTaken, findings
+            };
+          }
+        } else {
+          currentUser.labTests.push({
+            test_id: nextLabTestID++,
+            case_id: caseId,
+            catalog_id: catalogId,
+            test_name: testName,
+            date_taken: dateTaken,
+            findings,
+            ordered_by: doctorId,
+            ordered_by_name: doctorName
+          });
+        }
+
+        // Sync with mock DB
+        const dbIndex = registeredPatients.findIndex(p => p.PatientID === currentUser.PatientID);
+        if (dbIndex !== -1) registeredPatients[dbIndex].labTests = [...currentUser.labTests];
+
+        closeModal('order-lab-modal');
+        updateUI();
+        alert(editId ? "Lab test updated!" : "Lab test ordered successfully!");
+      }
+
+      function openEditFindings(testId) {
+        const t = currentUser.labTests.find(x => x.test_id == testId);
+        if (!t) return;
+        const linkedCase = currentUser.cases.find(c => c.case_id == t.case_id);
+
+        document.getElementById('findings-lab-id').value = testId;
+        document.getElementById('findings-text').value = t.findings || '';
+        document.getElementById('findings-test-name-label').textContent = `${t.catalog_id} — ${t.test_name}`;
+        document.getElementById('findings-case-label').textContent = linkedCase ? `Case: ${linkedCase.chief_Complaint}` : `Case ID: ${t.case_id}`;
+        openModal('edit-findings-modal');
+      }
+
+      function handleUpdateFindings(e) {
+        e.preventDefault();
+        const testId = parseInt(document.getElementById('findings-lab-id').value);
+        const findings = document.getElementById('findings-text').value.trim();
+
+        const idx = currentUser.labTests.findIndex(t => t.test_id == testId);
+        if (idx !== -1) {
+          currentUser.labTests[idx].findings = findings;
+          const dbIndex = registeredPatients.findIndex(p => p.PatientID === currentUser.PatientID);
+          if (dbIndex !== -1) registeredPatients[dbIndex].labTests = [...currentUser.labTests];
+        }
+
+        closeModal('edit-findings-modal');
+        updateUI();
+        alert("Findings updated successfully!");
+      }
+
+      function deleteLabTest(id) {
+        if (confirm("Delete this lab test record? This cannot be undone.")) {
+          currentUser.labTests = currentUser.labTests.filter(t => t.test_id !== id);
+          const dbIndex = registeredPatients.findIndex(p => p.PatientID === currentUser.PatientID);
+          if (dbIndex !== -1) registeredPatients[dbIndex].labTests = [...currentUser.labTests];
+          updateUI();
+        }
+      }
+
+      function setLabFilter(filter, el) {
+        labFilter = filter;
+        document.querySelectorAll('#lab-filter-tabs .filter-tab').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+        renderMyLabTests();
+      }
+
+      function renderMyLabTests() {
+        const container = document.getElementById('my-lab-tests-list');
+        if (!container || !currentUser) return;
+        if (!currentUser.labTests) currentUser.labTests = [];
+
+        const total = currentUser.labTests.length;
+        const pending = currentUser.labTests.filter(t => !t.findings || t.findings.trim() === '').length;
+        const available = total - pending;
+
+        // Update summary counts
+        const banner = document.getElementById('lab-summary-banner');
+        if (total > 0) {
+          banner.style.display = 'grid';
+          document.getElementById('lab-count-total').textContent = total;
+          document.getElementById('lab-count-pending').textContent = pending;
+          document.getElementById('lab-count-available').textContent = available;
+        } else {
+          banner.style.display = 'none';
+        }
+
+        // Populate case filter
+        const filterSelect = document.getElementById('lab-case-filter');
+        const selectedCaseFilter = filterSelect.value;
+        filterSelect.innerHTML = '<option value="">All Cases</option>';
+        currentUser.cases.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.case_id;
+          opt.textContent = c.chief_Complaint;
+          if (c.case_id == selectedCaseFilter) opt.selected = true;
+          filterSelect.appendChild(opt);
+        });
+
+        // Apply filters
+        let tests = [...currentUser.labTests];
+
+        if (labFilter === 'pending') tests = tests.filter(t => !t.findings || t.findings.trim() === '');
+        if (labFilter === 'available') tests = tests.filter(t => t.findings && t.findings.trim() !== '');
+        if (selectedCaseFilter) tests = tests.filter(t => t.case_id == selectedCaseFilter);
+
+        // Sort by date descending
+        tests.sort((a, b) => new Date(b.date_taken) - new Date(a.date_taken));
+
+        if (tests.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
+              <h3>${labFilter === 'all' && !selectedCaseFilter ? 'No Lab Tests Yet' : 'No Tests Match Filters'}</h3>
+              <p style="margin-bottom: 20px;">${labFilter === 'all' && !selectedCaseFilter ? 'Order your first lab test to get started.' : 'Try adjusting your filters above.'}</p>
+              ${labFilter === 'all' && !selectedCaseFilter ? '<button class="btn btn-primary" onclick="openOrderLabTest()">Order a Lab Test</button>' : ''}
+            </div>`;
+          return;
+        }
+
+        container.innerHTML = tests.map(t => {
+          const hasFindigs = t.findings && t.findings.trim() !== '';
+          const linkedCase = currentUser.cases.find(c => c.case_id == t.case_id);
+          const catalogEntry = labCatalog.find(l => l.catalog_id === t.catalog_id);
+          const price = catalogEntry ? `PHP ${catalogEntry.price.toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '—';
+
+          return `
+            <div class="lab-test-card ${hasFindigs ? 'has-findings' : ''}">
+              <!-- Header row -->
+              <div style="display: flex; justify-content: space-between; align-items: start; gap: 16px; margin-bottom: 16px;">
+                <div style="flex: 1;">
+                  <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px;">
+                    <span style="font-family: 'DM Mono', monospace; font-size: 11px; background: var(--primary-light); color: var(--primary); padding: 2px 8px; border-radius: 4px; font-weight: 700;">${t.catalog_id}</span>
+                    <h3 style="font-size: 17px; font-weight: 800; color: var(--text);">${t.test_name}</h3>
                   </div>
-                  <div style="background: var(--primary-light); padding: 12px; border-radius: var(--radius); border: 1px solid var(--border);">
-                    <span style="color: var(--text-3); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;">Height</span>
-                    <div style="font-size: 20px; font-weight: 900; color: var(--primary); margin-top: 4px;">${s.height} <span style="font-size: 12px; font-weight: 500;">cm</span></div>
+                  <div style="display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: var(--text-3);">
+                    <span>Case: <strong style="color: var(--text-2);">${linkedCase ? linkedCase.chief_Complaint : 'Case #' + t.case_id}</strong></span>
+                    <span>Doctor: <strong style="color: var(--text-2);">${t.ordered_by_name}</strong></span>
+                    <span>Date: <strong style="color: var(--text-2);">${t.date_taken}</strong></span>
+                    <span>Price: <strong style="color: var(--text-2);">${price}</strong></span>
+                  </div>
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex-shrink: 0;">
+                  <span class="${hasFindigs ? 'status-available' : 'status-pending'}">${hasFindigs ? 'Results Available' : 'Pending Results'}</span>
+                  <div style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end;">
+                    <button class="btn btn-outline btn-sm" onclick="openEditFindings(${t.test_id})" title="Update findings">
+                      <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                      Findings
+                    </button>
+                    <button class="btn btn-outline btn-sm" onclick="editLabTest(${t.test_id})" title="Edit this lab test">Edit</button>
+                    <button class="btn btn-outline btn-sm" style="color: var(--primary); border-color: var(--primary);" onclick="deleteLabTest(${t.test_id})" title="Delete">Delete</button>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-        `).join('');
+
+              <!-- Findings section -->
+              ${hasFindigs ? `
+                <div style="background: var(--primary-light); border: 1px solid var(--border-strong); border-radius: var(--radius); padding: 16px; margin-top: 4px;">
+                  <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary); margin-bottom: 8px;">
+                    Findings / Results
+                  </div>
+                  <pre style="font-family: 'DM Mono', monospace; font-size: 13px; color: var(--text); white-space: pre-wrap; line-height: 1.6; margin: 0;">${t.findings}</pre>
+                </div>
+              ` : `
+                <div style="background: var(--surface-2); border: 1px dashed var(--border-strong); border-radius: var(--radius); padding: 12px 16px; margin-top: 4px; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+                  <span style="font-size: 13px; color: var(--text-3);">Results are not yet available. Click <strong>Findings</strong> to enter them when ready.</span>
+                  <button class="btn btn-sm btn-outline" onclick="openEditFindings(${t.test_id})">Enter Findings</button>
+                </div>
+              `}
+            </div>`;
+        }).join('');
       }
+
+      // ============================================================
+      // CLOSE DROPDOWNS ON OUTSIDE CLICK
+      // ============================================================
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.search-dropdown')) {
+          document.querySelectorAll('.search-results').forEach(r => r.classList.remove('active'));
+        }
+      });
+
     </script>
   </body>
 </html>
-       
