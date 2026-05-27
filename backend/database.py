@@ -1,13 +1,16 @@
 import os
 import psycopg2
+from dotenv import load_dotenv
 
+load_dotenv()
 
 def get_connection():
-    """Return a new psycopg2 connection using environment variables.
+    database_url = os.environ.get("DATABASE_URL")
 
-    Environment variables:
-      DB_HOST, DB_NAME, DB_USER, DB_PASSWORD, DB_PORT
-    """
+    if database_url:
+        return psycopg2.connect(database_url, sslmode="require")
+
+    # fallback to individual vars for local dev
     host = os.environ.get("DB_HOST", "localhost")
     dbname = os.environ.get("DB_NAME", "postgres")
     user = os.environ.get("DB_USER", "postgres")
