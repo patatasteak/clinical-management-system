@@ -91,7 +91,8 @@ def get_patient(patient_id: int):
       COALESCE(d.disabilities, '[]') AS disabilities,
       COALESCE(ps.past_surgeries, '[]') AS past_surgeries,
       COALESCE(i.insurances, '[]') AS insurances,
-      COALESCE(v.vitals, '[]') AS vitals
+      COALESCE(v.vitals, '[]') AS vitals,
+      COALESCE(pr.prescriptions, '[]') AS prescriptions
     FROM patient p
 
     LEFT JOIN (
@@ -135,6 +136,39 @@ def get_patient(patient_id: int):
       FROM vital_stats
       GROUP BY patientid
     ) v ON v.patientid = p.patientid
+
+    LEFT JOIN (
+      SELECT pc.patientid,
+             json_agg(json_build_object(
+               'prescription_id', p.prescription_id,
+               'case_id', p.case_id,
+               'prescribed_at', p.prescribed_at,
+               'instructions', p.instructions,
+               'prescribed_by', p.prescribed_by,
+               'notes', p.notes,
+               'medicines', COALESCE(pm.medicines, '[]')
+             ) ORDER BY p.prescribed_at DESC) AS prescriptions
+      FROM prescription p
+      JOIN patient_case pc ON pc.case_id = p.case_id
+      LEFT JOIN (
+        SELECT "has".prescription_id,
+               json_agg(json_build_object(
+                 'medicine_id', m.medicine_id,
+                 'name', m.name,
+                 'description', m.description,
+                 'form', m.form,
+                 'strength', m.strength,
+                 'unit_price', m.unit_price,
+                 'quantity', "has".quantity,
+                 'dosage', "has".dosage,
+                 'frequency', "has".frequency
+               )) AS medicines
+        FROM "has"
+        JOIN medicine m ON m.medicine_id = "has".medicine_id
+        GROUP BY "has".prescription_id
+      ) pm ON pm.prescription_id = p.prescription_id
+      GROUP BY pc.patientid
+    ) pr ON pr.patientid = p.patientid
 
     WHERE p.patientid = %s
     """

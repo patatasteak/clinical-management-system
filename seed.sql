@@ -555,6 +555,115 @@ VALUES (
         NULL
     );
 -- ============================================================
+-- MEDICINES
+-- ============================================================
+INSERT INTO medicine (name, description, form, strength, unit_price)
+VALUES (
+        'Metformin',
+        'Oral anti-diabetic medication',
+        'tablet',
+        '500mg',
+        0.25
+    ),
+    (
+        'Amlodipine',
+        'Calcium channel blocker for hypertension',
+        'tablet',
+        '5mg',
+        0.30
+    ),
+    (
+        'Salbutamol',
+        'Short-acting bronchodilator',
+        'inhaler',
+        '100mcg',
+        4.50
+    ),
+    (
+        'Levothyroxine',
+        'Thyroid hormone replacement',
+        'tablet',
+        '50mcg',
+        0.45
+    ),
+    (
+        'Atorvastatin',
+        'Lipid lowering agent',
+        'tablet',
+        '20mg',
+        0.40
+    );
+
+-- ============================================================
+-- PRESCRIPTIONS
+-- ============================================================
+INSERT INTO prescription (case_id, prescribed_by, instructions, notes)
+VALUES (
+        1,
+        1,
+        'Take once daily after breakfast',
+        'For blood pressure control and chest pain management'
+    ),
+    (
+        2,
+        4,
+        'Take twice daily with meals',
+        'Manage elevated blood glucose levels'
+    ),
+    (
+        5,
+        1,
+        'Use two puffs every 6 hours as needed',
+        'Asthma maintenance and rescue support'
+    ),
+    (
+        7,
+        1,
+        'Take one tablet once daily before breakfast',
+        'Hypothyroidism maintenance therapy'
+    );
+
+-- ============================================================
+-- PRESCRIPTION MEDICINES
+-- ============================================================
+INSERT INTO "has" (prescription_id, medicine_id, quantity, dosage, frequency)
+VALUES (
+        1,
+        1,
+        1,
+        '500mg',
+        'once daily'
+    ),
+    (
+        1,
+        2,
+        1,
+        '5mg',
+        'once daily'
+    ),
+    (
+        2,
+        1,
+        2,
+        '500mg',
+        'twice daily'
+    ),
+    (
+        3,
+        3,
+        2,
+        '100mcg',
+        'every 6 hours as needed'
+    ),
+    (
+        4,
+        4,
+        1,
+        '50mcg',
+        'once daily'
+    );
+
+-- ============================================================
 -- LAB TESTS
 -- case_id 1-7 in order of inserts above
 -- ============================================================

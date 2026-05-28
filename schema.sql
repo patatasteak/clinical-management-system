@@ -2,7 +2,10 @@
 -- CLINIC MANAGEMENT SYSTEM — SCHEMA
 -- ============================================================
 DROP TABLE IF EXISTS lab_test CASCADE;
-DROP TABLE IF EXISTS lab_test_catalog CASCADE;
+DROP TABLE IF EXISTS "has" CASCADE;
+DROP TABLE IF EXISTS prescription CASCADE;
+DROP TABLE IF EXISTS medicine CASCADE;
+DROP TABLE IF EXISTS LabTestCatalog CASCADE;
 DROP TABLE IF EXISTS past_surgery CASCADE;
 DROP TABLE IF EXISTS disability CASCADE;
 DROP TABLE IF EXISTS chronic_condition CASCADE;
@@ -175,4 +178,33 @@ CREATE TABLE lab_test (
     date_taken DATE NOT NULL,
     findings TEXT,
     ordered_by INT REFERENCES doctor(doctor_id)
+);
+-- ============================================================
+-- PRESCRIPTIONS / MEDICINES
+-- ============================================================
+CREATE TABLE medicine (
+    medicine_id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    form VARCHAR(50),
+    strength VARCHAR(50),
+    unit_price DECIMAL(10, 2)
+);
+
+CREATE TABLE prescription (
+    prescription_id SERIAL PRIMARY KEY,
+    case_id INT NOT NULL REFERENCES patient_case(case_id) ON DELETE CASCADE,
+    prescribed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    instructions TEXT,
+    prescribed_by INT NOT NULL REFERENCES doctor(doctor_id),
+    notes TEXT
+);
+
+CREATE TABLE "has" (
+    prescription_id INT NOT NULL REFERENCES prescription(prescription_id) ON DELETE CASCADE,
+    medicine_id INT NOT NULL REFERENCES medicine(medicine_id),
+    quantity INT NOT NULL DEFAULT 1,
+    dosage VARCHAR(100),
+    frequency VARCHAR(100),
+    PRIMARY KEY (prescription_id, medicine_id)
 );
