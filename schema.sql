@@ -120,7 +120,7 @@ CREATE TABLE clinical_background (
 -- ============================================================
 CREATE TABLE allergy (
     allergy_id SERIAL PRIMARY KEY,
-    PatientID INT NOT NULL REFERENCES patient(PatientID) ON DELETE CASCADE,
+    clinical_id INT NOT NULL REFERENCES clinical_background(clinical_id) ON DELETE CASCADE,
     allergen VARCHAR(100) NOT NULL,
     reaction TEXT,
     severity VARCHAR(20) CHECK (severity IN ('mild', 'moderate', 'severe')),
@@ -131,7 +131,7 @@ CREATE TABLE allergy (
 -- ============================================================
 CREATE TABLE chronic_condition (
     condition_id SERIAL PRIMARY KEY,
-    PatientID INT NOT NULL REFERENCES patient(PatientID) ON DELETE CASCADE,
+    clinical_id INT NOT NULL REFERENCES clinical_background(clinical_id) ON DELETE CASCADE,
     condition_name VARCHAR(100) NOT NULL,
     date_diagnosed DATE,
     status VARCHAR(20),
@@ -142,7 +142,7 @@ CREATE TABLE chronic_condition (
 -- ============================================================
 CREATE TABLE disability (
     disability_id SERIAL PRIMARY KEY,
-    PatientID INT NOT NULL REFERENCES patient(PatientID) ON DELETE CASCADE,
+    clinical_id INT NOT NULL REFERENCES clinical_background(clinical_id) ON DELETE CASCADE,
     description TEXT NOT NULL,
     congenital BOOLEAN DEFAULT FALSE,
     notes TEXT
@@ -152,7 +152,7 @@ CREATE TABLE disability (
 -- ============================================================
 CREATE TABLE past_surgery (
     surgery_id SERIAL PRIMARY KEY,
-    PatientID INT NOT NULL REFERENCES patient(PatientID) ON DELETE CASCADE,
+    clinical_id INT NOT NULL REFERENCES clinical_background(clinical_id) ON DELETE CASCADE,
     procedure_name VARCHAR(100) NOT NULL,
     date_performed DATE,
     hospital VARCHAR(255),

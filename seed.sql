@@ -239,49 +239,49 @@ VALUES (
 -- ALLERGIES
 -- ============================================================
 INSERT INTO allergy (
-        PatientID,
+        clinical_id,
         allergen,
         reaction,
         severity,
         noted_date
     )
 VALUES (
-        1,
+        (SELECT clinical_id FROM clinical_background WHERE PatientID = 1),
         'Penicillin',
         'Rash and hives',
         'moderate',
         '2015-06-01'
     ),
     (
-        1,
+        (SELECT clinical_id FROM clinical_background WHERE PatientID = 1),
         'Shellfish',
         'Swelling of lips and throat',
         'severe',
         '2018-02-10'
     ),
     (
-        2,
+        (SELECT clinical_id FROM clinical_background WHERE PatientID = 2),
         'Aspirin',
         'Gastric bleeding',
         'severe',
         '2020-09-15'
     ),
     (
-        3,
+        (SELECT clinical_id FROM clinical_background WHERE PatientID = 3),
         'Dust mites',
         'Sneezing and asthma trigger',
         'moderate',
         '2010-03-22'
     ),
     (
-        3,
+        (SELECT clinical_id FROM clinical_background WHERE PatientID = 3),
         'NSAIDs',
         'Bronchospasm',
         'severe',
         '2016-07-08'
     ),
     (
-        5,
+        (SELECT clinical_id FROM clinical_background WHERE PatientID = 5),
         'Latex',
         'Contact dermatitis',
         'mild',
@@ -291,56 +291,56 @@ VALUES (
 -- CHRONIC CONDITIONS
 -- ============================================================
 INSERT INTO chronic_condition (
-        PatientID,
+        clinical_id,
         condition_name,
         date_diagnosed,
         status,
         notes
     )
 VALUES (
-        1,
+        (SELECT clinical_id FROM clinical_background WHERE PatientID = 1),
         'Type 2 Diabetes',
         '2018-05-20',
         'active',
         'On Metformin 500mg twice daily'
     ),
     (
-        1,
+        (SELECT clinical_id FROM clinical_background WHERE PatientID = 1),
         'Hypertension',
         '2019-03-11',
         'active',
         'On Amlodipine 5mg OD'
     ),
     (
-        2,
+        (SELECT clinical_id FROM clinical_background WHERE PatientID = 2),
         'Hypertension',
         '2015-08-04',
         'active',
         'On Losartan 50mg OD'
     ),
     (
-        2,
+        (SELECT clinical_id FROM clinical_background WHERE PatientID = 2),
         'Stage 1 COPD',
         '2022-01-17',
         'active',
         'Spirometry confirmed, on SABA PRN'
     ),
     (
-        3,
+        (SELECT clinical_id FROM clinical_background WHERE PatientID = 3),
         'Bronchial Asthma',
         '2005-09-12',
         'active',
         'Salbutamol inhaler PRN, ICS controller'
     ),
     (
-        4,
+        (SELECT clinical_id FROM clinical_background WHERE PatientID = 4),
         'Type 2 Diabetes',
         '2016-04-29',
         'managed',
         'HbA1c stable at 6.8%, on Metformin'
     ),
     (
-        5,
+        (SELECT clinical_id FROM clinical_background WHERE PatientID = 5),
         'Hypothyroidism',
         '2014-07-15',
         'active',
@@ -349,9 +349,9 @@ VALUES (
 -- ============================================================
 -- DISABILITIES
 -- ============================================================
-INSERT INTO disability (PatientID, description, congenital, notes)
+INSERT INTO disability (clinical_id, description, congenital, notes)
 VALUES (
-        4,
+        (SELECT clinical_id FROM clinical_background WHERE PatientID = 4),
         'Mild hearing impairment (left ear)',
         FALSE,
         'Acquired, likely noise-induced'
@@ -360,42 +360,42 @@ VALUES (
 -- PAST SURGERIES
 -- ============================================================
 INSERT INTO past_surgery (
-        PatientID,
+        clinical_id,
         procedure_name,
         date_performed,
         hospital,
         notes
     )
 VALUES (
-        1,
+        (SELECT clinical_id FROM clinical_background WHERE PatientID = 1),
         'Appendectomy',
         '2010-07-14',
         'Cebu Doctors University Hospital',
         'Uncomplicated, full recovery'
     ),
     (
-        4,
+        (SELECT clinical_id FROM clinical_background WHERE PatientID = 4),
         'Coronary Artery Bypass Grafting (CABG)',
         '2019-11-03',
         'Vicente Sotto Memorial Medical Center',
         '3-vessel CABG, stable post-op'
     ),
     (
-        4,
+        (SELECT clinical_id FROM clinical_background WHERE PatientID = 4),
         'Cataract Surgery (left eye)',
         '2022-06-20',
         'Cebu Eye Center',
         'Phacoemulsification with IOL implant'
     ),
     (
-        5,
+        (SELECT clinical_id FROM clinical_background WHERE PatientID = 5),
         'Cesarean Section',
         '2010-04-02',
         'Chong Hua Hospital',
         'First delivery'
     ),
     (
-        5,
+        (SELECT clinical_id FROM clinical_background WHERE PatientID = 5),
         'Cesarean Section',
         '2013-08-18',
         'Chong Hua Hospital',
