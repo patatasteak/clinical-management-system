@@ -1,34 +1,8 @@
 -- ============================================================
 -- CLINIC MANAGEMENT SYSTEM — SEED DATA
 -- Run schema.sql first before this file
+-- PatientIDs start at 1 (sequence starts at 1)
 -- ============================================================
-
--- ============================================================
--- MEDICINES
--- ============================================================
-INSERT INTO Medicine (med_id, medicinename, medicine_type, description)
-VALUES 
-    ('00000001', 'Paracetamol (Acetaminophen)', 'Analgesic (Pain reliever) and Antipyretic (Fever reducer)', 'Used to treat mild-to-moderate pain (like headaches or muscle aches) and to reduce fever. It is gentle on the stomach compared to other pain relievers.'),
-    ('00000002', 'Ibuprofen', 'NSAID (Non-Steroidal Anti-Inflammatory Drug)', 'Relieves pain, reduces fever, and targets inflammation. Commonly used for arthritis, menstrual cramps, toothaches, and backaches.'),
-    ('00000003', 'Cetirizine', 'Antihistamine (Second-generation)', 'Provides 24-hour relief from allergy symptoms like sneezing, runny nose, itchy eyes, and hives without causing significant drowsiness.'),
-    ('00000004', 'Loratadine', 'Antihistamine (Non-drowsy)', 'Another effective daily allergy medication that treats hay fever and skin allergies without causing sleepiness.'),
-    ('00000005', 'Omeprazole', 'Proton Pump Inhibitor (PPI)', 'Reduces the amount of acid produced in the stomach. Used to treat heartburn, acid reflux, and GERD.'),
-    ('00000006', 'Ranitidine / Famotidine', 'H2 Blocker (Antacid)', 'Quickly relieves and prevents heartburn and acid indigestion by blocking histamine receptors in the stomach.'),
-    ('00000007', 'Loperamide', 'Anti-diarrheal', 'Slows down gut movement to help control and relieve sudden, short-term diarrhea.'),
-    ('00000008', 'Oral Rehydration Salts (ORS)', 'Electrolyte Replenisher', 'A balanced mixture of glucose and salts used to prevent or treat dehydration caused by severe diarrhea or vomiting.'),
-    ('00000009', 'Metoclopramide', 'Antiemetic (Anti-nausea)', 'Used to treat and prevent nausea and vomiting, often associated with migraines, surgery, or chemotherapy.'),
-    ('00000010', 'Amoxicillin', 'Antibiotic (Penicillin class)', 'A broad-spectrum antibiotic used to treat a wide variety of bacterial infections, such as middle ear infections, strep throat, and pneumonia. (Requires a prescription).'),
-    ('00000011', 'Azithromycin', 'Antibiotic (Macrolide class)', 'A commonly prescribed antibiotic used for respiratory infections, skin infections, and certain sexually transmitted infections. (Requires a prescription).'),
-    ('00000012', 'Metformin', 'Antidiabetic (Biguanide)', 'The first-line medication for the treatment of type 2 diabetes, helping to lower blood sugar levels and improve insulin sensitivity. (Requires a prescription).'),
-    ('00000013', 'Amlodipine', 'Calcium Channel Blocker (Antihypertensive)', 'Relaxes blood vessels to lower high blood pressure and prevent chest pain (angina). (Requires a prescription).'),
-    ('00000014', 'Atorvastatin', 'Statin (Cholesterol-lowering drug)', 'Lowers "bad" cholesterol (LDL) and triglycerides while raising "good" cholesterol (HDL) to reduce the risk of heart disease and stroke. (Requires a prescription).'),
-    ('00000015', 'Salbutamol (Albuterol)', 'Bronchodilator (Beta-2 agonist)', 'A rescue inhaler used to quickly open up the airways during asthma attacks or for chronic obstructive pulmonary disease (COPD). (Requires a prescription).'),
-    ('00000016', 'Hydrocortisone Cream', 'Topical Corticosteroid', 'A mild steroid cream used applied to the skin to reduce swelling, itching, and redness caused by eczema, insect bites, or rashes.'),
-    ('00000017', 'Clotrimazole', 'Topical Antifungal', 'Used to treat fungal skin infections such as athlete''s foot, jock itch, ringworm, and vaginal yeast infections.'),
-    ('00000018', 'Dextromethorphan', 'Antitussive (Cough suppressant)', 'Used to provide temporary relief from a dry, hacking cough by affecting the signals in the brain that trigger the cough reflex.'),
-    ('00000019', 'Guaifenesin', 'Expectorant', 'Thins and loosens mucus in the chest and airways, making it easier to cough up phlegm during a wet cough.'),
-    ('00000020', 'Aspirin (Low-Dose)', 'Antiplatelet / NSAID', 'In low doses, it acts as a blood thinner to help prevent blood clots, reducing the risk of a heart attack or stroke in high-risk individuals. (Should be taken under medical supervision).');
-
 -- ============================================================
 -- ADMIN USERS
 -- ============================================================
@@ -45,67 +19,84 @@ VALUES (
         'changeme_hash',
         'staff'
     );
-
 -- ============================================================
 -- DOCTORS
 -- ============================================================
 INSERT INTO doctor (
         first_name,
         last_name,
-        specialization,
-        role,
-        contact_number,
+        sex,
+        license_no,
         email,
+        years_exp,
+        specialization,
+        contact_number,
+        role,
         is_active
     )
 VALUES (
         'Anna',
         'Cruz',
-        'Internal Medicine',
-        'attending',
-        '0917-555-0011',
+        'F',
+        1001,
         'a.cruz@clinicms.ph',
+        8,
+        'Internal Medicine',
+        '0917-555-0011',
+        'attending',
         TRUE
     ),
     (
         'Ben',
         'Marcos',
-        'Cardiology',
-        'resident',
-        '0928-555-0022',
+        'M',
+        1002,
         'b.marcos@clinicms.ph',
+        2,
+        'Cardiology',
+        '0928-555-0022',
+        'resident',
         TRUE
     ),
     (
         'Clara',
         'Lim',
-        'Pediatrics',
-        'consultant',
-        '0935-555-0033',
+        'F',
+        1003,
         'c.lim@clinicms.ph',
+        5,
+        'Pediatrics',
+        '0935-555-0033',
+        'consultant',
         TRUE
     ),
     (
         'Dante',
         'Tan',
-        'General Practice',
-        'attending',
-        '0945-555-0044',
+        'M',
+        1004,
         'd.tan@clinicms.ph',
+        11,
+        'General Practice',
+        '0945-555-0044',
+        'attending',
         TRUE
     ),
     (
         'Elena',
         'Vega',
-        'Neurology',
-        'resident',
-        '0956-555-0055',
+        'F',
+        1005,
         'e.vega@clinicms.ph',
+        3,
+        'Neurology',
+        '0956-555-0055',
+        'resident',
         TRUE
     );
-
 -- ============================================================
 -- PATIENTS
+-- PatientIDs will be 1, 2, 3, 4, 5
 -- ============================================================
 INSERT INTO patient (
         FirstName,
@@ -125,68 +116,543 @@ VALUES (
         'Reyes',
         'Filipino',
         'female',
-        '123 Mango Ave, Cebu City',
+        '123 Mango Ave, Lahug, Cebu City, 6000',
         '0917-234-5678',
         'A+',
         'maria.reyes@email.com',
         '1986-03-14',
-        '0917-987-6543',
-        'password123'
+        'Pedro Reyes - 0917-987-6543',
+        'changeme_hash'
     ),
     (
         'Jose',
         'Dela Cruz',
         'Filipino',
         'male',
-        '45 Osmena Blvd, Cebu City',
+        '45 Osmena Blvd, Pardo, Cebu City, 6000',
         '0928-765-4321',
         'O+',
         'jdelacruz@email.com',
         '1972-06-08',
-        '0928-111-2222',
-        'password123'
+        'Rosa Dela Cruz - 0928-111-2222',
+        'changeme_hash'
+    ),
+    (
+        'Liza',
+        'Santos',
+        'Filipino',
+        'female',
+        '88 Colon St, Parian, Cebu City, 6000',
+        '0935-111-9922',
+        'B-',
+        'liza.santos@email.com',
+        '1995-11-20',
+        'Nena Santos - 0935-444-5555',
+        'changeme_hash'
+    ),
+    (
+        'Roberto',
+        'Mendoza',
+        'Filipino',
+        'male',
+        '22 Leon Kilat St, Kalubihan, Cebu City, 6000',
+        '0945-888-3300',
+        'AB+',
+        'r.mendoza@email.com',
+        '1963-02-03',
+        'Carmen Mendoza - 0945-777-6600',
+        'changeme_hash'
+    ),
+    (
+        'Ana',
+        'Villanueva',
+        'Filipino',
+        'female',
+        '7 Jakosalem St, Cebu City, 6000',
+        '0956-432-7711',
+        'O-',
+        'ana.villanueva@email.com',
+        '1980-08-30',
+        'Marco Villanueva - 0956-333-4444',
+        'changeme_hash'
     );
-
+-- ============================================================
+-- VITAL STATS
+-- ============================================================
+INSERT INTO vital_stats (
+        weight,
+        height,
+        temperature,
+        blood_pressure,
+        pulse_rate,
+        PatientID
+    )
+VALUES (62.5, 158.0, 36.8, '150/95', 88, 1),
+    (78.0, 170.0, 36.5, '145/90', 82, 2),
+    (52.0, 162.0, 37.1, '110/70', 94, 3),
+    (80.5, 165.0, 36.6, '128/82', 76, 4),
+    (65.0, 160.0, 36.7, '118/75', 80, 5);
+-- ============================================================
+-- INSURANCE
+-- ============================================================
+INSERT INTO insurance (provider, expiry, policy_number, PatientID)
+VALUES ('PhilHealth', '2027-12-31', 'PH-123456789', 1),
+    ('Maxicare', '2026-06-30', 'MX-987654321', 2),
+    ('PhilHealth', '2027-12-31', 'PH-456789123', 3),
+    ('Medicard', '2026-09-30', 'MD-321654987', 4),
+    ('PhilHealth', '2027-12-31', 'PH-789123456', 5);
 -- ============================================================
 -- CLINICAL BACKGROUND
 -- ============================================================
-INSERT INTO clinical_background (patient_id, smoking_status, alcohol_use)
-VALUES (0, 'non-smoker', 'occasional'),
-    (1, 'active smoker', 'non-drinker');
-
--- ============================================================
--- VITAL STATS (My Stats)
--- ============================================================
-INSERT INTO vitalStats (recorded_at, weight, height, patient_id)
-VALUES 
-    ('2005-04-15 10:00:00', 45.0, 150.0, 0),
-    ('2010-05-20 14:30:00', 55.5, 165.0, 0),
-    ('2026-05-28 09:00:00', 60.2, 165.0, 0);
-
--- ============================================================
--- CASES
--- ============================================================
-INSERT INTO patient_case (chief_Complaint, description, patient_id, doctor_id, appoint_status)
+INSERT INTO clinical_background (smoking_status, alcohol_use, notes, PatientID)
 VALUES (
-        'Persistent chest pain',
-        'Intermittent chest tightness lasting 3-5 minutes',
-        0,
-        1,
-        'Ongoing'
+        'non-smoker',
+        'occasional',
+        'Managed diabetic, hypertensive',
+        1
     ),
     (
-        'Annual physical examination',
-        'Routine annual checkup',
-        0,
-        4,
-        'Closed'
+        'active smoker',
+        'non-drinker',
+        '10 pack-years, early COPD',
+        2
+    ),
+    (
+        'non-smoker',
+        'non-drinker',
+        'Bronchial asthma since childhood',
+        3
+    ),
+    (
+        'former smoker (quit 2018)',
+        'occasional',
+        'Post-CABG, mild hearing impairment',
+        4
+    ),
+    (
+        'non-smoker',
+        'non-drinker',
+        'Hypothyroid, two prior C-sections',
+        5
     );
-
+-- ============================================================
+-- ALLERGIES
+-- ============================================================
+INSERT INTO allergy (
+        PatientID,
+        allergen,
+        reaction,
+        severity,
+        noted_date
+    )
+VALUES (
+        1,
+        'Penicillin',
+        'Rash and hives',
+        'moderate',
+        '2015-06-01'
+    ),
+    (
+        1,
+        'Shellfish',
+        'Swelling of lips and throat',
+        'severe',
+        '2018-02-10'
+    ),
+    (
+        2,
+        'Aspirin',
+        'Gastric bleeding',
+        'severe',
+        '2020-09-15'
+    ),
+    (
+        3,
+        'Dust mites',
+        'Sneezing and asthma trigger',
+        'moderate',
+        '2010-03-22'
+    ),
+    (
+        3,
+        'NSAIDs',
+        'Bronchospasm',
+        'severe',
+        '2016-07-08'
+    ),
+    (
+        5,
+        'Latex',
+        'Contact dermatitis',
+        'mild',
+        '2008-11-30'
+    );
+-- ============================================================
+-- CHRONIC CONDITIONS
+-- ============================================================
+INSERT INTO chronic_condition (
+        PatientID,
+        condition_name,
+        date_diagnosed,
+        status,
+        notes
+    )
+VALUES (
+        1,
+        'Type 2 Diabetes',
+        '2018-05-20',
+        'active',
+        'On Metformin 500mg twice daily'
+    ),
+    (
+        1,
+        'Hypertension',
+        '2019-03-11',
+        'active',
+        'On Amlodipine 5mg OD'
+    ),
+    (
+        2,
+        'Hypertension',
+        '2015-08-04',
+        'active',
+        'On Losartan 50mg OD'
+    ),
+    (
+        2,
+        'Stage 1 COPD',
+        '2022-01-17',
+        'active',
+        'Spirometry confirmed, on SABA PRN'
+    ),
+    (
+        3,
+        'Bronchial Asthma',
+        '2005-09-12',
+        'active',
+        'Salbutamol inhaler PRN, ICS controller'
+    ),
+    (
+        4,
+        'Type 2 Diabetes',
+        '2016-04-29',
+        'managed',
+        'HbA1c stable at 6.8%, on Metformin'
+    ),
+    (
+        5,
+        'Hypothyroidism',
+        '2014-07-15',
+        'active',
+        'On Levothyroxine, dose under review'
+    );
+-- ============================================================
+-- DISABILITIES
+-- ============================================================
+INSERT INTO disability (PatientID, description, congenital, notes)
+VALUES (
+        4,
+        'Mild hearing impairment (left ear)',
+        FALSE,
+        'Acquired, likely noise-induced'
+    );
+-- ============================================================
+-- PAST SURGERIES
+-- ============================================================
+INSERT INTO past_surgery (
+        PatientID,
+        procedure_name,
+        date_performed,
+        hospital,
+        notes
+    )
+VALUES (
+        1,
+        'Appendectomy',
+        '2010-07-14',
+        'Cebu Doctors University Hospital',
+        'Uncomplicated, full recovery'
+    ),
+    (
+        4,
+        'Coronary Artery Bypass Grafting (CABG)',
+        '2019-11-03',
+        'Vicente Sotto Memorial Medical Center',
+        '3-vessel CABG, stable post-op'
+    ),
+    (
+        4,
+        'Cataract Surgery (left eye)',
+        '2022-06-20',
+        'Cebu Eye Center',
+        'Phacoemulsification with IOL implant'
+    ),
+    (
+        5,
+        'Cesarean Section',
+        '2010-04-02',
+        'Chong Hua Hospital',
+        'First delivery'
+    ),
+    (
+        5,
+        'Cesarean Section',
+        '2013-08-18',
+        'Chong Hua Hospital',
+        'Second delivery'
+    );
 -- ============================================================
 -- LAB TEST CATALOG
 -- ============================================================
 INSERT INTO LabTestCatalog (catalog_id, test_name, description, price)
-VALUES 
-    ('LT0001', 'Complete Blood Count (CBC)', 'A routine blood test used to evaluate your overall health.', 280.00),
-    ('LT0002', 'Urinalysis', 'Analysis of urine used to detect track tract infections.', 110.00),
-    ('LT0003', 'Fecalysis', 'A stool test used to check for parasites.', 100.00);
+VALUES (
+        'LT0001',
+        'CBC',
+        'Complete Blood Count',
+        350.00
+    ),
+    (
+        'LT0002',
+        'FBS',
+        'Fasting Blood Sugar',
+        150.00
+    ),
+    (
+        'LT0003',
+        'HbA1c',
+        'Glycated Hemoglobin',
+        650.00
+    ),
+    (
+        'LT0004',
+        'BMP',
+        'Basic Metabolic Panel',
+        800.00
+    ),
+    (
+        'LT0005',
+        'Lipid Panel',
+        'Total cholesterol, LDL, HDL, triglycerides',
+        900.00
+    ),
+    (
+        'LT0006',
+        'TSH',
+        'Thyroid Stimulating Hormone',
+        750.00
+    ),
+    (
+        'LT0007',
+        'Free T4',
+        'Free Thyroxine',
+        700.00
+    ),
+    (
+        'LT0008',
+        'Urinalysis',
+        'Urine examination',
+        120.00
+    ),
+    (
+        'LT0009',
+        'ECG',
+        'Electrocardiogram',
+        500.00
+    ),
+    (
+        'LT0010',
+        'Chest X-Ray',
+        'Radiograph of chest cavity',
+        600.00
+    ),
+    (
+        'LT0011',
+        'Peak Flow Meter',
+        'Measures maximum exhalation speed',
+        200.00
+    ),
+    (
+        'LT0012',
+        'ABG',
+        'Arterial Blood Gas',
+        950.00
+    );
+-- ============================================================
+-- PATIENT CASES
+-- doctor_id: 1=Cruz, 2=Marcos, 3=Lim, 4=Tan, 5=Vega
+-- PatientID: 1=Maria, 2=Jose, 3=Liza, 4=Roberto, 5=Ana
+-- ============================================================
+INSERT INTO patient_case (
+        appoint_status,
+        chief_Complaint,
+        description,
+        PatientID,
+        doctor_id,
+        date_opened,
+        date_closed
+    )
+VALUES (
+        'Ongoing',
+        'Persistent chest pain and shortness of breath',
+        'Patient reports intermittent chest tightness lasting 3-5 minutes, accompanied by mild dyspnea. BP elevated at 150/95 mmHg on admission.',
+        1,
+        1,
+        '2026-05-20',
+        NULL
+    ),
+    (
+        'Closed',
+        'Uncontrolled blood glucose levels',
+        'HbA1c at 9.2% on last check. Patient admits poor dietary compliance.',
+        1,
+        4,
+        '2026-02-03',
+        '2026-03-15'
+    ),
+    (
+        'Closed',
+        'Annual physical examination',
+        'Routine annual checkup. All vitals stable. BMI 27.4. No new complaints.',
+        1,
+        1,
+        '2025-08-10',
+        '2025-08-10'
+    ),
+    (
+        'Ongoing',
+        'Productive cough and fatigue for 2 weeks',
+        'Chronic smoker presenting with productive cough, mild hemoptysis, fatigue. SpO2 94% on room air.',
+        2,
+        2,
+        '2026-05-15',
+        NULL
+    ),
+    (
+        'Ongoing',
+        'Recurrent asthma exacerbation',
+        'Third exacerbation this year. Peak flow reading at 68% predicted. Salbutamol nebulization administered in clinic.',
+        3,
+        1,
+        '2026-05-10',
+        NULL
+    ),
+    (
+        'Closed',
+        'Routine hypertension follow-up',
+        'BP 128/82 mmHg on current medication. No complaints. Stable.',
+        4,
+        4,
+        '2025-11-05',
+        '2025-11-05'
+    ),
+    (
+        'Ongoing',
+        'Fatigue and unexplained weight gain',
+        'TSH elevated at 7.8 mIU/L. Patient reports fatigue, cold intolerance, 4kg weight gain over 3 months.',
+        5,
+        1,
+        '2026-05-18',
+        NULL
+    );
+-- ============================================================
+-- LAB TESTS
+-- case_id 1-7 in order of inserts above
+-- ============================================================
+INSERT INTO lab_test (
+        case_id,
+        catalog_id,
+        date_taken,
+        findings,
+        ordered_by
+    )
+VALUES (
+        1,
+        'LT0009',
+        '2026-05-20',
+        'Sinus rhythm, no ST-segment changes. Minor T-wave inversion in V4-V5.',
+        1
+    ),
+    (
+        1,
+        'LT0001',
+        '2026-05-20',
+        'WBC 8.2 x10³/μL, RBC 4.5 x10⁶/μL, Hgb 13.1 g/dL — within normal limits.',
+        1
+    ),
+    (
+        2,
+        'LT0003',
+        '2026-02-03',
+        'HbA1c 9.2% — poorly controlled. Target <7%.',
+        4
+    ),
+    (
+        2,
+        'LT0002',
+        '2026-02-03',
+        'Fasting blood sugar 182 mg/dL — elevated.',
+        4
+    ),
+    (
+        3,
+        'LT0008',
+        '2025-08-10',
+        'Normal, no proteinuria or glycosuria.',
+        1
+    ),
+    (
+        3,
+        'LT0005',
+        '2025-08-10',
+        'Total cholesterol 214 mg/dL, LDL 138 mg/dL — borderline elevated.',
+        1
+    ),
+    (
+        4,
+        'LT0010',
+        '2026-05-15',
+        'Mild hyperinflation, no infiltrates. Consistent with early COPD.',
+        2
+    ),
+    (
+        4,
+        'LT0001',
+        '2026-05-15',
+        'WBC 10.1 x10³/μL — slightly elevated, possible infectious component.',
+        2
+    ),
+    (
+        5,
+        'LT0011',
+        '2026-05-10',
+        '68% of predicted — moderate obstruction.',
+        1
+    ),
+    (
+        5,
+        'LT0012',
+        '2026-05-10',
+        'pH 7.42, PaO2 88 mmHg, PaCO2 36 mmHg — mild hypoxemia.',
+        1
+    ),
+    (
+        6,
+        'LT0004',
+        '2025-11-05',
+        'Creatinine 1.0 mg/dL, K+ 4.2 mEq/L — normal renal function.',
+        4
+    ),
+    (
+        7,
+        'LT0006',
+        '2026-05-18',
+        'TSH 7.8 mIU/L — elevated, consistent with hypothyroidism.',
+        1
+    ),
+    (
+        7,
+        'LT0007',
+        '2026-05-18',
+        'Free T4 0.7 ng/dL — low-normal.',
+        1
+    );
