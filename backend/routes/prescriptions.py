@@ -10,6 +10,7 @@ router = APIRouter()
 
 
 class MedicineCreate(BaseModel):
+    med_id: str
     medicinename: str
     medicine_type: str
     description: Optional[str] = None
@@ -127,8 +128,8 @@ def create_medicine(payload: MedicineCreate):
     conn = get_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
     cur.execute(
-        "INSERT INTO medicine (medicinename, medicine_type, description, form, strength, unit_price) VALUES (%s,%s,%s,%s,%s,%s) RETURNING *",
-        (payload.medicinename, payload.medicine_type, payload.description, payload.form, payload.strength, payload.unit_price),
+        "INSERT INTO medicine (med_id, medicinename, medicine_type, description, form, strength, unit_price) VALUES (%s,%s,%s,%s,%s,%s,%s) RETURNING *",
+        (payload.med_id, payload.medicinename, payload.medicine_type, payload.description, payload.form, payload.strength, payload.unit_price),
     )
     new_med = cur.fetchone()
     conn.commit()

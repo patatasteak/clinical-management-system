@@ -1231,6 +1231,172 @@
       </div>
     </div>
 
+    <!-- ADD MEDICINE MODAL -->
+    <div id="add-medicine-modal" class="modal-overlay">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2 class="auth-title" style="margin: 0; font-size: 20px;">
+            Add Medicine
+          </h2>
+          <button class="modal-close" onclick="closeModal('add-medicine-modal')">
+            <svg
+              viewBox="0 0 24 24"
+              style="
+                width: 24px;
+                height: 24px;
+                stroke: currentColor;
+                fill: none;
+                stroke-width: 2;
+              "
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <form onsubmit="handleAddMedicine(event)">
+          <div class="info-grid">
+            <div class="form-group">
+              <label class="form-label">Medicine ID (med_id)</label>
+              <input type="text" class="form-input" required id="add-med-id" placeholder="e.g., 000031" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Medicine Name</label>
+              <input type="text" class="form-input" required id="add-medicinename" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Medicine Type</label>
+            <input type="text" class="form-input" required id="add-medicine-type" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Description (optional)</label>
+            <textarea class="form-input" id="add-medicine-description" style="height: 60px; resize: none;"></textarea>
+          </div>
+          <div class="info-grid">
+            <div class="form-group">
+              <label class="form-label">Form (optional)</label>
+              <input type="text" class="form-input" id="add-medicine-form" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Strength (optional)</label>
+              <input type="text" class="form-input" id="add-medicine-strength" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Unit Price (optional)</label>
+            <input type="number" step="0.01" class="form-input" id="add-medicine-unit-price" />
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">
+            Add Medicine
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- EDIT MEDICINE MODAL -->
+    <div id="edit-medicine-modal" class="modal-overlay">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2 class="auth-title" style="margin: 0; font-size: 20px;">
+            Edit Medicine
+          </h2>
+          <button class="modal-close" onclick="closeModal('edit-medicine-modal')">
+            <svg
+              viewBox="0 0 24 24"
+              style="
+                width: 24px;
+                height: 24px;
+                stroke: currentColor;
+                fill: none;
+                stroke-width: 2;
+              "
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <form onsubmit="handleEditMedicine(event)">
+          <input type="hidden" id="edit-med-id" />
+          <div class="form-group">
+            <label class="form-label">Medicine Name</label>
+            <input type="text" class="form-input" required id="edit-medicinename" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Medicine Type</label>
+            <input type="text" class="form-input" required id="edit-medicine-type" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Description (optional)</label>
+            <textarea class="form-input" id="edit-medicine-description" style="height: 60px; resize: none;"></textarea>
+          </div>
+          <div class="info-grid">
+            <div class="form-group">
+              <label class="form-label">Form (optional)</label>
+              <input type="text" class="form-input" id="edit-medicine-form" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Strength (optional)</label>
+              <input type="text" class="form-input" id="edit-medicine-strength" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Unit Price (optional)</label>
+            <input type="number" step="0.01" class="form-input" id="edit-medicine-unit-price" />
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">
+            Update Medicine
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- DELETE MEDICINE CONFIRMATION MODAL -->
+    <div id="delete-medicine-modal" class="modal-overlay">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2 class="auth-title" style="margin: 0; font-size: 20px;">
+            Delete Medicine
+          </h2>
+          <button class="modal-close" onclick="closeModal('delete-medicine-modal')">
+            <svg
+              viewBox="0 0 24 24"
+              style="
+                width: 24px;
+                height: 24px;
+                stroke: currentColor;
+                fill: none;
+                stroke-width: 2;
+              "
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <p style="color: var(--text-2); margin-bottom: 24px;">
+          Are you sure you want to delete this medicine? This action is permanent and cannot be undone.
+        </p>
+        <div style="display: flex; gap: 12px;">
+          <button
+            type="button"
+            class="btn btn-outline"
+            onclick="closeModal('delete-medicine-modal')"
+            style="flex: 1;">
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="btn"
+            style="flex: 1; background: #dc2626; color: white;"
+            onclick="confirmDeleteMedicine()">
+            Yes, Delete
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- MAIN APP LAYOUT (Hidden until login) -->
     <div id="app-layer" style="display: none; width: 100%">
       <aside class="sidebar">
@@ -1748,10 +1914,19 @@
           </div>
           <div id="page-medicines" class="page">
             <div class="card">
-              <div
-                style="padding: 40px; text-align: center; color: var(--text-3)"
-              >
-                Medicine Offered module coming soon.
+              <div class="card-header">
+                <span class="card-title">Medicine Offered</span>
+                <button class="btn btn-primary" onclick="openAddMedicineModal()">
+                  <svg viewBox="0 0 24 24" style="width: 16px; height: 16px; stroke: currentColor; fill: none;">
+                    <path d="M12 5v14M5 12h14"/>
+                  </svg>
+                  Add Medicine
+                </button>
+              </div>
+              <div style="padding: 24px;">
+                <div id="medicines-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px;">
+                  <!-- Medicines will be rendered here -->
+                </div>
               </div>
             </div>
           </div>
@@ -1787,6 +1962,7 @@
       let currentUser = null;
       let labCatalog = [];
       let doctors = [];
+      let medicines = [];
       let isLoading = false;
 
       // Error handling helper
@@ -1809,6 +1985,20 @@
         }
       }
 
+      async function loadMedicines() {
+        try {
+          setLoading(true);
+          const res = await fetch(`${API}/prescriptions/medicines`);
+          if (!res.ok) throw new Error("Failed to load medicines");
+          medicines = await res.json();
+        } catch (err) {
+          showError(err.message);
+          medicines = [];
+        } finally {
+          setLoading(false);
+        }
+      }
+
       async function loadDoctors() {
         try {
           setLoading(true);
@@ -1822,6 +2012,192 @@
         } catch (err) {
           showError(err.message);
           doctors = [];
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      // Track medicine to delete
+      let medicineToDeleteId = null;
+
+      function renderMedicines() {
+        const container = document.getElementById("medicines-list");
+        if (!container) return;
+
+        if (!medicines || medicines.length === 0) {
+          container.innerHTML = `
+            <p style="color: var(--text-3); text-align: center; grid-column: 1 / -1;">
+              No medicines available yet.
+            </p>
+          `;
+          return;
+        }
+
+        container.innerHTML = medicines.map(med => `
+          <div class="case-card" style="
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow);
+          ">
+            <h3 style="
+              margin: 0 0 8px 0;
+              font-size: 18px;
+              font-weight: 700;
+              color: var(--text);
+            ">${med.medicinename}</h3>
+            <p style="
+              margin: 0 0 4px 0;
+              font-size: 14px;
+              color: var(--text-2);
+            ">ID: ${med.med_id}</p>
+            <p style="
+              margin: 0 0 16px 0;
+              font-size: 14px;
+              color: var(--text-2);
+            ">Type: ${med.medicine_type}</p>
+            ${med.description ? `
+              <p style="
+                margin: 0 0 16px 0;
+                font-size: 14px;
+                color: var(--text-2);
+              ">${med.description}</p>
+            ` : ''}
+            <div style="display: flex; gap: 12px;">
+              <button class="btn btn-outline" onclick="openEditMedicineModal('${med.med_id}')" style="flex: 1;">
+                Edit
+              </button>
+              <button class="btn" style="flex: 1; background: #fee2e2; color: #dc2626; border: 1px solid #fecaca;" onclick="openDeleteMedicineModal('${med.med_id}')">
+                Delete
+              </button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      function openAddMedicineModal() {
+        // Reset form
+        document.getElementById("add-med-id").value = "";
+        document.getElementById("add-medicinename").value = "";
+        document.getElementById("add-medicine-type").value = "";
+        document.getElementById("add-medicine-description").value = "";
+        document.getElementById("add-medicine-form").value = "";
+        document.getElementById("add-medicine-strength").value = "";
+        document.getElementById("add-medicine-unit-price").value = "";
+        openModal("add-medicine-modal");
+      }
+
+      async function handleAddMedicine(e) {
+        e.preventDefault();
+        try {
+          setLoading(true);
+
+          const payload = {
+            med_id: document.getElementById("add-med-id").value,
+            medicinename: document.getElementById("add-medicinename").value,
+            medicine_type: document.getElementById("add-medicine-type").value,
+            description: document.getElementById("add-medicine-description").value || null,
+            form: document.getElementById("add-medicine-form").value || null,
+            strength: document.getElementById("add-medicine-strength").value || null,
+            unit_price: document.getElementById("add-medicine-unit-price").value ? parseFloat(document.getElementById("add-medicine-unit-price").value) : null
+          };
+
+          const res = await fetch(`${API}/prescriptions/medicines`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+
+          if (!res.ok) throw new Error("Failed to add medicine");
+
+          // Reload medicines and re-render
+          await loadMedicines();
+          renderMedicines();
+          closeModal("add-medicine-modal");
+        } catch (err) {
+          showError(err.message);
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      function openEditMedicineModal(medId) {
+        const med = medicines.find(m => m.med_id === medId);
+        if (!med) {
+          showError("Medicine not found");
+          return;
+        }
+
+        document.getElementById("edit-med-id").value = med.med_id;
+        document.getElementById("edit-medicinename").value = med.medicinename;
+        document.getElementById("edit-medicine-type").value = med.medicine_type;
+        document.getElementById("edit-medicine-description").value = med.description || "";
+        document.getElementById("edit-medicine-form").value = med.form || "";
+        document.getElementById("edit-medicine-strength").value = med.strength || "";
+        document.getElementById("edit-medicine-unit-price").value = med.unit_price || "";
+        openModal("edit-medicine-modal");
+      }
+
+      async function handleEditMedicine(e) {
+        e.preventDefault();
+        try {
+          setLoading(true);
+
+          const medId = document.getElementById("edit-med-id").value;
+
+          const payload = {
+            medicinename: document.getElementById("edit-medicinename").value,
+            medicine_type: document.getElementById("edit-medicine-type").value,
+            description: document.getElementById("edit-medicine-description").value || null,
+            form: document.getElementById("edit-medicine-form").value || null,
+            strength: document.getElementById("edit-medicine-strength").value || null,
+            unit_price: document.getElementById("edit-medicine-unit-price").value ? parseFloat(document.getElementById("edit-medicine-unit-price").value) : null
+          };
+
+          const res = await fetch(`${API}/prescriptions/medicines/${encodeURIComponent(medId)}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+
+          if (!res.ok) throw new Error("Failed to update medicine");
+
+          // Reload medicines and re-render
+          await loadMedicines();
+          renderMedicines();
+          closeModal("edit-medicine-modal");
+        } catch (err) {
+          showError(err.message);
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      function openDeleteMedicineModal(medId) {
+        medicineToDeleteId = medId;
+        openModal("delete-medicine-modal");
+      }
+
+      async function confirmDeleteMedicine() {
+        if (!medicineToDeleteId) return;
+
+        try {
+          setLoading(true);
+
+          const res = await fetch(`${API}/prescriptions/medicines/${encodeURIComponent(medicineToDeleteId)}`, {
+            method: "DELETE",
+          });
+
+          if (!res.ok) throw new Error("Failed to delete medicine");
+
+          // Reload medicines and re-render
+          await loadMedicines();
+          renderMedicines();
+          closeModal("delete-medicine-modal");
+          medicineToDeleteId = null;
+        } catch (err) {
+          showError(err.message);
         } finally {
           setLoading(false);
         }
@@ -2137,6 +2513,7 @@
         // Load shared data
         await loadDoctors();
         await loadLabCatalog();
+        await loadMedicines();
 
         showPage("dashboard");
         updateUI();
@@ -2543,6 +2920,7 @@
         });
 
         if (name === "lab-catalog") updateLabCatalog();
+        if (name === "medicines") renderMedicines();
       }
 
       async function updateProfile(e) {
