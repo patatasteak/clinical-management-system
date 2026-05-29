@@ -414,6 +414,7 @@ def get_patient_cases(patient_id: int):
         pc.appoint_status,
         pc.chief_complaint,
         pc.description,
+        pc.feedback,
         pc.patientid,
         pc.doctor_id,
         pc.date_opened,
