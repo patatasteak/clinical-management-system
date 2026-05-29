@@ -192,3 +192,24 @@ def update_doctor(doctor_id: int, payload: DoctorUpdate):
     if not doctor:
         raise HTTPException(status_code=404, detail="Doctor not found")
     return doctor
+
+
+@router.delete("/{doctor_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_doctor(doctor_id: int):
+    conn = get_connection()
+    cur = conn.cursor()
+    
+    # First check if doctor exists
+    cur.execute("SELECT doctor_id FROM doctor WHERE doctor_id = %s", (doctor_id,))
+    if not cur.fetchone():
+        cur.close()
+        conn.close()
+        raise HTTPException(status_code=404, detail="Doctor not found")
+    
+    # Delete doctor
+    cur.execute("DELETE FROM doctor WHERE doctor_id = %s", (doctor_id,))
+    conn.commit()
+    
+    cur.close()
+    conn.close()
+    return None

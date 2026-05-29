@@ -467,3 +467,24 @@ def get_patient_cases(patient_id: int):
     conn.close()
 
     return rows
+
+
+@router.delete("/{patient_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_patient(patient_id: int):
+    conn = get_connection()
+    cur = conn.cursor()
+    
+    # First check if patient exists
+    cur.execute("SELECT patientid FROM patient WHERE patientid = %s", (patient_id,))
+    if not cur.fetchone():
+        cur.close()
+        conn.close()
+        raise HTTPException(status_code=404, detail="Patient not found")
+    
+    # Delete patient
+    cur.execute("DELETE FROM patient WHERE patientid = %s", (patient_id,))
+    conn.commit()
+    
+    cur.close()
+    conn.close()
+    return None
