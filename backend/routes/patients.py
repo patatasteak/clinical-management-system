@@ -91,7 +91,8 @@ def get_patient(patient_id: int):
       COALESCE(d.disabilities, '[]') AS disabilities,
       COALESCE(ps.past_surgeries, '[]') AS past_surgeries,
       COALESCE(i.insurances, '[]') AS insurances,
-      COALESCE(v.vitals, '[]') AS vitals
+      COALESCE(v.vitals, '[]') AS vitals,
+      COALESCE(pr.prescriptions, '[]') AS prescriptions
     FROM patient p
 
     LEFT JOIN (
@@ -101,27 +102,31 @@ def get_patient(patient_id: int):
     ) cb ON cb.patientid = p.patientid
 
     LEFT JOIN (
-      SELECT patientid, json_agg(json_build_object('allergy_id', allergy_id, 'allergen', allergen, 'reaction', reaction, 'severity', severity, 'noted_date', noted_date)) AS allergies
-      FROM allergy
-      GROUP BY patientid
+      SELECT cb.patientid, json_agg(json_build_object('allergy_id', allergy_id, 'allergen', allergen, 'reaction', reaction, 'severity', severity, 'noted_date', noted_date)) AS allergies
+      FROM allergy a
+      JOIN clinical_background cb ON cb.clinical_id = a.clinical_id
+      GROUP BY cb.patientid
     ) a ON a.patientid = p.patientid
 
     LEFT JOIN (
-      SELECT patientid, json_agg(json_build_object('condition_id', condition_id, 'condition_name', condition_name, 'date_diagnosed', date_diagnosed, 'status', status, 'notes', notes)) AS chronic_conditions
-      FROM chronic_condition
-      GROUP BY patientid
+      SELECT cb.patientid, json_agg(json_build_object('condition_id', condition_id, 'condition_name', condition_name, 'date_diagnosed', date_diagnosed, 'status', status, 'notes', notes)) AS chronic_conditions
+      FROM chronic_condition cc
+      JOIN clinical_background cb ON cb.clinical_id = cc.clinical_id
+      GROUP BY cb.patientid
     ) cc ON cc.patientid = p.patientid
 
     LEFT JOIN (
-      SELECT patientid, json_agg(json_build_object('disability_id', disability_id, 'description', description, 'congenital', congenital, 'notes', notes)) AS disabilities
-      FROM disability
-      GROUP BY patientid
+      SELECT cb.patientid, json_agg(json_build_object('disability_id', disability_id, 'description', description, 'congenital', congenital, 'notes', notes)) AS disabilities
+      FROM disability d
+      JOIN clinical_background cb ON cb.clinical_id = d.clinical_id
+      GROUP BY cb.patientid
     ) d ON d.patientid = p.patientid
 
     LEFT JOIN (
-      SELECT patientid, json_agg(json_build_object('surgery_id', surgery_id, 'procedure_name', procedure_name, 'date_performed', date_performed, 'hospital', hospital, 'notes', notes)) AS past_surgeries
-      FROM past_surgery
-      GROUP BY patientid
+      SELECT cb.patientid, json_agg(json_build_object('surgery_id', surgery_id, 'procedure_name', procedure_name, 'date_performed', date_performed, 'hospital', hospital, 'notes', notes)) AS past_surgeries
+      FROM past_surgery ps
+      JOIN clinical_background cb ON cb.clinical_id = ps.clinical_id
+      GROUP BY cb.patientid
     ) ps ON ps.patientid = p.patientid
 
     LEFT JOIN (
@@ -135,6 +140,39 @@ def get_patient(patient_id: int):
       FROM vital_stats
       GROUP BY patientid
     ) v ON v.patientid = p.patientid
+
+    LEFT JOIN (
+      SELECT pc.patientid,
+             json_agg(json_build_object(
+               'prescription_id', p.prescription_id,
+               'case_id', p.case_id,
+               'prescribed_at', p.prescribed_at,
+               'instructions', p.instructions,
+               'prescribed_by', p.prescribed_by,
+               'notes', p.notes,
+               'medicines', COALESCE(pm.medicines, '[]')
+             ) ORDER BY p.prescribed_at DESC) AS prescriptions
+      FROM prescription p
+      JOIN patient_case pc ON pc.case_id = p.case_id
+      LEFT JOIN (
+        SELECT "has".prescription_id,
+               json_agg(json_build_object(
+                 'medicine_id', m.medicine_id,
+                 'name', m.name,
+                 'description', m.description,
+                 'form', m.form,
+                 'strength', m.strength,
+                 'unit_price', m.unit_price,
+                 'quantity', "has".quantity,
+                 'dosage', "has".dosage,
+                 'frequency', "has".frequency
+               )) AS medicines
+        FROM "has"
+        JOIN medicine m ON m.medicine_id = "has".medicine_id
+        GROUP BY "has".prescription_id
+      ) pm ON pm.prescription_id = p.prescription_id
+      GROUP BY pc.patientid
+    ) pr ON pr.patientid = p.patientid
 
     WHERE p.patientid = %s
     """
@@ -231,15 +269,31 @@ def get_patient_vitals(patient_id: int):
     return rows
 
 
+def _get_or_create_clinical_id(patient_id: int, cur):
+    cur.execute(
+        "SELECT clinical_id FROM clinical_background WHERE patientid = %s",
+        (patient_id,),
+    )
+    row = cur.fetchone()
+    if row:
+        return row["clinical_id"]
+    cur.execute(
+        "INSERT INTO clinical_background (patientid) VALUES (%s) RETURNING clinical_id",
+        (patient_id,),
+    )
+    return cur.fetchone()["clinical_id"]
+
+
 @router.post("/{patient_id}/allergies", status_code=status.HTTP_201_CREATED)
 def add_allergy(patient_id: int, payload: dict):
     # payload expected keys: allergen, reaction, severity, noted_date
     conn = get_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
+    clinical_id = _get_or_create_clinical_id(patient_id, cur)
     cur.execute(
-        "INSERT INTO allergy (patientid, allergen, reaction, severity, noted_date) VALUES (%s,%s,%s,%s,%s) RETURNING allergy_id, allergen, reaction, severity, noted_date",
+        "INSERT INTO allergy (clinical_id, allergen, reaction, severity, noted_date) VALUES (%s,%s,%s,%s,%s) RETURNING allergy_id, allergen, reaction, severity, noted_date",
         (
-            patient_id,
+            clinical_id,
             payload.get("allergen"),
             payload.get("reaction"),
             payload.get("severity"),
@@ -272,10 +326,11 @@ def add_condition(patient_id: int, payload: dict):
     # payload expected keys: condition_name, date_diagnosed, status, notes
     conn = get_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
+    clinical_id = _get_or_create_clinical_id(patient_id, cur)
     cur.execute(
-        "INSERT INTO chronic_condition (patientid, condition_name, date_diagnosed, status, notes) VALUES (%s,%s,%s,%s,%s) RETURNING condition_id, condition_name, date_diagnosed, status, notes",
+        "INSERT INTO chronic_condition (clinical_id, condition_name, date_diagnosed, status, notes) VALUES (%s,%s,%s,%s,%s) RETURNING condition_id, condition_name, date_diagnosed, status, notes",
         (
-            patient_id,
+            clinical_id,
             payload.get("condition_name"),
             payload.get("date_diagnosed"),
             payload.get("status"),
