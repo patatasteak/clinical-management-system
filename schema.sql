@@ -6,10 +6,6 @@ DROP TABLE IF EXISTS "has" CASCADE;
 DROP TABLE IF EXISTS prescription CASCADE;
 DROP TABLE IF EXISTS medicine CASCADE;
 DROP TABLE IF EXISTS LabTestCatalog CASCADE;
-DROP TABLE IF EXISTS past_surgery CASCADE;
-DROP TABLE IF EXISTS disability CASCADE;
-DROP TABLE IF EXISTS allergy CASCADE;
-DROP TABLE IF EXISTS clinical_background CASCADE;
 DROP TABLE IF EXISTS vital_stats CASCADE;
 DROP TABLE IF EXISTS patient_case CASCADE;
 DROP TABLE IF EXISTS doctor CASCADE;
@@ -94,48 +90,6 @@ CREATE TABLE vital_stats (
     blood_pressure VARCHAR(20),
     pulse_rate INT,
     PatientID INT NOT NULL REFERENCES patient(PatientID) ON DELETE CASCADE
-);
--- ============================================================
--- CLINICAL BACKGROUND
--- ============================================================
-CREATE TABLE clinical_background (
-    clinical_id SERIAL PRIMARY KEY,
-    case_id INT NOT NULL REFERENCES patient_case(case_id) ON DELETE CASCADE,
-    smoking_status VARCHAR(50),
-    alcohol_use VARCHAR(50),
-    notes TEXT
-);
--- ============================================================
--- ALLERGY
--- ============================================================
-CREATE TABLE allergy (
-    allergy_id SERIAL PRIMARY KEY,
-    clinical_id INT NOT NULL REFERENCES clinical_background(clinical_id) ON DELETE CASCADE,
-    allergen VARCHAR(100) NOT NULL,
-    reaction TEXT,
-    severity VARCHAR(20) CHECK (severity IN ('mild', 'moderate', 'severe')),
-    noted_date DATE
-);
--- ============================================================
--- DISABILITY
--- ============================================================
-CREATE TABLE disability (
-    disability_id SERIAL PRIMARY KEY,
-    clinical_id INT NOT NULL REFERENCES clinical_background(clinical_id) ON DELETE CASCADE,
-    description TEXT NOT NULL,
-    congenital BOOLEAN DEFAULT FALSE,
-    notes TEXT
-);
--- ============================================================
--- PAST SURGERY
--- ============================================================
-CREATE TABLE past_surgery (
-    surgery_id SERIAL PRIMARY KEY,
-    clinical_id INT NOT NULL REFERENCES clinical_background(clinical_id) ON DELETE CASCADE,
-    procedure_name VARCHAR(100) NOT NULL,
-    date_performed DATE,
-    hospital VARCHAR(255),
-    notes TEXT
 );
 -- ============================================================
 -- LAB TEST CATALOG
