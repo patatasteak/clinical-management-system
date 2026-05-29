@@ -2,7 +2,10 @@
 -- CLINIC MANAGEMENT SYSTEM — SCHEMA
 -- ============================================================
 DROP TABLE IF EXISTS lab_test CASCADE;
-DROP TABLE IF EXISTS lab_test_catalog CASCADE;
+DROP TABLE IF EXISTS "has" CASCADE;
+DROP TABLE IF EXISTS prescription CASCADE;
+DROP TABLE IF EXISTS medicine CASCADE;
+DROP TABLE IF EXISTS LabTestCatalog CASCADE;
 DROP TABLE IF EXISTS past_surgery CASCADE;
 DROP TABLE IF EXISTS disability CASCADE;
 DROP TABLE IF EXISTS chronic_condition CASCADE;
@@ -117,7 +120,7 @@ CREATE TABLE clinical_background (
 -- ============================================================
 CREATE TABLE allergy (
     allergy_id SERIAL PRIMARY KEY,
-    PatientID INT NOT NULL REFERENCES patient(PatientID) ON DELETE CASCADE,
+    clinical_id INT NOT NULL REFERENCES clinical_background(clinical_id) ON DELETE CASCADE,
     allergen VARCHAR(100) NOT NULL,
     reaction TEXT,
     severity VARCHAR(20) CHECK (severity IN ('mild', 'moderate', 'severe')),
@@ -128,7 +131,7 @@ CREATE TABLE allergy (
 -- ============================================================
 CREATE TABLE chronic_condition (
     condition_id SERIAL PRIMARY KEY,
-    PatientID INT NOT NULL REFERENCES patient(PatientID) ON DELETE CASCADE,
+    clinical_id INT NOT NULL REFERENCES clinical_background(clinical_id) ON DELETE CASCADE,
     condition_name VARCHAR(100) NOT NULL,
     date_diagnosed DATE,
     status VARCHAR(20),
@@ -139,7 +142,7 @@ CREATE TABLE chronic_condition (
 -- ============================================================
 CREATE TABLE disability (
     disability_id SERIAL PRIMARY KEY,
-    PatientID INT NOT NULL REFERENCES patient(PatientID) ON DELETE CASCADE,
+    clinical_id INT NOT NULL REFERENCES clinical_background(clinical_id) ON DELETE CASCADE,
     description TEXT NOT NULL,
     congenital BOOLEAN DEFAULT FALSE,
     notes TEXT
@@ -149,7 +152,7 @@ CREATE TABLE disability (
 -- ============================================================
 CREATE TABLE past_surgery (
     surgery_id SERIAL PRIMARY KEY,
-    PatientID INT NOT NULL REFERENCES patient(PatientID) ON DELETE CASCADE,
+    clinical_id INT NOT NULL REFERENCES clinical_background(clinical_id) ON DELETE CASCADE,
     procedure_name VARCHAR(100) NOT NULL,
     date_performed DATE,
     hospital VARCHAR(255),
@@ -175,4 +178,33 @@ CREATE TABLE lab_test (
     date_taken DATE NOT NULL,
     findings TEXT,
     ordered_by INT REFERENCES doctor(doctor_id)
+);
+-- ============================================================
+-- PRESCRIPTIONS / MEDICINES
+-- ============================================================
+CREATE TABLE medicine (
+    medicine_id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    form VARCHAR(50),
+    strength VARCHAR(50),
+    unit_price DECIMAL(10, 2)
+);
+
+CREATE TABLE prescription (
+    prescription_id SERIAL PRIMARY KEY,
+    case_id INT NOT NULL REFERENCES patient_case(case_id) ON DELETE CASCADE,
+    prescribed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    instructions TEXT,
+    prescribed_by INT NOT NULL REFERENCES doctor(doctor_id),
+    notes TEXT
+);
+
+CREATE TABLE "has" (
+    prescription_id INT NOT NULL REFERENCES prescription(prescription_id) ON DELETE CASCADE,
+    medicine_id INT NOT NULL REFERENCES medicine(medicine_id),
+    quantity INT NOT NULL DEFAULT 1,
+    dosage VARCHAR(100),
+    frequency VARCHAR(100),
+    PRIMARY KEY (prescription_id, medicine_id)
 );

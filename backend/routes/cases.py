@@ -33,7 +33,8 @@ def get_case(case_id: int):
 	SELECT pc.case_id, pc.appoint_status, pc.chief_complaint, pc.description, pc.patientid, pc.doctor_id, pc.date_opened, pc.date_closed,
  	 json_build_object('doctor_id', d.doctor_id, 'first_name', d.first_name, 'last_name', d.last_name) AS doctor,
  	 json_build_object('patientid', p.patientid, 'firstname', p.firstname, 'lastname', p.lastname, 'email', p.email) AS patient,
- 	 COALESCE(lab.tests, '[]') AS lab_tests
+ 	 COALESCE(lab.tests, '[]') AS lab_tests,
+ 	 COALESCE(pr.prescriptions, '[]') AS prescriptions
 	FROM patient_case pc
 	LEFT JOIN doctor d ON d.doctor_id = pc.doctor_id
 	LEFT JOIN patient p ON p.patientid = pc.patientid
@@ -50,6 +51,36 @@ def get_case(case_id: int):
   LEFT JOIN labtestcatalog ltc ON ltc.catalog_id = lt.catalog_id
   GROUP BY lt.case_id
 ) lab ON lab.case_id = pc.case_id
+	LEFT JOIN (
+	  SELECT p.case_id,
+	         json_agg(json_build_object(
+	           'prescription_id', p.prescription_id,
+	           'prescribed_at', p.prescribed_at,
+	           'instructions', p.instructions,
+	           'prescribed_by', p.prescribed_by,
+	           'notes', p.notes,
+	           'medicines', COALESCE(pm.medicines, '[]')
+	         ) ORDER BY p.prescribed_at DESC) AS prescriptions
+	  FROM prescription p
+	  LEFT JOIN (
+	    SELECT "has".prescription_id,
+	           json_agg(json_build_object(
+	             'medicine_id', m.medicine_id,
+	             'name', m.name,
+	             'description', m.description,
+	             'form', m.form,
+	             'strength', m.strength,
+	             'unit_price', m.unit_price,
+	             'quantity', "has".quantity,
+	             'dosage', "has".dosage,
+	             'frequency', "has".frequency
+	           )) AS medicines
+	    FROM "has"
+	    JOIN medicine m ON m.medicine_id = "has".medicine_id
+	    GROUP BY "has".prescription_id
+	  ) pm ON pm.prescription_id = p.prescription_id
+	  GROUP BY p.case_id
+) pr ON pr.case_id = pc.case_id
 WHERE pc.case_id = %s
 	"""
 
