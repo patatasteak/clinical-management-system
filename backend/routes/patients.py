@@ -73,110 +73,155 @@ def get_patient(patient_id: int):
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
     sql = """
+SELECT
+  p.patientid,
+  p.firstname,
+  p.lastname,
+  p.nationality,
+  p.sex,
+  p.address,
+  p.contactnumber,
+  p.bloodtype,
+  p.email,
+  p.birthday,
+  p.emergencycontact,
+
+  COALESCE(cb.clinical_background, '[]') AS clinical_background,
+  COALESCE(a.allergies, '[]') AS allergies,
+  COALESCE(d.disabilities, '[]') AS disabilities,
+  COALESCE(ps.past_surgeries, '[]') AS past_surgeries,
+  COALESCE(v.vitals, '[]') AS vitals,
+  COALESCE(pr.prescriptions, '[]') AS prescriptions
+
+FROM patient p
+
+LEFT JOIN (
+  SELECT
+    pc.patientid,
+    json_agg(json_build_object(
+      'clinical_id', cb.clinical_id,
+      'case_id', cb.case_id,
+      'smoking_status', cb.smoking_status,
+      'alcohol_use', cb.alcohol_use,
+      'notes', cb.notes
+    )) AS clinical_background
+  FROM clinical_background cb
+  JOIN patient_case pc
+    ON pc.case_id = cb.case_id
+  GROUP BY pc.patientid
+) cb ON cb.patientid = p.patientid
+
+LEFT JOIN (
+  SELECT
+    pc.patientid,
+    json_agg(json_build_object(
+      'allergy_id', a.allergy_id,
+      'allergen', a.allergen,
+      'reaction', a.reaction,
+      'severity', a.severity,
+      'noted_date', a.noted_date
+    )) AS allergies
+  FROM allergy a
+  JOIN clinical_background cb
+    ON cb.clinical_id = a.clinical_id
+  JOIN patient_case pc
+    ON pc.case_id = cb.case_id
+  GROUP BY pc.patientid
+) a ON a.patientid = p.patientid
+
+LEFT JOIN (
+  SELECT
+    pc.patientid,
+    json_agg(json_build_object(
+      'disability_id', d.disability_id,
+      'description', d.description,
+      'congenital', d.congenital,
+      'notes', d.notes
+    )) AS disabilities
+  FROM disability d
+  JOIN clinical_background cb
+    ON cb.clinical_id = d.clinical_id
+  JOIN patient_case pc
+    ON pc.case_id = cb.case_id
+  GROUP BY pc.patientid
+) d ON d.patientid = p.patientid
+
+LEFT JOIN (
+  SELECT
+    pc.patientid,
+    json_agg(json_build_object(
+      'surgery_id', ps.surgery_id,
+      'procedure_name', ps.procedure_name,
+      'date_performed', ps.date_performed,
+      'hospital', ps.hospital,
+      'notes', ps.notes
+    )) AS past_surgeries
+  FROM past_surgery ps
+  JOIN clinical_background cb
+    ON cb.clinical_id = ps.clinical_id
+  JOIN patient_case pc
+    ON pc.case_id = cb.case_id
+  GROUP BY pc.patientid
+) ps ON ps.patientid = p.patientid
+
+LEFT JOIN (
+  SELECT
+    patientid,
+    json_agg(json_build_object(
+      'stat_id', stat_id,
+      'recorded_at', recorded_at,
+      'weight', weight,
+      'height', height,
+      'temperature', temperature,
+      'blood_pressure', blood_pressure,
+      'pulse_rate', pulse_rate
+    ) ORDER BY recorded_at DESC) AS vitals
+  FROM vital_stats
+  GROUP BY patientid
+) v ON v.patientid = p.patientid
+
+LEFT JOIN (
+  SELECT
+    pc.patientid,
+    json_agg(json_build_object(
+      'prescription_id', pr.prescription_id,
+      'case_id', pr.case_id,
+      'prescribed_at', pr.prescribed_at,
+      'instructions', pr.instructions,
+      'prescribed_by', pr.prescribed_by,
+      'notes', pr.notes,
+      'medicines', COALESCE(pm.medicines, '[]')
+    ) ORDER BY pr.prescribed_at DESC) AS prescriptions
+
+  FROM prescription pr
+
+  JOIN patient_case pc
+    ON pc.case_id = pr.case_id
+
+  LEFT JOIN (
     SELECT
-      p.patientid,
-      p.firstname,
-      p.lastname,
-      p.nationality,
-      p.sex,
-      p.address,
-      p.contactnumber,
-      p.bloodtype,
-      p.email,
-      p.birthday,
-      p.emergencycontact,
-      COALESCE(cb.clinical_background, '[]') AS clinical_background,
-      COALESCE(a.allergies, '[]') AS allergies,
-      COALESCE(cc.chronic_conditions, '[]') AS chronic_conditions,
-      COALESCE(d.disabilities, '[]') AS disabilities,
-      COALESCE(ps.past_surgeries, '[]') AS past_surgeries,
-      COALESCE(i.insurances, '[]') AS insurances,
-      COALESCE(v.vitals, '[]') AS vitals,
-      COALESCE(pr.prescriptions, '[]') AS prescriptions
-    FROM patient p
+      h.prescription_id,
+      json_agg(json_build_object(
+        'medicine_id', m.medicine_id,
+        'name', m.medicine_name,
+        'medicine_type', m.medicine_type,
+        'quantity', h.quantity,
+        'dosage', h.dosage,
+        'frequency', h.frequency
+      )) AS medicines
 
-    LEFT JOIN (
-      SELECT patientid, json_agg(json_build_object('clinical_id', clinical_id, 'smoking_status', smoking_status, 'alcohol_use', alcohol_use, 'notes', notes)) AS clinical_background
-      FROM clinical_background
-      GROUP BY patientid
-    ) cb ON cb.patientid = p.patientid
+    FROM "has" h
+    JOIN medicine m
+      ON m.medicine_id = h.medicine_id
 
-    LEFT JOIN (
-      SELECT cb.patientid, json_agg(json_build_object('allergy_id', allergy_id, 'allergen', allergen, 'reaction', reaction, 'severity', severity, 'noted_date', noted_date)) AS allergies
-      FROM allergy a
-      JOIN clinical_background cb ON cb.clinical_id = a.clinical_id
-      GROUP BY cb.patientid
-    ) a ON a.patientid = p.patientid
+    GROUP BY h.prescription_id
+  ) pm ON pm.prescription_id = pr.prescription_id
 
-    LEFT JOIN (
-      SELECT cb.patientid, json_agg(json_build_object('condition_id', condition_id, 'condition_name', condition_name, 'date_diagnosed', date_diagnosed, 'status', status, 'notes', notes)) AS chronic_conditions
-      FROM chronic_condition cc
-      JOIN clinical_background cb ON cb.clinical_id = cc.clinical_id
-      GROUP BY cb.patientid
-    ) cc ON cc.patientid = p.patientid
+  GROUP BY pc.patientid
+) pr ON pr.patientid = p.patientid
 
-    LEFT JOIN (
-      SELECT cb.patientid, json_agg(json_build_object('disability_id', disability_id, 'description', description, 'congenital', congenital, 'notes', notes)) AS disabilities
-      FROM disability d
-      JOIN clinical_background cb ON cb.clinical_id = d.clinical_id
-      GROUP BY cb.patientid
-    ) d ON d.patientid = p.patientid
-
-    LEFT JOIN (
-      SELECT cb.patientid, json_agg(json_build_object('surgery_id', surgery_id, 'procedure_name', procedure_name, 'date_performed', date_performed, 'hospital', hospital, 'notes', notes)) AS past_surgeries
-      FROM past_surgery ps
-      JOIN clinical_background cb ON cb.clinical_id = ps.clinical_id
-      GROUP BY cb.patientid
-    ) ps ON ps.patientid = p.patientid
-
-    LEFT JOIN (
-      SELECT patientid, json_agg(json_build_object('insurance_id', insurance_id, 'provider', provider, 'expiry', expiry, 'policy_number', policy_number)) AS insurances
-      FROM insurance
-      GROUP BY patientid
-    ) i ON i.patientid = p.patientid
-
-    LEFT JOIN (
-      SELECT patientid, json_agg(json_build_object('stat_id', stat_id, 'recorded_at', recorded_at, 'weight', weight, 'height', height, 'temperature', temperature, 'blood_pressure', blood_pressure, 'pulse_rate', pulse_rate) ORDER BY recorded_at DESC) AS vitals
-      FROM vital_stats
-      GROUP BY patientid
-    ) v ON v.patientid = p.patientid
-
-    LEFT JOIN (
-      SELECT pc.patientid,
-             json_agg(json_build_object(
-               'prescription_id', p.prescription_id,
-               'case_id', p.case_id,
-               'prescribed_at', p.prescribed_at,
-               'instructions', p.instructions,
-               'prescribed_by', p.prescribed_by,
-               'notes', p.notes,
-               'medicines', COALESCE(pm.medicines, '[]')
-             ) ORDER BY p.prescribed_at DESC) AS prescriptions
-      FROM prescription p
-      JOIN patient_case pc ON pc.case_id = p.case_id
-      LEFT JOIN (
-        SELECT "has".prescription_id,
-               json_agg(json_build_object(
-                 'medicine_id', m.medicine_id,
-                 'name', m.name,
-                 'description', m.description,
-                 'form', m.form,
-                 'strength', m.strength,
-                 'unit_price', m.unit_price,
-                 'quantity', "has".quantity,
-                 'dosage', "has".dosage,
-                 'frequency', "has".frequency
-               )) AS medicines
-        FROM "has"
-        JOIN medicine m ON m.medicine_id = "has".medicine_id
-        GROUP BY "has".prescription_id
-      ) pm ON pm.prescription_id = p.prescription_id
-      GROUP BY pc.patientid
-    ) pr ON pr.patientid = p.patientid
-
-    WHERE p.patientid = %s
+WHERE p.patientid = %s;
     """
-
     cur.execute(sql, (patient_id,))
     row = cur.fetchone()
     cur.close()
@@ -356,3 +401,68 @@ def delete_condition(condition_id: int):
     if not deleted:
         raise HTTPException(status_code=404, detail="Condition not found")
     return None
+
+
+@router.get("/{patient_id}/cases")
+def get_patient_cases(patient_id: int):
+    conn = get_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    sql = """
+    SELECT
+        pc.case_id,
+        pc.appoint_status,
+        pc.chief_complaint,
+        pc.description,
+        pc.patientid,
+        pc.doctor_id,
+        pc.date_opened,
+        pc.date_closed,
+
+        json_build_object(
+            'doctor_id', d.doctor_id,
+            'first_name', d.first_name,
+            'last_name', d.last_name
+        ) AS doctor,
+
+        COALESCE(lab.tests, '[]') AS lab_tests
+
+    FROM patient_case pc
+
+    LEFT JOIN doctor d
+        ON d.doctor_id = pc.doctor_id
+
+    LEFT JOIN (
+        SELECT
+            lt.case_id,
+
+            json_agg(json_build_object(
+                'test_id', lt.test_id,
+                'catalog_id', lt.catalog_id,
+                'test_name', ltc.test_name,
+                'date_taken', lt.date_taken,
+                'findings', lt.findings,
+                'ordered_by', lt.ordered_by
+            )) AS tests
+
+        FROM lab_test lt
+
+        LEFT JOIN labtestcatalog ltc
+            ON ltc.catalog_id = lt.catalog_id
+
+        GROUP BY lt.case_id
+
+    ) lab ON lab.case_id = pc.case_id
+
+    WHERE pc.patientid = %s
+
+    ORDER BY pc.date_opened DESC
+    """
+
+    cur.execute(sql, (patient_id,))
+    rows = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return rows

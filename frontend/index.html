@@ -890,6 +890,95 @@
       </div>
     </div>
 
+    <!-- ADD LAB TEST MODAL -->
+    <div id="add-lab-test-modal" class="modal-overlay">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2 class="auth-title" style="margin: 0; font-size: 20px">
+            Add Lab Test
+          </h2>
+          <button
+            class="modal-close"
+            onclick="closeModal('add-lab-test-modal')"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              style="
+                width: 24px;
+                height: 24px;
+                stroke: currentColor;
+                fill: none;
+                stroke-width: 2;
+              "
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <form onsubmit="handleAddLabTest(event)">
+          <input type="hidden" id="lab-case-id" />
+          <div class="form-group">
+            <label class="form-label">Test Type</label>
+            <div class="search-dropdown">
+              <input
+                type="text"
+                class="form-input"
+                id="lab-test-search"
+                placeholder="Search test..."
+                onfocus="filterLabTests(this.value)"
+                oninput="filterLabTests(this.value)"
+                autocomplete="off"
+              />
+              <input type="hidden" id="selected-catalog-id" />
+              <div id="lab-test-results" class="search-results">
+                <!-- Lab tests populated by JS -->
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Date Taken</label>
+            <input
+              type="date"
+              class="form-input"
+              id="lab-date-taken"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Findings</label>
+            <textarea
+              class="form-input"
+              id="lab-findings"
+              style="height: 80px; resize: none"
+              placeholder="Enter findings..."
+            ></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Ordered By (Doctor)</label>
+            <div class="search-dropdown">
+              <input
+                type="text"
+                class="form-input"
+                id="lab-doctor-search"
+                placeholder="Search doctor..."
+                onfocus="filterDoctorsForLab(this.value)"
+                oninput="filterDoctorsForLab(this.value)"
+                autocomplete="off"
+              />
+              <input type="hidden" id="lab-ordered-by-id" />
+              <div id="lab-doctor-results" class="search-results">
+                <!-- Doctors populated by JS -->
+              </div>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">
+            Add Lab Test
+          </button>
+        </form>
+      </div>
+    </div>
+
     <!-- MAIN APP LAYOUT (Hidden until login) -->
     <div id="app-layer" style="display: none; width: 100%">
       <aside class="sidebar">
@@ -1258,6 +1347,11 @@
           <!-- MY CASES PAGE -->
           <div id="page-cases" class="page">
             <!-- Populated by JS renderCases() -->
+          </div>
+
+          <!-- CASE DETAIL PAGE -->
+          <div id="page-case-detail" class="page">
+            <!-- Populated by JS renderCaseDetail() -->
           </div>
 
           <!-- LAB TESTS OFFERED PAGE -->
@@ -1686,7 +1780,14 @@
           currentUser.emergencycontact || "";
 
         // Render Cases in My Cases Page
-        renderCases();
+        // Load and render cases
+        loadPatientCases().then(() => {
+          renderCases();
+
+          if (patientCases.length > 0) {
+            displayCaseCards();
+          }
+        });
 
         // Update Lab Catalog Page
         updateLabCatalog();
@@ -1705,6 +1806,7 @@
         const titles = {
           dashboard: "Dashboard",
           cases: "My Cases",
+          "case-detail": "Case Detail",
           settings: "Profile Settings",
           "lab-catalog": "Lab Tests Offered",
           "my-labs": "My Lab Tests",
@@ -1893,20 +1995,589 @@
         }
       }
 
+      // Store all cases for the current patient
+      let patientCases = [];
+
+      async function loadPatientCases() {
+        try {
+          if (!currentUser) return [];
+
+          setLoading(true);
+
+          // Fetch patient data
+          const patientRes = await fetch(
+            `${API}/patients/${currentUser.patientid}`,
+          );
+
+          if (!patientRes.ok) {
+            throw new Error("Failed to load patient");
+          }
+
+          const patientData = await patientRes.json();
+
+          // refresh current user
+          currentUser = patientData;
+
+          // Fetch cases directly
+          const caseRes = await fetch(
+            `${API}/patients/${currentUser.patientid}/cases`,
+          );
+
+          if (!caseRes.ok) {
+            throw new Error("Failed to load cases");
+          }
+
+          const cases = await caseRes.json();
+
+          patientCases = cases;
+
+          return cases;
+        } catch (err) {
+          console.error("Failed to load cases:", err);
+          patientCases = [];
+          return [];
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      function formatDate(dateStr) {
+        if (!dateStr) return "N/A";
+        const date = new Date(dateStr);
+        return date.toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        });
+      }
+
+      function getStatusBadgeColor(status) {
+        switch (status) {
+          case "Pending":
+            return "#fed7d7"; // light red
+          case "Ongoing":
+            return "#fef5e7"; // light yellow
+          case "Closed":
+            return "#d5f4e6"; // light green
+          default:
+            return "#f5e1e1";
+        }
+      }
+
+      function getStatusBadgeTextColor(status) {
+        switch (status) {
+          case "Pending":
+            return "#c53030"; // red
+          case "Ongoing":
+            return "#d97706"; // orange/yellow
+          case "Closed":
+            return "#059669"; // green
+          default:
+            return "#6e4a4a";
+        }
+      }
+
+      function displayCaseCards() {
+        const container = document.getElementById("cases-list-container");
+        if (!container || !patientCases.length) return;
+
+        container.innerHTML = patientCases
+          .map(
+            (caseData) => `
+          <div class="case-card" onclick="openCaseDetail(${caseData.case_id})" style="
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+          " onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 15px 40px rgba(197, 48, 48, 0.15)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow)';">
+            
+            <!-- Status Badge -->
+            <div style="
+              display: inline-block;
+              padding: 4px 12px;
+              border-radius: 20px;
+              font-size: 12px;
+              font-weight: 600;
+              background: ${getStatusBadgeColor(caseData.appoint_status)};
+              color: ${getStatusBadgeTextColor(caseData.appoint_status)};
+              margin-bottom: 16px;
+            ">${caseData.appoint_status}</div>
+
+            <!-- Chief Complaint -->
+            <h3 style="
+              margin: 0 0 12px 0;
+              font-size: 16px;
+              font-weight: 700;
+              color: var(--text);
+              line-height: 1.4;
+            ">${caseData.chief_complaint || caseData.chief_Complaint || "No chief complaint"}</h3>
+
+            <!-- Description -->
+            <p style="
+              margin: 0 0 16px 0;
+              font-size: 14px;
+              color: var(--text-2);
+              line-height: 1.5;
+              max-height: 60px;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              display: -webkit-box;
+              -webkit-line-clamp: 2;
+              -webkit-box-orient: vertical;
+            ">${caseData.description || "No description"}</p>
+
+            <!-- Doctor & Date Info -->
+            <div style="
+              display: flex;
+              gap: 16px;
+              font-size: 13px;
+              color: var(--text-3);
+              border-top: 1px solid var(--border);
+              padding-top: 16px;
+            ">
+              <div>
+                <strong style="color: var(--text-2);">Doctor:</strong><br>
+                ${caseData.doctor ? `Dr. ${caseData.doctor.first_name} ${caseData.doctor.last_name}` : "N/A"}
+              </div>
+              <div>
+                <strong style="color: var(--text-2);">Opened:</strong><br>
+                ${formatDate(caseData.date_opened)}
+              </div>
+            </div>
+
+            <!-- Lab Tests Count -->
+            ${
+              caseData.lab_tests && caseData.lab_tests.length > 0
+                ? `
+              <div style="
+                margin-top: 12px;
+                padding-top: 12px;
+                border-top: 1px solid var(--border);
+                font-size: 13px;
+                color: var(--primary);
+              ">
+                ${caseData.lab_tests.length} lab test${caseData.lab_tests.length !== 1 ? "s" : ""}
+              </div>
+            `
+                : ""
+            }
+          </div>
+        `,
+          )
+          .join("");
+      }
+
       function renderCases() {
         const container = document.getElementById("page-cases");
         if (!container) return;
 
-        // TODO: Fetch cases from API endpoint /patients/{id}/cases
-        container.innerHTML = `
-          <div class="card">
-            <div class="card-header"><span class="card-title">Medical Case History</span></div>
-            <div style="padding: 40px; text-align: center; color: var(--text-3);">
-              Cases management coming soon. <br>
-              <button class="btn btn-primary mt-4" onclick="openCreateCase()">Create Your First Case</button>
-            </div>
-          </div>`;
+        // Check if patient has any cases
+        const hasCases = patientCases && patientCases.length > 0;
+
+        if (!hasCases) {
+          // No cases - show friendly message
+          container.innerHTML = `
+      <div class="card">
+        <div class="card-header"><span class="card-title">Medical Case History</span></div>
+        <div style="padding: 40px; text-align: center;">
+          <p style="color: var(--text-3); font-size: 16px; margin-bottom: 24px;">
+            No cases on record
+          </p>
+          <button class="btn btn-primary" onclick="openCreateCase()">Create Your First Case</button>
+        </div>
+      </div>`;
+        } else {
+          // Display case list with case cards
+          container.innerHTML = `
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Medical Case History</span>
+          <button class="btn btn-primary" onclick="openCreateCase()">Add Case</button>
+        </div>
+        <div style="padding: 24px;">
+          <div id="cases-list-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; min-height: 200px; place-items: center;">
+            <p style="color: var(--text-3); text-align: center; grid-column: 1 / -1;">Loading cases...</p>
+          </div>
+        </div>
+      </div>`;
+          // DO NOT call displayCaseCards() here - it will be called by updateUI() after loadPatientCases() completes
+        }
       }
+      function openCaseDetail(caseId) {
+        const caseData = patientCases.find((c) => c.case_id === caseId);
+        if (!caseData) {
+          showError("Case not found");
+          return;
+        }
+        renderCaseDetail(caseData);
+        showPage("case-detail");
+      }
+
+      let currentCaseDetail = null; // Store current case for reference in detail view
+
+      function renderCaseDetail(caseData) {
+        currentCaseDetail = caseData;
+        const container = document.getElementById("page-case-detail");
+        if (!container) return;
+
+        const doctorName = caseData.doctor
+          ? `Dr. ${caseData.doctor.first_name} ${caseData.doctor.last_name}`
+          : "N/A";
+
+        const patientName = caseData.patient
+          ? `${caseData.patient.firstname} ${caseData.patient.lastname}`
+          : "N/A";
+
+        let html = `
+          <!-- Back Button & Header -->
+          <div style="margin-bottom: 24px; display: flex; align-items: center; gap: 16px;">
+            <button class="btn btn-outline" onclick="showPage('cases')" style="padding: 10px 16px; font-size: 14px;">
+              <svg viewBox="0 0 24 24" style="width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2;">
+                <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+              </svg>
+              Back to Cases
+            </button>
+            <h1 style="font-size: 24px; font-weight: 700; color: var(--text); margin: 0;">Case Detail</h1>
+          </div>
+
+          <!-- Case Header Card -->
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <span class="card-title">${caseData.chief_complaint || caseData.chief_Complaint || "Medical Case"}</span>
+              </div>
+              <span style="
+                display: inline-block;
+                padding: 6px 16px;
+                border-radius: 20px;
+                font-size: 13px;
+                font-weight: 600;
+                background: ${getStatusBadgeColor(caseData.appoint_status)};
+                color: ${getStatusBadgeTextColor(caseData.appoint_status)};
+              ">${caseData.appoint_status}</span>
+            </div>
+            <div style="padding: 24px;">
+              <!-- Description -->
+              <div style="margin-bottom: 24px;">
+                <h3 style="font-size: 13px; font-weight: 700; color: var(--text-2); text-transform: uppercase; margin-bottom: 8px;">Description</h3>
+                <p style="color: var(--text); margin: 0; line-height: 1.6;">
+                  ${caseData.description || "No description provided"}
+                </p>
+              </div>
+
+              <!-- Case Details Grid -->
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; border-top: 1px solid var(--border); padding-top: 24px;">
+                <div>
+                  <p style="font-size: 12px; color: var(--text-3); text-transform: uppercase; margin: 0 0 8px 0; font-weight: 700;">Patient Name</p>
+                  <p style="margin: 0; font-size: 15px; font-weight: 600; color: var(--text);">${patientName}</p>
+                </div>
+                <div>
+                  <p style="font-size: 12px; color: var(--text-3); text-transform: uppercase; margin: 0 0 8px 0; font-weight: 700;">Doctor</p>
+                  <p style="margin: 0; font-size: 15px; font-weight: 600; color: var(--text);">${doctorName}</p>
+                </div>
+                <div>
+                  <p style="font-size: 12px; color: var(--text-3); text-transform: uppercase; margin: 0 0 8px 0; font-weight: 700;">Date Opened</p>
+                  <p style="margin: 0; font-size: 15px; font-weight: 600; color: var(--text);">${formatDate(caseData.date_opened)}</p>
+                </div>
+                ${
+                  caseData.date_closed
+                    ? `
+                  <div>
+                    <p style="font-size: 12px; color: var(--text-3); text-transform: uppercase; margin: 0 0 8px 0; font-weight: 700;">Date Closed</p>
+                    <p style="margin: 0; font-size: 15px; font-weight: 600; color: var(--text);">${formatDate(caseData.date_closed)}</p>
+                  </div>
+                `
+                    : ""
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Clinical Background Section -->
+          <div class="card" style="margin-top: 24px;">
+            <div class="card-header">
+              <span class="card-title">Clinical Background</span>
+            </div>
+            <div style="padding: 24px;">
+              <div id="clinical-background-content">
+                <p style="color: var(--text-3); text-align: center;">Loading clinical background...</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lab Tests Section -->
+          <div class="card" style="margin-top: 24px;">
+            <div class="card-header">
+              <span class="card-title">Laboratory Tests</span>
+              <button class="btn btn-primary btn-sm" onclick="openAddLabTestForm(${caseData.case_id})" style="font-size: 13px; padding: 8px 16px;">
+                + Add Lab Test
+              </button>
+            </div>
+            <div style="padding: 24px;">
+              <div id="lab-tests-content">
+                <p style="color: var(--text-3); text-align: center;">Loading lab tests...</p>
+              </div>
+            </div>
+          </div>
+        `;
+
+        container.innerHTML = html;
+
+        // Load clinical background and lab tests
+        loadClinicalBackground();
+        displayLabTests();
+      }
+
+      function loadClinicalBackground() {
+        if (!currentCaseDetail) return;
+
+        const container = document.getElementById(
+          "clinical-background-content",
+        );
+        const caseData = currentCaseDetail;
+
+        // Try to get clinical background from case data
+        let hasClinicalData = false;
+        let clinicalHtml = "";
+
+        // Smoking & Alcohol Status
+        if (caseData.smoking_status || caseData.alcohol_use) {
+          hasClinicalData = true;
+          clinicalHtml += `
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+              <div>
+                <p style="font-size: 12px; color: var(--text-3); text-transform: uppercase; margin: 0 0 8px 0; font-weight: 700;">Smoking Status</p>
+                <p style="margin: 0; color: var(--text);">${caseData.smoking_status || "Not recorded"}</p>
+              </div>
+              <div>
+                <p style="font-size: 12px; color: var(--text-3); text-transform: uppercase; margin: 0 0 8px 0; font-weight: 700;">Alcohol Use</p>
+                <p style="margin: 0; color: var(--text);">${caseData.alcohol_use || "Not recorded"}</p>
+              </div>
+            </div>
+          `;
+        }
+
+        if (!hasClinicalData) {
+          clinicalHtml =
+            '<p style="color: var(--text-3); text-align: center;">No clinical background recorded</p>';
+        }
+
+        container.innerHTML = clinicalHtml;
+      }
+
+      function displayLabTests() {
+        if (!currentCaseDetail) return;
+
+        const container = document.getElementById("lab-tests-content");
+        const labTests = currentCaseDetail.lab_tests || [];
+
+        if (labTests.length === 0) {
+          container.innerHTML = `
+            <p style="color: var(--text-3); text-align: center; padding: 40px 20px;">
+              No lab tests recorded for this case
+            </p>
+          `;
+          return;
+        }
+
+        container.innerHTML = labTests
+          .map(
+            (test) => `
+          <div style="
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 12px;
+          ">
+            <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 16px;">
+              <div>
+                <p style="font-size: 12px; color: var(--text-3); text-transform: uppercase; margin: 0 0 6px 0; font-weight: 700;">Test Name</p>
+                <p style="margin: 0; font-weight: 600; color: var(--text);">${test.test_name || "Unknown Test"}</p>
+              </div>
+              <div>
+                <p style="font-size: 12px; color: var(--text-3); text-transform: uppercase; margin: 0 0 6px 0; font-weight: 700;">Date Taken</p>
+                <p style="margin: 0; color: var(--text);">${formatDate(test.date_taken) || "N/A"}</p>
+              </div>
+              <div>
+                <p style="font-size: 12px; color: var(--text-3); text-transform: uppercase; margin: 0 0 6px 0; font-weight: 700;">Ordered By</p>
+                <p style="margin: 0; color: var(--text);">Dr. TBD</p>
+              </div>
+            </div>
+            ${
+              test.findings
+                ? `
+              <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);">
+                <p style="font-size: 12px; color: var(--text-3); text-transform: uppercase; margin: 0 0 6px 0; font-weight: 700;">Findings</p>
+                <p style="margin: 0; color: var(--text); line-height: 1.5;">${test.findings}</p>
+              </div>
+            `
+                : ""
+            }
+          </div>
+        `,
+          )
+          .join("");
+      }
+
+      function openAddLabTestForm(caseId) {
+        document.getElementById("lab-case-id").value = caseId;
+        document.getElementById("lab-test-search").value = "";
+        document.getElementById("selected-catalog-id").value = "";
+        document.getElementById("lab-date-taken").value = "";
+        document.getElementById("lab-findings").value = "";
+        document.getElementById("lab-doctor-search").value = "";
+        document.getElementById("lab-ordered-by-id").value = "";
+        document.getElementById("lab-test-results").classList.remove("active");
+        document
+          .getElementById("lab-doctor-results")
+          .classList.remove("active");
+        openModal("add-lab-test-modal");
+      }
+
+      function filterLabTests(query) {
+        const results = document.getElementById("lab-test-results");
+        if (!labCatalog.length) {
+          results.innerHTML = '<div class="search-item">Loading tests...</div>';
+          results.classList.add("active");
+          return;
+        }
+
+        const filtered = labCatalog.filter((test) =>
+          test.test_name.toLowerCase().includes(query.toLowerCase()),
+        );
+
+        if (filtered.length > 0) {
+          results.innerHTML = filtered
+            .map(
+              (test) => `
+              <div class="search-item" onclick="selectLabTest('${test.catalog_id}', '${test.test_name.replace(/'/g, "\\'")}')" style="padding: 12px 16px;">
+                <div style="font-weight: 600;">${test.test_name}</div>
+                <div style="font-size: 12px; color: var(--text-3);">₱${test.price.toFixed(2)}</div>
+              </div>
+            `,
+            )
+            .join("");
+          results.classList.add("active");
+        } else {
+          results.innerHTML = '<div class="search-item">No tests found</div>';
+          results.classList.add("active");
+        }
+      }
+
+      function selectLabTest(catalogId, testName) {
+        document.getElementById("selected-catalog-id").value = catalogId;
+        document.getElementById("lab-test-search").value = testName;
+        document.getElementById("lab-test-results").classList.remove("active");
+      }
+
+      function filterDoctorsForLab(query) {
+        const results = document.getElementById("lab-doctor-results");
+        if (!doctors.length) {
+          results.innerHTML =
+            '<div class="search-item">Loading doctors...</div>';
+          results.classList.add("active");
+          return;
+        }
+
+        const filtered = doctors.filter((d) =>
+          d.name.toLowerCase().includes(query.toLowerCase()),
+        );
+
+        if (filtered.length > 0) {
+          results.innerHTML = filtered
+            .map(
+              (d) => `
+              <div class="search-item" onclick="selectDoctorForLab(${d.id}, '${d.name.replace(/'/g, "\\'")}')">${d.name}</div>
+            `,
+            )
+            .join("");
+          results.classList.add("active");
+        } else {
+          results.innerHTML = '<div class="search-item">No doctors found</div>';
+          results.classList.add("active");
+        }
+      }
+
+      function selectDoctorForLab(doctorId, doctorName) {
+        document.getElementById("lab-ordered-by-id").value = doctorId;
+        document.getElementById("lab-doctor-search").value = doctorName;
+        document
+          .getElementById("lab-doctor-results")
+          .classList.remove("active");
+      }
+
+      async function handleAddLabTest(e) {
+        e.preventDefault();
+
+        try {
+          setLoading(true);
+          const caseId = document.getElementById("lab-case-id").value;
+          const catalogId = document.getElementById(
+            "selected-catalog-id",
+          ).value;
+          const dateTaken = document.getElementById("lab-date-taken").value;
+          const findings = document.getElementById("lab-findings").value;
+          const orderedById =
+            document.getElementById("lab-ordered-by-id").value;
+
+          if (!catalogId) {
+            showError("Please select a test type.");
+            return;
+          }
+
+          const payload = {
+            case_id: parseInt(caseId),
+            catalog_id: catalogId,
+            date_taken: dateTaken || null,
+            findings: findings || null,
+            ordered_by: orderedById ? parseInt(orderedById) : null,
+          };
+
+          const res = await fetch(`${API}/labs`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+
+          if (!res.ok) throw new Error("Failed to add lab test");
+
+          closeModal("add-lab-test-modal");
+          alert("Lab test added successfully!");
+
+          // Reload case detail to show the new lab test
+          const caseRes = await fetch(`${API}/cases/${caseId}`);
+          if (caseRes.ok) {
+            const updatedCase = await caseRes.json();
+            const caseIndex = patientCases.findIndex(
+              (c) => c.case_id === parseInt(caseId),
+            );
+            if (caseIndex !== -1) {
+              patientCases[caseIndex] = updatedCase;
+              renderCaseDetail(updatedCase);
+            }
+          }
+        } catch (err) {
+          showError(err.message);
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      // Close lab test dropdown when clicking outside
+      document.addEventListener("click", (e) => {
+        if (!e.target.closest(".search-dropdown")) {
+          document
+            .getElementById("lab-test-results")
+            .classList.remove("active");
+          document
+            .getElementById("lab-doctor-results")
+            .classList.remove("active");
+        }
+      });
 
       async function removeCase(id) {
         if (
