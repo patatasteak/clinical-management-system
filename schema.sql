@@ -165,7 +165,11 @@ CREATE TABLE lab_test (
 CREATE TABLE medicine (
     medicine_id SERIAL PRIMARY KEY,
     medicine_name VARCHAR(100) NOT NULL,
-    medicine_type VARCHAR(100) NOT NULL
+    medicine_type VARCHAR(100) NOT NULL,
+    description TEXT,
+    form VARCHAR(100),
+    strength VARCHAR(100),
+    unit_price DECIMAL(10, 2)
 );
 CREATE TABLE prescription (
     prescription_id SERIAL PRIMARY KEY,

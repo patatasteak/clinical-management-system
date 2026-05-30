@@ -1426,7 +1426,7 @@
               </svg>
             </button>
           </div>
-          <form onsubmit="handleAddLabTest(event)">
+          <form onsubmit="handleOrderLabTest(event)">
             <input type="hidden" id="lab-case-id" />
             <div class="form-group">
               <label class="form-label">Test Type</label>
@@ -1613,15 +1613,9 @@
             </button>
           </div>
           <form onsubmit="handleAddMedicine(event)">
-            <div class="info-grid">
-              <div class="form-group">
-                <label class="form-label">Medicine ID (med_id)</label>
-                <input type="text" class="form-input" required id="add-med-id" placeholder="e.g., 000031" />
-              </div>
-              <div class="form-group">
-                <label class="form-label">Medicine Name</label>
-                <input type="text" class="form-input" required id="add-medicinename" />
-              </div>
+            <div class="form-group">
+              <label class="form-label">Medicine Name</label>
+              <input type="text" class="form-input" required id="add-medicinename" />
             </div>
             <div class="form-group">
               <label class="form-label">Medicine Type</label>
@@ -1749,6 +1743,138 @@
               class="btn"
               style="flex: 1; background: #dc2626; color: white;"
               onclick="confirmDeleteMedicine()">
+              Yes, Delete
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ADD LAB TEST MODAL -->
+      <div id="add-labtest-modal" class="modal-overlay">
+        <div class="modal-card">
+          <div class="modal-header">
+            <h2 class="auth-title" style="margin: 0; font-size: 20px;">
+              Add Lab Test
+            </h2>
+            <button class="modal-close" onclick="closeModal('add-labtest-modal')">
+              <svg
+                viewBox="0 0 24 24"
+                style="
+                  width: 24px;
+                  height: 24px;
+                  stroke: currentColor;
+                  fill: none;
+                  stroke-width: 2;
+                "
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </div>
+          <form onsubmit="handleAddLabTest(event)">
+            <div class="form-group">
+              <label class="form-label">Test Name</label>
+              <input type="text" class="form-input" required id="add-labtest-name" placeholder="e.g., Complete Blood Count" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Description (optional)</label>
+              <textarea class="form-input" id="add-labtest-description" style="height: 60px; resize: none;"></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Price</label>
+              <input type="number" step="0.01" class="form-input" required id="add-labtest-price" placeholder="e.g., 500.00" />
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">
+              Add Lab Test
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- EDIT LAB TEST MODAL -->
+      <div id="edit-labtest-modal" class="modal-overlay">
+        <div class="modal-card">
+          <div class="modal-header">
+            <h2 class="auth-title" style="margin: 0; font-size: 20px;">
+              Edit Lab Test
+            </h2>
+            <button class="modal-close" onclick="closeModal('edit-labtest-modal')">
+              <svg
+                viewBox="0 0 24 24"
+                style="
+                  width: 24px;
+                  height: 24px;
+                  stroke: currentColor;
+                  fill: none;
+                  stroke-width: 2;
+                "
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </div>
+          <form onsubmit="handleEditLabTest(event)">
+            <input type="hidden" id="edit-labtest-id" />
+            <div class="form-group">
+              <label class="form-label">Test Name</label>
+              <input type="text" class="form-input" required id="edit-labtest-name" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Description (optional)</label>
+              <textarea class="form-input" id="edit-labtest-description" style="height: 60px; resize: none;"></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Price</label>
+              <input type="number" step="0.01" class="form-input" required id="edit-labtest-price" />
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">
+              Update Lab Test
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- DELETE LAB TEST CONFIRMATION MODAL -->
+      <div id="delete-labtest-modal" class="modal-overlay">
+        <div class="modal-card">
+          <div class="modal-header">
+            <h2 class="auth-title" style="margin: 0; font-size: 20px;">
+              Delete Lab Test
+            </h2>
+            <button class="modal-close" onclick="closeModal('delete-labtest-modal')">
+              <svg
+                viewBox="0 0 24 24"
+                style="
+                  width: 24px;
+                  height: 24px;
+                  stroke: currentColor;
+                  fill: none;
+                  stroke-width: 2;
+                "
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </div>
+          <p style="color: var(--text-2); margin-bottom: 24px;">
+            Are you sure you want to delete this lab test? This action is permanent and cannot be undone.
+          </p>
+          <div style="display: flex; gap: 12px;">
+            <button
+              type="button"
+              class="btn btn-outline"
+              onclick="closeModal('delete-labtest-modal')"
+              style="flex: 1;">
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="btn"
+              style="flex: 1; background: #dc2626; color: white;"
+              onclick="confirmDeleteLabTest()">
               Yes, Delete
             </button>
           </div>
@@ -2355,6 +2481,12 @@
               <div class="card">
                 <div class="card-header">
                   <span class="card-title">Laboratory Tests Offered</span>
+                  <button class="btn btn-primary" onclick="openAddLabTestModal()">
+                    <svg viewBox="0 0 24 24" style="width: 16px; height: 16px; stroke: currentColor; fill: none;">
+                      <path d="M12 5v14M5 12h14"/>
+                    </svg>
+                    Add Lab Test
+                  </button>
                 </div>
                 <div style="padding: 24px">
                   <!-- Toolbar: Search and Sort -->
@@ -2481,7 +2613,7 @@
         async function loadLabCatalog() {
           try {
             setLoading(true);
-            const res = await fetch(`${API}/catalog`);
+            const res = await fetch(`${API}/lab-tests/catalog`);
             if (!res.ok) throw new Error("Failed to load lab catalog");
             labCatalog = await res.json();
           } catch (err) {
@@ -2489,6 +2621,179 @@
             labCatalog = [];
           } finally {
             setLoading(false);
+          }
+        }
+
+        // Track lab test to delete
+        let labTestToDeleteId = null;
+
+        // Render lab catalog
+        function renderLabCatalog() {
+          const container = document.getElementById("lab-catalog-list");
+          if (!container) return;
+
+          if (!labCatalog || labCatalog.length === 0) {
+            container.innerHTML = `
+              <p style="color: var(--text-3); text-align: center; grid-column: 1 / -1;">
+                No lab tests available yet.
+              </p>
+            `;
+            return;
+          }
+
+          container.innerHTML = labCatalog.map(test => `
+            <div class="case-card" style="
+              background: var(--surface);
+              border: 1px solid var(--border);
+              border-radius: var(--radius-lg);
+              padding: 24px;
+              box-shadow: var(--shadow);
+            ">
+              <h3 style="
+                margin: 0 0 8px 0;
+                font-size: 18px;
+                font-weight: 700;
+                color: var(--text);
+              ">${test.test_name}</h3>
+              <p style="
+                margin: 0 0 4px 0;
+                font-size: 14px;
+                color: var(--text-2);
+              ">ID: ${test.catalog_id}</p>
+              <p style="
+                margin: 0 0 16px 0;
+                font-size: 14px;
+                color: var(--text-2);
+              ">Price: ₱${test.price.toFixed(2)}</p>
+              ${test.description ? `
+                <p style="
+                  margin: 0 0 16px 0;
+                  font-size: 14px;
+                  color: var(--text-2);
+                ">${test.description}</p>
+              ` : ''}
+              <div style="display: flex; gap: 12px;">
+                <button class="btn btn-outline" onclick="openEditLabTestModal('${test.catalog_id}')" style="flex: 1;">
+                  Edit
+                </button>
+                <button class="btn" style="flex: 1; background: #fee2e2; color: #dc2626; border: 1px solid #fecaca;" onclick="openDeleteLabTestModal('${test.catalog_id}')">
+                  Delete
+                </button>
+              </div>
+            </div>
+          `).join('');
+        }
+
+        // Update lab catalog with search/sort (placeholder function)
+        function updateLabCatalog() {
+          renderLabCatalog();
+        }
+
+        function toggleSortBy() {}
+        function toggleSortOrder() {}
+
+        // Open add lab test modal
+        function openAddLabTestModal() {
+          document.getElementById("add-labtest-name").value = "";
+          document.getElementById("add-labtest-description").value = "";
+          document.getElementById("add-labtest-price").value = "";
+          openModal("add-labtest-modal");
+        }
+
+        // Handle add lab test
+        async function handleAddLabTest(e) {
+          e.preventDefault();
+          try {
+            setLoading(true);
+            const payload = {
+              test_name: document.getElementById("add-labtest-name").value,
+              description: document.getElementById("add-labtest-description").value || null,
+              price: parseFloat(document.getElementById("add-labtest-price").value)
+            };
+
+            const res = await fetch(`${API}/lab-tests/catalog`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload)
+            });
+
+            if (!res.ok) throw new Error("Failed to add lab test");
+            await loadLabCatalog();
+            renderLabCatalog();
+            closeModal("add-labtest-modal");
+          } catch (err) {
+            showError(err.message);
+          } finally {
+            setLoading(false);
+          }
+        }
+
+        // Open edit lab test modal
+        function openEditLabTestModal(catalogId) {
+          const test = labCatalog.find(t => t.catalog_id === catalogId);
+          if (!test) {
+            showError("Lab test not found");
+            return;
+          }
+          document.getElementById("edit-labtest-id").value = test.catalog_id;
+          document.getElementById("edit-labtest-name").value = test.test_name;
+          document.getElementById("edit-labtest-description").value = test.description || "";
+          document.getElementById("edit-labtest-price").value = test.price;
+          openModal("edit-labtest-modal");
+        }
+
+        // Handle edit lab test
+        async function handleEditLabTest(e) {
+          e.preventDefault();
+          try {
+            setLoading(true);
+            const catalogId = document.getElementById("edit-labtest-id").value;
+            const payload = {
+              test_name: document.getElementById("edit-labtest-name").value,
+              description: document.getElementById("edit-labtest-description").value || null,
+              price: parseFloat(document.getElementById("edit-labtest-price").value)
+            };
+
+            const res = await fetch(`${API}/lab-tests/catalog/${encodeURIComponent(catalogId)}`, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload)
+            });
+
+            if (!res.ok) throw new Error("Failed to update lab test");
+            await loadLabCatalog();
+            renderLabCatalog();
+            closeModal("edit-labtest-modal");
+          } catch (err) {
+            showError(err.message);
+          } finally {
+            setLoading(false);
+          }
+        }
+
+        // Open delete lab test modal
+        function openDeleteLabTestModal(catalogId) {
+          labTestToDeleteId = catalogId;
+          openModal("delete-labtest-modal");
+        }
+
+        // Confirm delete lab test
+        async function confirmDeleteLabTest() {
+          if (!labTestToDeleteId) return;
+          try {
+            setLoading(true);
+            const res = await fetch(`${API}/lab-tests/catalog/${encodeURIComponent(labTestToDeleteId)}`, {
+              method: "DELETE"
+            });
+            if (!res.ok) throw new Error("Failed to delete lab test");
+            await loadLabCatalog();
+            renderLabCatalog();
+            closeModal("delete-labtest-modal");
+          } catch (err) {
+            showError(err.message);
+          } finally {
+            setLoading(false);
+            labTestToDeleteId = null;
           }
         }
 
@@ -2553,12 +2858,12 @@
                 font-size: 18px;
                 font-weight: 700;
                 color: var(--text);
-              ">${med.medicinename}</h3>
+              ">${med.medicine_name}</h3>
               <p style="
                 margin: 0 0 4px 0;
                 font-size: 14px;
                 color: var(--text-2);
-              ">ID: ${med.med_id}</p>
+              ">ID: ${med.medicine_id}</p>
               <p style="
                 margin: 0 0 16px 0;
                 font-size: 14px;
@@ -2572,10 +2877,10 @@
                 ">${med.description}</p>
               ` : ''}
               <div style="display: flex; gap: 12px;">
-                <button class="btn btn-outline" onclick="openEditMedicineModal('${med.med_id}')" style="flex: 1;">
+                <button class="btn btn-outline" onclick="openEditMedicineModal('${med.medicine_id}')" style="flex: 1;">
                   Edit
                 </button>
-                <button class="btn" style="flex: 1; background: #fee2e2; color: #dc2626; border: 1px solid #fecaca;" onclick="openDeleteMedicineModal('${med.med_id}')">
+                <button class="btn" style="flex: 1; background: #fee2e2; color: #dc2626; border: 1px solid #fecaca;" onclick="openDeleteMedicineModal('${med.medicine_id}')">
                   Delete
                 </button>
               </div>
@@ -2585,7 +2890,6 @@
 
         function openAddMedicineModal() {
           // Reset form
-          document.getElementById("add-med-id").value = "";
           document.getElementById("add-medicinename").value = "";
           document.getElementById("add-medicine-type").value = "";
           document.getElementById("add-medicine-description").value = "";
@@ -2601,8 +2905,7 @@
             setLoading(true);
 
             const payload = {
-              med_id: document.getElementById("add-med-id").value,
-              medicinename: document.getElementById("add-medicinename").value,
+              medicine_name: document.getElementById("add-medicinename").value,
               medicine_type: document.getElementById("add-medicine-type").value,
               description: document.getElementById("add-medicine-description").value || null,
               form: document.getElementById("add-medicine-form").value || null,
@@ -2630,14 +2933,14 @@
         }
 
         function openEditMedicineModal(medId) {
-          const med = medicines.find(m => m.med_id === medId);
+          const med = medicines.find(m => m.medicine_id == medId);
           if (!med) {
             showError("Medicine not found");
             return;
           }
 
-          document.getElementById("edit-med-id").value = med.med_id;
-          document.getElementById("edit-medicinename").value = med.medicinename;
+          document.getElementById("edit-med-id").value = med.medicine_id;
+          document.getElementById("edit-medicinename").value = med.medicine_name;
           document.getElementById("edit-medicine-type").value = med.medicine_type;
           document.getElementById("edit-medicine-description").value = med.description || "";
           document.getElementById("edit-medicine-form").value = med.form || "";
@@ -2654,7 +2957,7 @@
             const medId = document.getElementById("edit-med-id").value;
 
             const payload = {
-              medicinename: document.getElementById("edit-medicinename").value,
+              medicine_name: document.getElementById("edit-medicinename").value,
               medicine_type: document.getElementById("edit-medicine-type").value,
               description: document.getElementById("edit-medicine-description").value || null,
               form: document.getElementById("edit-medicine-form").value || null,
@@ -3436,7 +3739,9 @@
             });
           }
 
-          if (name === "lab-catalog") updateLabCatalog();
+          if (name === "lab-catalog") {
+            loadLabCatalog().then(() => renderLabCatalog());
+          }
           if (name === "medicines") renderMedicines();
         }
 
@@ -4286,7 +4591,7 @@
             .classList.remove("active");
         }
 
-        async function handleAddLabTest(e) {
+        async function handleOrderLabTest(e) {
           e.preventDefault();
 
           try {
@@ -4464,7 +4769,7 @@
             (function () {
         const BASE = 'http://127.0.0.1:8000/prescriptions';
         const CASES_BASE = 'http://127.0.0.1:8000/cases';
-        const USERS_BASE = 'http://127.0.0.1:8000/users';
+        const DOCTORS_BASE = 'http://127.0.0.1:8000/doctors';
 
         let rxList = [];
         let rxMedicines = [];
@@ -4679,7 +4984,7 @@ async function fetchDoctorInfo(doctorId) {
             const sel = document.getElementById('rx-med-select');
             sel.innerHTML = '<option value="">Select medicine…</option>';
             rxMedicines.forEach(m => {
-              sel.innerHTML += `<option value="${m.med_id}">${m.medicinename} (${m.medicine_type})</option>`;
+              sel.innerHTML += `<option value="${m.medicine_id}">${m.medicine_name} (${m.medicine_type})</option>`;
             });
           } catch (_) {}
         }
@@ -4922,11 +5227,15 @@ async function fetchDoctorInfo(doctorId) {
       
         // auto-load when page is shown
         const _origShowPage = window.showPage;
-        window.showPage = function(name) {
+        window.showPage = async function(name) {
           _origShowPage(name);
           if (name === 'prescriptions') {
             rxLoad();
             rxLoadMedicines();
+            fetchAllDoctors();
+          } else if (name === 'medicines') {
+            await loadMedicines();
+            renderMedicines();
           }
         };
       
