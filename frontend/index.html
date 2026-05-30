@@ -639,6 +639,66 @@
       .search-item:hover {
         background: var(--primary-light);
       }
+      
+      /* Toggle Switch */
+      .toggle-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 24px;
+      }
+      
+      .toggle-label {
+        font-size: 14px;
+        color: var(--text-2);
+        font-weight: 500;
+      }
+      
+      .switch {
+        position: relative;
+        display: inline-block;
+        width: 48px;
+        height: 28px;
+      }
+      
+      .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 28px;
+      }
+      
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 20px;
+        width: 20px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+      }
+      
+      input:checked + .slider {
+        background: var(--gradient);
+      }
+      
+      input:checked + .slider:before {
+        transform: translateX(20px);
+      }
     </style>
   </head>
   <body>
@@ -653,11 +713,19 @@
             </svg>
           </div>
           <h1 class="auth-title">Welcome Back</h1>
-          <p class="auth-sub">Log in with your PatientID</p>
+          <p class="auth-sub" id="login-subtitle">Log in with your PatientID</p>
+        </div>
+        <div class="toggle-container">
+          <span class="toggle-label">Patient</span>
+          <label class="switch">
+            <input type="checkbox" id="doctor-toggle" onchange="toggleDoctorMode()">
+            <span class="slider"></span>
+          </label>
+          <span class="toggle-label">Doctor</span>
         </div>
         <form onsubmit="handleLogin(event)">
           <div class="form-group">
-            <label class="form-label">PatientID (e.g. 000000)</label>
+            <label class="form-label" id="login-id-label">PatientID (e.g. 000000)</label>
             <input
               type="text"
               class="form-input"
@@ -680,13 +748,13 @@
             Sign In
           </button>
         </form>
-        <div class="auth-switch">
-          Don't have an account?
-          <span onclick="switchAuth('register')">Register here</span>
-        </div>
+        <div class="auth-switch" id="auth-switch-container">
+            <span id="auth-switch-text">Don't have an account?</span>
+            <span id="auth-switch-action" onclick="switchAuth('register')">Register here</span>
+          </div>
       </div>
 
-      <!-- Register Card -->
+      <!-- Patient Register Card -->
       <div
         id="register-view"
         class="auth-card"
@@ -795,11 +863,95 @@
             </div>
             <div class="form-group">
               <label class="form-label">Confirm Password</label>
-              <input type="password" class="form-input" required />
+              <input type="password" class="form-input" required id="reg-confirm-password" />
             </div>
           </div>
           <button type="submit" class="btn btn-primary btn-block">
             Create Patient Account
+          </button>
+        </form>
+        <div class="auth-switch">
+          Already registered?
+          <span onclick="switchAuth('login')">Log in instead</span>
+        </div>
+      </div>
+
+      <!-- Doctor Register Card -->
+      <div
+        id="doctor-register-view"
+        class="auth-card"
+        style="display: none; max-width: 700px"
+      >
+        <div class="auth-header">
+          <div class="auth-logo">
+            <svg viewBox="0 0 24 24">
+              <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+            </svg>
+          </div>
+          <h1 class="auth-title">Register as Doctor</h1>
+          <p class="auth-sub">Join ClinicMS as a healthcare provider</p>
+        </div>
+        <form onsubmit="handleDoctorRegister(event)">
+          <div class="info-grid">
+            <div class="form-group">
+              <label class="form-label">First Name</label>
+              <input type="text" class="form-input" required id="doc-reg-fname" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Last Name</label>
+              <input type="text" class="form-input" required id="doc-reg-lname" />
+            </div>
+          </div>
+          <div class="info-grid">
+            <div class="form-group">
+              <label class="form-label">Sex</label>
+              <select class="form-input" id="doc-reg-sex">
+                <option value="">Select</option>
+                <option value="M">Male</option>
+                <option value="F">Female</option>
+                <option value="O">Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">License Number</label>
+              <input type="number" class="form-input" id="doc-reg-license-no" />
+            </div>
+          </div>
+          <div class="info-grid">
+            <div class="form-group">
+              <label class="form-label">Email Address</label>
+              <input type="email" class="form-input" id="doc-reg-email" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Years of Experience</label>
+              <input type="number" class="form-input" id="doc-reg-years-exp" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Specialization</label>
+            <input type="text" class="form-input" id="doc-reg-specialization" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Contact Number</label>
+            <input type="text" class="form-input" id="doc-reg-contact-number" />
+          </div>
+          <div class="info-grid">
+            <div class="form-group">
+              <label class="form-label">Password</label>
+              <input
+                type="password"
+                class="form-input"
+                required
+                id="doc-reg-password"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Confirm Password</label>
+              <input type="password" class="form-input" required id="doc-reg-confirm-password" />
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">
+            Create Doctor Account
           </button>
         </form>
         <div class="auth-switch">
@@ -976,6 +1128,272 @@
             Add Lab Test
           </button>
         </form>
+      </div>
+    </div>
+
+    <!-- DELETE ACCOUNT CONFIRMATION MODAL -->
+    <div id="delete-account-modal" class="modal-overlay">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2 class="auth-title" style="margin: 0; font-size: 20px;">
+            Delete Account
+          </h2>
+          <button
+            class="modal-close"
+            onclick="closeModal('delete-account-modal')"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              style="
+                width: 24px;
+                height: 24px;
+                stroke: currentColor;
+                fill: none;
+                stroke-width: 2;
+              "
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <p style="color: var(--text-2); margin-bottom: 24px;">
+          Are you sure you want to delete your account? This action is permanent and cannot be undone.
+        </p>
+        <div style="display: flex; gap: 12px;">
+          <button
+            type="button"
+            class="btn btn-outline"
+            onclick="closeModal('delete-account-modal')"
+            style="flex: 1;"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="btn"
+            style="flex: 1; background: #dc2626; color: white;"
+            onclick="confirmDeleteAccount()"
+          >
+            Yes, Delete
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DELETE CASE CONFIRMATION MODAL -->
+    <div id="delete-case-modal" class="modal-overlay">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2 class="auth-title" style="margin: 0; font-size: 20px;">
+            Delete Case
+          </h2>
+          <button
+            class="modal-close"
+            onclick="closeModal('delete-case-modal')"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              style="
+                width: 24px;
+                height: 24px;
+                stroke: currentColor;
+                fill: none;
+                stroke-width: 2;
+              "
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <p style="color: var(--text-2); margin-bottom: 24px;">
+          Are you sure you want to delete this case? This action is permanent and cannot be undone.
+        </p>
+        <div style="display: flex; gap: 12px;">
+          <button
+            type="button"
+            class="btn btn-outline"
+            onclick="closeModal('delete-case-modal')"
+            style="flex: 1;"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="btn"
+            style="flex: 1; background: #dc2626; color: white;"
+            onclick="confirmDeleteCase()"
+          >
+            Yes, Delete
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADD MEDICINE MODAL -->
+    <div id="add-medicine-modal" class="modal-overlay">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2 class="auth-title" style="margin: 0; font-size: 20px;">
+            Add Medicine
+          </h2>
+          <button class="modal-close" onclick="closeModal('add-medicine-modal')">
+            <svg
+              viewBox="0 0 24 24"
+              style="
+                width: 24px;
+                height: 24px;
+                stroke: currentColor;
+                fill: none;
+                stroke-width: 2;
+              "
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <form onsubmit="handleAddMedicine(event)">
+          <div class="info-grid">
+            <div class="form-group">
+              <label class="form-label">Medicine ID (med_id)</label>
+              <input type="text" class="form-input" required id="add-med-id" placeholder="e.g., 000031" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Medicine Name</label>
+              <input type="text" class="form-input" required id="add-medicinename" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Medicine Type</label>
+            <input type="text" class="form-input" required id="add-medicine-type" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Description (optional)</label>
+            <textarea class="form-input" id="add-medicine-description" style="height: 60px; resize: none;"></textarea>
+          </div>
+          <div class="info-grid">
+            <div class="form-group">
+              <label class="form-label">Form (optional)</label>
+              <input type="text" class="form-input" id="add-medicine-form" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Strength (optional)</label>
+              <input type="text" class="form-input" id="add-medicine-strength" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Unit Price (optional)</label>
+            <input type="number" step="0.01" class="form-input" id="add-medicine-unit-price" />
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">
+            Add Medicine
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- EDIT MEDICINE MODAL -->
+    <div id="edit-medicine-modal" class="modal-overlay">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2 class="auth-title" style="margin: 0; font-size: 20px;">
+            Edit Medicine
+          </h2>
+          <button class="modal-close" onclick="closeModal('edit-medicine-modal')">
+            <svg
+              viewBox="0 0 24 24"
+              style="
+                width: 24px;
+                height: 24px;
+                stroke: currentColor;
+                fill: none;
+                stroke-width: 2;
+              "
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <form onsubmit="handleEditMedicine(event)">
+          <input type="hidden" id="edit-med-id" />
+          <div class="form-group">
+            <label class="form-label">Medicine Name</label>
+            <input type="text" class="form-input" required id="edit-medicinename" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Medicine Type</label>
+            <input type="text" class="form-input" required id="edit-medicine-type" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Description (optional)</label>
+            <textarea class="form-input" id="edit-medicine-description" style="height: 60px; resize: none;"></textarea>
+          </div>
+          <div class="info-grid">
+            <div class="form-group">
+              <label class="form-label">Form (optional)</label>
+              <input type="text" class="form-input" id="edit-medicine-form" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Strength (optional)</label>
+              <input type="text" class="form-input" id="edit-medicine-strength" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Unit Price (optional)</label>
+            <input type="number" step="0.01" class="form-input" id="edit-medicine-unit-price" />
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">
+            Update Medicine
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- DELETE MEDICINE CONFIRMATION MODAL -->
+    <div id="delete-medicine-modal" class="modal-overlay">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2 class="auth-title" style="margin: 0; font-size: 20px;">
+            Delete Medicine
+          </h2>
+          <button class="modal-close" onclick="closeModal('delete-medicine-modal')">
+            <svg
+              viewBox="0 0 24 24"
+              style="
+                width: 24px;
+                height: 24px;
+                stroke: currentColor;
+                fill: none;
+                stroke-width: 2;
+              "
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <p style="color: var(--text-2); margin-bottom: 24px;">
+          Are you sure you want to delete this medicine? This action is permanent and cannot be undone.
+        </p>
+        <div style="display: flex; gap: 12px;">
+          <button
+            type="button"
+            class="btn btn-outline"
+            onclick="closeModal('delete-medicine-modal')"
+            style="flex: 1;">
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="btn"
+            style="flex: 1; background: #dc2626; color: white;"
+            onclick="confirmDeleteMedicine()">
+            Yes, Delete
+          </button>
+        </div>
       </div>
     </div>
 
@@ -1212,9 +1630,9 @@
                 <div class="avatar-xl" id="settings-avatar">MR</div>
                 <h2 id="settings-full-name">Maria Reyes</h2>
                 <div style="margin-top: 8px">
-                  <span class="badge" id="settings-patient-id">ID: 000000</span>
+                  <span class="badge" id="settings-id">ID: 000000</span>
                 </div>
-                <p class="text-3" style="margin-top: 12px">Patient Account</p>
+                <p class="text-3" style="margin-top: 12px" id="settings-account-type">Patient Account</p>
               </div>
 
               <div class="card">
@@ -1223,6 +1641,7 @@
                 </div>
                 <div style="padding: 24px">
                   <form onsubmit="updateProfile(event)">
+                    <!-- Shared Fields -->
                     <div class="info-grid">
                       <div class="form-group">
                         <label class="form-label">First Name</label>
@@ -1243,49 +1662,135 @@
                         />
                       </div>
                     </div>
-                    <div class="info-grid">
+                    
+                    <!-- Patient-Specific Fields -->
+                    <div id="patient-fields">
+                      <div class="info-grid">
+                        <div class="form-group">
+                          <label class="form-label">Nationality</label>
+                          <input
+                            type="text"
+                            id="set-nationality"
+                            class="form-input"
+                            required
+                          />
+                        </div>
+                        <div class="form-group">
+                          <label class="form-label">Sex</label>
+                          <select id="set-sex" class="form-input" required>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="info-grid">
+                        <div class="form-group">
+                          <label class="form-label">Blood Type</label>
+                          <select id="set-blood" class="form-input" required>
+                            <option value="A+">A+</option>
+                            <option value="A-">A-</option>
+                            <option value="B+">B+</option>
+                            <option value="B-">B-</option>
+                            <option value="AB+">AB+</option>
+                            <option value="AB-">AB-</option>
+                            <option value="O+">O+</option>
+                            <option value="O-">O-</option>
+                          </select>
+                        </div>
+                        <div class="form-group">
+                          <label class="form-label">Birthday</label>
+                          <input
+                            type="date"
+                            id="set-birthday"
+                            class="form-input"
+                            required
+                          />
+                        </div>
+                      </div>
                       <div class="form-group">
-                        <label class="form-label">Nationality</label>
+                        <label class="form-label">Home Address</label>
+                        <textarea
+                          id="set-address"
+                          class="form-input"
+                          required
+                          style="height: 60px; resize: none"
+                        ></textarea>
+                      </div>
+                      <div class="info-grid">
+                        <div class="form-group">
+                          <label class="form-label">Contact Number</label>
+                          <input
+                            type="text"
+                            id="set-contact"
+                            class="form-input"
+                            required
+                          />
+                        </div>
+                        <div class="form-group">
+                          <label class="form-label"
+                            >Emergency Contact Number</label
+                          >
+                          <input
+                            type="text"
+                            id="set-emergency"
+                            class="form-input"
+                            required
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <!-- Doctor-Specific Fields -->
+                    <div id="doctor-fields" style="display: none;">
+                      <div class="info-grid">
+                        <div class="form-group">
+                          <label class="form-label">Sex</label>
+                          <select id="set-doctor-sex" class="form-input">
+                            <option value="">Select</option>
+                            <option value="M">Male</option>
+                            <option value="F">Female</option>
+                            <option value="O">Other</option>
+                          </select>
+                        </div>
+                        <div class="form-group">
+                          <label class="form-label">License Number</label>
+                          <input
+                            type="number"
+                            id="set-doctor-license"
+                            class="form-input"
+                          />
+                        </div>
+                      </div>
+                      <div class="info-grid">
+                        <div class="form-group">
+                          <label class="form-label">Years of Experience</label>
+                          <input
+                            type="number"
+                            id="set-doctor-years-exp"
+                            class="form-input"
+                          />
+                        </div>
+                        <div class="form-group">
+                          <label class="form-label">Specialization</label>
+                          <input
+                            type="text"
+                            id="set-doctor-specialization"
+                            class="form-input"
+                          />
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">Contact Number</label>
                         <input
                           type="text"
-                          id="set-nationality"
+                          id="set-doctor-contact"
                           class="form-input"
-                          required
-                        />
-                      </div>
-                      <div class="form-group">
-                        <label class="form-label">Sex</label>
-                        <select id="set-sex" class="form-input" required>
-                          <option value="male">Male</option>
-                          <option value="female">Female</option>
-                          <option value="other">Other</option>
-                        </select>
-                      </div>
-                    </div>
-                    <div class="info-grid">
-                      <div class="form-group">
-                        <label class="form-label">Blood Type</label>
-                        <select id="set-blood" class="form-input" required>
-                          <option value="A+">A+</option>
-                          <option value="A-">A-</option>
-                          <option value="B+">B+</option>
-                          <option value="B-">B-</option>
-                          <option value="AB+">AB+</option>
-                          <option value="AB-">AB-</option>
-                          <option value="O+">O+</option>
-                          <option value="O-">O-</option>
-                        </select>
-                      </div>
-                      <div class="form-group">
-                        <label class="form-label">Birthday</label>
-                        <input
-                          type="date"
-                          id="set-birthday"
-                          class="form-input"
-                          required
                         />
                       </div>
                     </div>
+                    
+                    <!-- Shared Email Field -->
                     <div class="form-group">
                       <label class="form-label">Email Address</label>
                       <input
@@ -1295,38 +1800,8 @@
                         required
                       />
                     </div>
-                    <div class="form-group">
-                      <label class="form-label">Home Address</label>
-                      <textarea
-                        id="set-address"
-                        class="form-input"
-                        required
-                        style="height: 60px; resize: none"
-                      ></textarea>
-                    </div>
-                    <div class="info-grid">
-                      <div class="form-group">
-                        <label class="form-label">Contact Number</label>
-                        <input
-                          type="text"
-                          id="set-contact"
-                          class="form-input"
-                          required
-                        />
-                      </div>
-                      <div class="form-group">
-                        <label class="form-label"
-                          >Emergency Contact Number</label
-                        >
-                        <input
-                          type="text"
-                          id="set-emergency"
-                          class="form-input"
-                          required
-                        />
-                      </div>
-                    </div>
-                    <div style="display: flex; gap: 12px">
+                    
+                    <div style="display: flex; gap: 12px; margin-top: 20px">
                       <button type="submit" class="btn btn-primary">
                         Save Changes
                       </button>
@@ -1338,6 +1813,16 @@
                         Log Out
                       </button>
                     </div>
+                    <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border);">
+                      <button 
+                        type="button" 
+                        class="btn" 
+                        style="background: #fee2e2; color: #dc2626; border: 1px solid #fecaca;"
+                        onclick="openDeleteAccountModal()"
+                      >
+                        Delete Account
+                      </button>
+                    </div>
                   </form>
                 </div>
               </div>
@@ -1347,6 +1832,11 @@
           <!-- MY CASES PAGE -->
           <div id="page-cases" class="page">
             <!-- Populated by JS renderCases() -->
+          </div>
+
+          <!-- DOCTOR MY CASES PAGE -->
+          <div id="page-doctor-cases" class="page">
+            <!-- Populated by JS renderDoctorCases() -->
           </div>
 
           <!-- CASE DETAIL PAGE -->
@@ -1424,10 +1914,19 @@
           </div>
           <div id="page-medicines" class="page">
             <div class="card">
-              <div
-                style="padding: 40px; text-align: center; color: var(--text-3)"
-              >
-                Medicine Offered module coming soon.
+              <div class="card-header">
+                <span class="card-title">Medicine Offered</span>
+                <button class="btn btn-primary" onclick="openAddMedicineModal()">
+                  <svg viewBox="0 0 24 24" style="width: 16px; height: 16px; stroke: currentColor; fill: none;">
+                    <path d="M12 5v14M5 12h14"/>
+                  </svg>
+                  Add Medicine
+                </button>
+              </div>
+              <div style="padding: 24px;">
+                <div id="medicines-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px;">
+                  <!-- Medicines will be rendered here -->
+                </div>
               </div>
             </div>
           </div>
@@ -1463,6 +1962,7 @@
       let currentUser = null;
       let labCatalog = [];
       let doctors = [];
+      let medicines = [];
       let isLoading = false;
 
       // Error handling helper
@@ -1480,6 +1980,20 @@
         } catch (err) {
           showError(err.message);
           labCatalog = [];
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      async function loadMedicines() {
+        try {
+          setLoading(true);
+          const res = await fetch(`${API}/prescriptions/medicines`);
+          if (!res.ok) throw new Error("Failed to load medicines");
+          medicines = await res.json();
+        } catch (err) {
+          showError(err.message);
+          medicines = [];
         } finally {
           setLoading(false);
         }
@@ -1503,8 +2017,216 @@
         }
       }
 
+      // Track medicine to delete
+      let medicineToDeleteId = null;
+
+      function renderMedicines() {
+        const container = document.getElementById("medicines-list");
+        if (!container) return;
+
+        if (!medicines || medicines.length === 0) {
+          container.innerHTML = `
+            <p style="color: var(--text-3); text-align: center; grid-column: 1 / -1;">
+              No medicines available yet.
+            </p>
+          `;
+          return;
+        }
+
+        container.innerHTML = medicines.map(med => `
+          <div class="case-card" style="
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow);
+          ">
+            <h3 style="
+              margin: 0 0 8px 0;
+              font-size: 18px;
+              font-weight: 700;
+              color: var(--text);
+            ">${med.medicinename}</h3>
+            <p style="
+              margin: 0 0 4px 0;
+              font-size: 14px;
+              color: var(--text-2);
+            ">ID: ${med.med_id}</p>
+            <p style="
+              margin: 0 0 16px 0;
+              font-size: 14px;
+              color: var(--text-2);
+            ">Type: ${med.medicine_type}</p>
+            ${med.description ? `
+              <p style="
+                margin: 0 0 16px 0;
+                font-size: 14px;
+                color: var(--text-2);
+              ">${med.description}</p>
+            ` : ''}
+            <div style="display: flex; gap: 12px;">
+              <button class="btn btn-outline" onclick="openEditMedicineModal('${med.med_id}')" style="flex: 1;">
+                Edit
+              </button>
+              <button class="btn" style="flex: 1; background: #fee2e2; color: #dc2626; border: 1px solid #fecaca;" onclick="openDeleteMedicineModal('${med.med_id}')">
+                Delete
+              </button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      function openAddMedicineModal() {
+        // Reset form
+        document.getElementById("add-med-id").value = "";
+        document.getElementById("add-medicinename").value = "";
+        document.getElementById("add-medicine-type").value = "";
+        document.getElementById("add-medicine-description").value = "";
+        document.getElementById("add-medicine-form").value = "";
+        document.getElementById("add-medicine-strength").value = "";
+        document.getElementById("add-medicine-unit-price").value = "";
+        openModal("add-medicine-modal");
+      }
+
+      async function handleAddMedicine(e) {
+        e.preventDefault();
+        try {
+          setLoading(true);
+
+          const payload = {
+            med_id: document.getElementById("add-med-id").value,
+            medicinename: document.getElementById("add-medicinename").value,
+            medicine_type: document.getElementById("add-medicine-type").value,
+            description: document.getElementById("add-medicine-description").value || null,
+            form: document.getElementById("add-medicine-form").value || null,
+            strength: document.getElementById("add-medicine-strength").value || null,
+            unit_price: document.getElementById("add-medicine-unit-price").value ? parseFloat(document.getElementById("add-medicine-unit-price").value) : null
+          };
+
+          const res = await fetch(`${API}/prescriptions/medicines`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+
+          if (!res.ok) throw new Error("Failed to add medicine");
+
+          // Reload medicines and re-render
+          await loadMedicines();
+          renderMedicines();
+          closeModal("add-medicine-modal");
+        } catch (err) {
+          showError(err.message);
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      function openEditMedicineModal(medId) {
+        const med = medicines.find(m => m.med_id === medId);
+        if (!med) {
+          showError("Medicine not found");
+          return;
+        }
+
+        document.getElementById("edit-med-id").value = med.med_id;
+        document.getElementById("edit-medicinename").value = med.medicinename;
+        document.getElementById("edit-medicine-type").value = med.medicine_type;
+        document.getElementById("edit-medicine-description").value = med.description || "";
+        document.getElementById("edit-medicine-form").value = med.form || "";
+        document.getElementById("edit-medicine-strength").value = med.strength || "";
+        document.getElementById("edit-medicine-unit-price").value = med.unit_price || "";
+        openModal("edit-medicine-modal");
+      }
+
+      async function handleEditMedicine(e) {
+        e.preventDefault();
+        try {
+          setLoading(true);
+
+          const medId = document.getElementById("edit-med-id").value;
+
+          const payload = {
+            medicinename: document.getElementById("edit-medicinename").value,
+            medicine_type: document.getElementById("edit-medicine-type").value,
+            description: document.getElementById("edit-medicine-description").value || null,
+            form: document.getElementById("edit-medicine-form").value || null,
+            strength: document.getElementById("edit-medicine-strength").value || null,
+            unit_price: document.getElementById("edit-medicine-unit-price").value ? parseFloat(document.getElementById("edit-medicine-unit-price").value) : null
+          };
+
+          const res = await fetch(`${API}/prescriptions/medicines/${encodeURIComponent(medId)}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+
+          if (!res.ok) throw new Error("Failed to update medicine");
+
+          // Reload medicines and re-render
+          await loadMedicines();
+          renderMedicines();
+          closeModal("edit-medicine-modal");
+        } catch (err) {
+          showError(err.message);
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      function openDeleteMedicineModal(medId) {
+        medicineToDeleteId = medId;
+        openModal("delete-medicine-modal");
+      }
+
+      async function confirmDeleteMedicine() {
+        if (!medicineToDeleteId) return;
+
+        try {
+          setLoading(true);
+
+          const res = await fetch(`${API}/prescriptions/medicines/${encodeURIComponent(medicineToDeleteId)}`, {
+            method: "DELETE",
+          });
+
+          if (!res.ok) throw new Error("Failed to delete medicine");
+
+          // Reload medicines and re-render
+          await loadMedicines();
+          renderMedicines();
+          closeModal("delete-medicine-modal");
+          medicineToDeleteId = null;
+        } catch (err) {
+          showError(err.message);
+        } finally {
+          setLoading(false);
+        }
+      }
+
       function setLoading(state) {
         isLoading = state;
+      }
+      
+      function toggleDoctorMode() {
+        const isDoctor = document.getElementById("doctor-toggle").checked;
+        const subtitle = document.getElementById("login-subtitle");
+        const idLabel = document.getElementById("login-id-label");
+        const authSwitchText = document.getElementById("auth-switch-text");
+        const authSwitchAction = document.getElementById("auth-switch-action");
+        
+        if (isDoctor) {
+          subtitle.textContent = "Log in with your Doctor ID";
+          idLabel.textContent = "Doctor ID (e.g., 100000)";
+          authSwitchText.textContent = "Don't have an account?";
+          authSwitchAction.textContent = "Register as Doctor";
+          authSwitchAction.onclick = () => switchAuth('doctor-register');
+        } else {
+          subtitle.textContent = "Log in with your PatientID";
+          idLabel.textContent = "PatientID (e.g., 000000)";
+          authSwitchText.textContent = "Don't have an account?";
+          authSwitchAction.textContent = "Register here";
+          authSwitchAction.onclick = () => switchAuth('register');
+        }
       }
 
       // Legacy Lab Test Catalog Data (reference only, use loadLabCatalog() instead)
@@ -1632,30 +2354,53 @@
           view === "login" ? "block" : "none";
         document.getElementById("register-view").style.display =
           view === "register" ? "block" : "none";
+        document.getElementById("doctor-register-view").style.display =
+          view === "doctor-register" ? "block" : "none";
       }
 
       async function handleLogin(e) {
         e.preventDefault();
         const inputID = document.getElementById("login-id").value;
         const pass = document.getElementById("login-password").value;
+        const isDoctor = document.getElementById("doctor-toggle").checked;
 
         try {
           setLoading(true);
-          // Send credentials to backend (expects POST /patients/login or similar)
-          // For now, fetch patient by ID from /patients/{id}
           const numericID = parseInt(inputID, 10);
-          const res = await fetch(`${API}/patients/${numericID}`);
+          
+          if (isDoctor) {
+            // Doctor login
+            const loginRes = await fetch(`${API}/doctors/login`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                doctor_id: numericID,
+                password: pass
+              })
+            });
 
-          if (!res.ok) {
-            showError("PatientID not found. Please register first.");
-            switchAuth("register");
-            return;
+            if (!loginRes.ok) {
+              showError("Doctor ID not found or invalid password.");
+              return;
+            }
+
+            currentUser = await loginRes.json();
+            currentUser.isDoctor = true;
+            enterApp();
+          } else {
+            // Patient login
+            const res = await fetch(`${API}/patients/${numericID}`);
+
+            if (!res.ok) {
+              showError("PatientID not found. Please register first.");
+              switchAuth("register");
+              return;
+            }
+
+            currentUser = await res.json();
+            currentUser.isDoctor = false;
+            enterApp();
           }
-
-          currentUser = await res.json();
-          // In production, verify password with backend authentication endpoint
-          // For now, we trust the backend
-          enterApp();
         } catch (err) {
           showError(err.message);
         } finally {
@@ -1672,6 +2417,13 @@
 
         try {
           setLoading(true);
+          const password = document.getElementById("reg-password").value;
+          const confirmPassword = document.getElementById("reg-confirm-password").value;
+          
+          if (password !== confirmPassword) {
+            throw new Error("Passwords do not match!");
+          }
+
           const payload = {
             FirstName: document.getElementById("reg-fname").value,
             LastName: document.getElementById("reg-lname").value,
@@ -1683,7 +2435,7 @@
             Address: document.getElementById("reg-address").value,
             contactNumber: document.getElementById("reg-contact").value,
             emergencyContact: document.getElementById("reg-emergency").value,
-            password: document.getElementById("reg-password").value,
+            password: password,
           };
 
           const res = await fetch(`${API}/patients`, {
@@ -1708,6 +2460,52 @@
         }
       }
 
+      async function handleDoctorRegister(e) {
+        e.preventDefault();
+
+        try {
+          setLoading(true);
+          const password = document.getElementById("doc-reg-password").value;
+          const confirmPassword = document.getElementById("doc-reg-confirm-password").value;
+          
+          if (password !== confirmPassword) {
+            throw new Error("Passwords do not match!");
+          }
+
+          const payload = {
+            first_name: document.getElementById("doc-reg-fname").value,
+            last_name: document.getElementById("doc-reg-lname").value,
+            sex: document.getElementById("doc-reg-sex").value || null,
+            license_no: document.getElementById("doc-reg-license-no").value ? parseInt(document.getElementById("doc-reg-license-no").value) : null,
+            email: document.getElementById("doc-reg-email").value || null,
+            years_exp: document.getElementById("doc-reg-years-exp").value ? parseInt(document.getElementById("doc-reg-years-exp").value) : null,
+            specialization: document.getElementById("doc-reg-specialization").value || null,
+            contact_number: document.getElementById("doc-reg-contact-number").value || null,
+            password: password,
+          };
+
+          const res = await fetch(`${API}/doctors`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+
+          if (!res.ok)
+            throw new Error("Registration failed. Please try again.");
+
+          currentUser = await res.json();
+          currentUser.isDoctor = true;
+          alert(
+            `Registration successful! Your Doctor ID is ${currentUser.doctor_id}. Please remember this for logging in.`
+          );
+          enterApp();
+        } catch (err) {
+          showError(err.message);
+        } finally {
+          setLoading(false);
+        }
+      }
+
       async function enterApp() {
         document.getElementById("auth-layer").style.display = "none";
         document.getElementById("app-layer").style.display = "flex";
@@ -1715,6 +2513,7 @@
         // Load shared data
         await loadDoctors();
         await loadLabCatalog();
+        await loadMedicines();
 
         showPage("dashboard");
         updateUI();
@@ -1732,65 +2531,357 @@
 
       function updateUI() {
         if (!currentUser) return;
-        const initials = (
-          currentUser.firstname[0] + currentUser.lastname[0]
-        ).toUpperCase();
-        const fullName = `${currentUser.firstname} ${currentUser.lastname}`;
-        const formattedID = formatPatientID(currentUser.patientid);
+        
+        if (currentUser.isDoctor) {
+          // Doctor UI
+          const initials = (
+            currentUser.first_name[0] + currentUser.last_name[0]
+          ).toUpperCase();
+          const fullName = `Dr. ${currentUser.first_name} ${currentUser.last_name}`;
 
-        // Header & Dashboard
-        document.getElementById("user-initials").textContent = initials;
-        document.getElementById("user-display-name").textContent = fullName;
-        document.getElementById("dashboard-welcome").textContent =
-          `Welcome back, ${currentUser.firstname} ${currentUser.lastname}`;
+          // Header & Dashboard
+          document.getElementById("user-initials").textContent = initials;
+          document.getElementById("user-display-name").textContent = fullName;
+          document.getElementById("dashboard-welcome").textContent =
+            `Welcome back, Dr. ${currentUser.last_name}`;
 
-        // Dynamic Stats - handle API response structure
-        // The API response may include a nested lab_tests or similar array
-        document.getElementById("stat-active").textContent = 0; // TODO: fetch from patient's cases
-        document.getElementById("stat-appointments").textContent = 0;
-        document.getElementById("stat-labs").textContent = 0;
+          // Dynamic Stats
+          const activeCases = currentUser.cases ? 
+            currentUser.cases.filter(c => c.appoint_status === "Ongoing").length : 0;
+          const pendingCases = currentUser.cases ? 
+            currentUser.cases.filter(c => c.appoint_status === "Pending").length : 0;
+            
+          document.getElementById("stat-active").textContent = activeCases;
+          document.getElementById("stat-appointments").textContent = pendingCases;
+          document.getElementById("stat-labs").textContent = 0;
 
-        // Recent Activity
-        const activityContainer = document.getElementById("dashboard-activity");
-        activityContainer.innerHTML =
-          '<p style="color: var(--text-3); text-align: center;">No recent activity found.</p>';
+          // Recent Activity
+          const activityContainer = document.getElementById("dashboard-activity");
+          activityContainer.innerHTML =
+            '<p style="color: var(--text-3); text-align: center;">No recent activity found.</p>';
 
-        // Settings Page
-        document.getElementById("settings-avatar").textContent = initials;
-        document.getElementById("settings-full-name").textContent = fullName;
-        document.getElementById("settings-patient-id").textContent =
-          `ID: ${formattedID}`;
+          // Settings Page
+          document.getElementById("settings-avatar").textContent = initials;
+          document.getElementById("settings-full-name").textContent = fullName;
+          document.getElementById("settings-id").textContent =
+            `ID: ${currentUser.doctor_id}`;
+          document.getElementById("settings-account-type").textContent = "Doctor Account";
+          
+          // Show doctor fields, hide patient fields
+          document.getElementById("doctor-fields").style.display = "block";
+          document.getElementById("patient-fields").style.display = "none";
 
-        // Fill settings form
-        document.getElementById("set-fname").value = currentUser.firstname;
-        document.getElementById("set-lname").value = currentUser.lastname;
-        document.getElementById("set-nationality").value =
-          currentUser.nationality || "";
-        document.getElementById("set-sex").value = currentUser.sex || "";
-        document.getElementById("set-blood").value =
-          currentUser.bloodtype || "";
-        document.getElementById("set-birthday").value =
-          currentUser.birthday || "";
-        document.getElementById("set-email").value = currentUser.email;
-        document.getElementById("set-address").value =
-          currentUser.address || "";
-        document.getElementById("set-contact").value =
-          currentUser.contactnumber || "";
-        document.getElementById("set-emergency").value =
-          currentUser.emergencycontact || "";
+          // Fill doctor settings form
+          document.getElementById("set-fname").value = currentUser.first_name;
+          document.getElementById("set-lname").value = currentUser.last_name;
+          document.getElementById("set-doctor-sex").value = currentUser.sex || "";
+          document.getElementById("set-doctor-license").value = currentUser.license_no || "";
+          document.getElementById("set-doctor-years-exp").value = currentUser.years_exp || "";
+          document.getElementById("set-doctor-specialization").value = currentUser.specialization || "";
+          document.getElementById("set-doctor-contact").value = currentUser.contact_number || "";
+          document.getElementById("set-email").value = currentUser.email || "";
 
-        // Render Cases in My Cases Page
-        // Load and render cases
-        loadPatientCases().then(() => {
-          renderCases();
+          // Update sidebar for doctor
+          updateSidebarForDoctor();
 
-          if (patientCases.length > 0) {
-            displayCaseCards();
-          }
-        });
+          // Load and render doctor cases
+          loadDoctorCases().then(() => {
+            renderDoctorCases();
+          });
 
-        // Update Lab Catalog Page
-        updateLabCatalog();
+        } else {
+          // Patient UI
+          const initials = (
+            currentUser.firstname[0] + currentUser.lastname[0]
+          ).toUpperCase();
+          const fullName = `${currentUser.firstname} ${currentUser.lastname}`;
+          const formattedID = formatPatientID(currentUser.patientid);
+
+          // Header & Dashboard
+          document.getElementById("user-initials").textContent = initials;
+          document.getElementById("user-display-name").textContent = fullName;
+          document.getElementById("dashboard-welcome").textContent =
+            `Welcome back, ${currentUser.firstname} ${currentUser.lastname}`;
+
+          // Dynamic Stats - handle API response structure
+          document.getElementById("stat-active").textContent = 0;
+          document.getElementById("stat-appointments").textContent = 0;
+          document.getElementById("stat-labs").textContent = 0;
+
+          // Recent Activity
+          const activityContainer = document.getElementById("dashboard-activity");
+          activityContainer.innerHTML =
+            '<p style="color: var(--text-3); text-align: center;">No recent activity found.</p>';
+
+          // Settings Page
+          document.getElementById("settings-avatar").textContent = initials;
+          document.getElementById("settings-full-name").textContent = fullName;
+          document.getElementById("settings-id").textContent =
+            `ID: ${formattedID}`;
+          document.getElementById("settings-account-type").textContent = "Patient Account";
+          
+          // Show patient fields, hide doctor fields
+          document.getElementById("patient-fields").style.display = "block";
+          document.getElementById("doctor-fields").style.display = "none";
+
+          // Fill patient settings form
+          document.getElementById("set-fname").value = currentUser.firstname;
+          document.getElementById("set-lname").value = currentUser.lastname;
+          document.getElementById("set-nationality").value =
+            currentUser.nationality || "";
+          document.getElementById("set-sex").value = currentUser.sex || "";
+          document.getElementById("set-blood").value =
+            currentUser.bloodtype || "";
+          document.getElementById("set-birthday").value =
+            currentUser.birthday || "";
+          document.getElementById("set-email").value = currentUser.email;
+          document.getElementById("set-address").value =
+            currentUser.address || "";
+          document.getElementById("set-contact").value =
+            currentUser.contactnumber || "";
+          document.getElementById("set-emergency").value =
+            currentUser.emergencycontact || "";
+
+          // Update sidebar for patient
+          updateSidebarForPatient();
+
+          // Render Cases in My Cases Page
+          // Load and render cases
+          loadPatientCases().then(() => {
+            renderCases();
+
+            if (patientCases.length > 0) {
+              displayCaseCards();
+            }
+          });
+
+          // Update Lab Catalog Page
+          updateLabCatalog();
+        }
+      }
+      
+      function updateSidebarForDoctor() {
+        const sidebarNav = document.querySelector(".sidebar-nav");
+        sidebarNav.innerHTML = `
+          <div class="nav-label">Doctor Menu</div>
+          <div class="nav-item active" onclick="showPage('dashboard')">
+            <svg viewBox="0 0 24 24">
+              <rect x="3" y="3" width="7" height="7" />
+              <rect x="14" y="3" width="7" height="7" />
+              <rect x="14" y="14" width="7" height="7" />
+              <rect x="3" y="14" width="7" height="7" />
+            </svg>
+            <span>Dashboard</span>
+          </div>
+          <div class="nav-item" onclick="showPage('doctor-cases')">
+            <svg viewBox="0 0 24 24">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+            </svg>
+            <span>My Cases</span>
+          </div>
+        `;
+      }
+      
+      function updateSidebarForPatient() {
+        const sidebarNav = document.querySelector(".sidebar-nav");
+        sidebarNav.innerHTML = `
+          <div class="nav-label">Patient Menu</div>
+          <div class="nav-item active" onclick="showPage('dashboard')">
+            <svg viewBox="0 0 24 24">
+              <rect x="3" y="3" width="7" height="7" />
+              <rect x="14" y="3" width="7" height="7" />
+              <rect x="14" y="14" width="7" height="7" />
+              <rect x="3" y="14" width="7" height="7" />
+            </svg>
+            <span>Dashboard</span>
+          </div>
+          <div class="nav-item" onclick="showPage('cases')">
+            <svg viewBox="0 0 24 24">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+            </svg>
+            <span>My Cases</span>
+          </div>
+          <div class="nav-item" onclick="showPage('my-labs')">
+            <svg viewBox="0 0 24 24">
+              <path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18" />
+            </svg>
+            <span>My Lab Tests</span>
+          </div>
+          <div class="nav-item" onclick="showPage('medicines')">
+            <svg viewBox="0 0 24 24">
+              <path d="M10.5 20.5l10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z" />
+              <path d="M8.5 8.5l7 7" />
+            </svg>
+            <span>Medicine Offered</span>
+          </div>
+          <div class="nav-item" onclick="showPage('lab-catalog')">
+            <svg viewBox="0 0 24 24">
+              <path d="M2 22v-5l5-5 5 5v5H2Z" />
+              <path d="M14 22v-5l5-5 5 5v5h-10Z" />
+              <path d="M18 10V4M6 10V4M11 4h2" />
+            </svg>
+            <span>Lab Tests Offered</span>
+          </div>
+        `;
+      }
+      
+      // Store doctor's cases
+      let doctorCases = [];
+      
+      // Track case being deleted
+      let caseToDeleteId = null;
+      
+      async function loadDoctorCases() {
+        try {
+          setLoading(true);
+          const res = await fetch(`${API}/doctors/${currentUser.doctor_id}`);
+          if (!res.ok) throw new Error("Failed to load doctor cases");
+          const doctorData = await res.json();
+          currentUser = { ...currentUser, ...doctorData };
+          doctorCases = doctorData.cases || [];
+          return doctorCases;
+        } catch (err) {
+          console.error("Failed to load doctor cases:", err);
+          doctorCases = [];
+          return [];
+        } finally {
+          setLoading(false);
+        }
+      }
+      
+      function renderDoctorCases() {
+        const container = document.getElementById("page-doctor-cases");
+        if (!container) return;
+        
+        if (!doctorCases || doctorCases.length === 0) {
+          container.innerHTML = `
+            <div class="card">
+              <div class="card-header"><span class="card-title">Patient Cases</span></div>
+              <div style="padding: 40px; text-align: center;">
+                <p style="color: var(--text-3); font-size: 16px;">
+                  No cases assigned yet
+                </p>
+              </div>
+            </div>`;
+        } else {
+          container.innerHTML = `
+            <div class="card">
+              <div class="card-header">
+                <span class="card-title">Patient Cases</span>
+              </div>
+              <div style="padding: 24px;">
+                <div id="doctor-cases-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px;">
+                  ${doctorCases.map(caseData => `
+                    <div class="case-card" style="
+                      background: var(--surface);
+                      border: 1px solid var(--border);
+                      border-radius: var(--radius-lg);
+                      padding: 24px;
+                      box-shadow: var(--shadow);
+                    ">
+                      <div style="
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: flex-start;
+                        margin-bottom: 12px;
+                      ">
+                        <h3 style="
+                          margin: 0;
+                          font-size: 16px;
+                          font-weight: 700;
+                          color: var(--text);
+                        ">${caseData.chief_complaint || caseData.chief_Complaint}</h3>
+                        <span style="
+                          display: inline-block;
+                          padding: 4px 12px;
+                          border-radius: 20px;
+                          font-size: 12px;
+                          font-weight: 600;
+                          background: ${getStatusBadgeColor(caseData.appoint_status)};
+                          color: ${getStatusBadgeTextColor(caseData.appoint_status)};
+                        ">${caseData.appoint_status}</span>
+                      </div>
+                      <p style="
+                        margin: 0 0 12px 0;
+                        font-size: 14px;
+                        color: var(--text-2);
+                      ">Patient: ${caseData.patient ? `${caseData.patient.firstname} ${caseData.patient.lastname}` : "N/A"}</p>
+                      <p style="
+                        margin: 0 0 16px 0;
+                        font-size: 14px;
+                        color: var(--text-2);
+                        max-height: 60px;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                      ">${caseData.description || "No description"}</p>
+                      ${caseData.feedback ? `
+                        <div style="
+                          background: var(--primary-light);
+                          padding: 12px;
+                          border-radius: var(--radius);
+                          margin-bottom: 16px;
+                        ">
+                          <p style="font-size: 12px; font-weight: 700; color: var(--primary); margin: 0 0 4px 0;">Your Feedback:</p>
+                          <p style="font-size: 14px; color: var(--text); margin: 0;">${caseData.feedback}</p>
+                        </div>
+                      ` : ""}
+                      <div style="display: flex; gap: 12px;">
+                        <button class="btn btn-primary" onclick="openDoctorCaseEdit(${caseData.case_id})" style="flex: 1;">
+                          Manage Case
+                        </button>
+                        <button class="btn" style="flex: 1; background: #fee2e2; color: #dc2626; border: 1px solid #fecaca;" onclick="event.stopPropagation(); openDeleteCaseModal(${caseData.case_id})">
+                          Delete Case
+                        </button>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            </div>`;
+        }
+      }
+      
+      function openDoctorCaseEdit(caseId) {
+        const caseData = doctorCases.find(c => c.case_id === caseId);
+        if (!caseData) {
+          showError("Case not found");
+          return;
+        }
+        
+        // Open the create case modal but use it for editing
+        document.getElementById("case-edit-id").value = caseId;
+        document.getElementById("case-name").value = caseData.chief_complaint || caseData.chief_Complaint || "";
+        document.getElementById("case-desc").value = caseData.description || "";
+        
+        // Hide Doctor-in-Charge field for doctors
+        const doctorSearchGroup = document.querySelector("label.form-label:has(+ .search-dropdown)")?.parentElement;
+        if (doctorSearchGroup) {
+          doctorSearchGroup.style.display = "none";
+        }
+        
+        document.getElementById("doctor-search").value = "";
+        document.getElementById("case-doctor-id").value = caseData.doctor_id;
+        document.getElementById("edit-status-group").style.display = "block";
+        document.getElementById("case-status").value = caseData.appoint_status;
+        
+        // Add feedback field
+        let feedbackField = document.getElementById("case-feedback");
+        if (!feedbackField) {
+          const formGroup = document.createElement("div");
+          formGroup.className = "form-group";
+          formGroup.innerHTML = `
+            <label class="form-label">Feedback to Patient</label>
+            <textarea class="form-input" id="case-feedback" style="height: 80px; resize: none;"></textarea>
+          `;
+          const editStatusGroup = document.getElementById("edit-status-group");
+          editStatusGroup.parentNode.insertBefore(formGroup, editStatusGroup.nextSibling);
+        }
+        document.getElementById("case-feedback").value = caseData.feedback || "";
+        
+        document.getElementById("case-submit-btn").textContent = "Update Case";
+        openModal("create-case-modal");
       }
 
       function showPage(name) {
@@ -1806,6 +2897,7 @@
         const titles = {
           dashboard: "Dashboard",
           cases: "My Cases",
+          "doctor-cases": "My Cases",
           "case-detail": "Case Detail",
           settings: "Profile Settings",
           "lab-catalog": "Lab Tests Offered",
@@ -1828,6 +2920,7 @@
         });
 
         if (name === "lab-catalog") updateLabCatalog();
+        if (name === "medicines") renderMedicines();
       }
 
       async function updateProfile(e) {
@@ -1835,28 +2928,59 @@
 
         try {
           setLoading(true);
-          const payload = {
-            FirstName: document.getElementById("set-fname").value,
-            LastName: document.getElementById("set-lname").value,
-            Nationality: document.getElementById("set-nationality").value,
-            Sex: document.getElementById("set-sex").value,
-            BloodType: document.getElementById("set-blood").value,
-            birthday: document.getElementById("set-birthday").value,
-            email: document.getElementById("set-email").value,
-            Address: document.getElementById("set-address").value,
-            contactNumber: document.getElementById("set-contact").value,
-            emergencyContact: document.getElementById("set-emergency").value,
-          };
+          let res;
+          
+          if (currentUser.isDoctor) {
+            // Update Doctor Profile
+            const payload = {
+              first_name: document.getElementById("set-fname").value,
+              last_name: document.getElementById("set-lname").value,
+              sex: document.getElementById("set-doctor-sex").value || null,
+              license_no: document.getElementById("set-doctor-license").value ? parseInt(document.getElementById("set-doctor-license").value) : null,
+              years_exp: document.getElementById("set-doctor-years-exp").value ? parseInt(document.getElementById("set-doctor-years-exp").value) : null,
+              specialization: document.getElementById("set-doctor-specialization").value || null,
+              contact_number: document.getElementById("set-doctor-contact").value || null,
+              email: document.getElementById("set-email").value || null
+            };
 
-          const res = await fetch(`${API}/patients/${currentUser.patientid}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          });
+            res = await fetch(`${API}/doctors/${currentUser.doctor_id}`, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            });
+          } else {
+            // Update Patient Profile
+            const payload = {
+              FirstName: document.getElementById("set-fname").value,
+              LastName: document.getElementById("set-lname").value,
+              Nationality: document.getElementById("set-nationality").value,
+              Sex: document.getElementById("set-sex").value,
+              BloodType: document.getElementById("set-blood").value,
+              birthday: document.getElementById("set-birthday").value,
+              email: document.getElementById("set-email").value,
+              Address: document.getElementById("set-address").value,
+              contactNumber: document.getElementById("set-contact").value,
+              emergencyContact: document.getElementById("set-emergency").value,
+            };
+
+            res = await fetch(`${API}/patients/${currentUser.patientid}`, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            });
+          }
 
           if (!res.ok) throw new Error("Failed to update profile");
 
-          currentUser = await res.json();
+          // Refresh current user data
+          if (currentUser.isDoctor) {
+            const doctorRes = await fetch(`${API}/doctors/${currentUser.doctor_id}`);
+            currentUser = await doctorRes.json();
+            currentUser.isDoctor = true;
+          } else {
+            currentUser = await res.json();
+          }
+          
           alert("Profile attributes updated successfully!");
           updateUI();
         } catch (err) {
@@ -1874,6 +2998,76 @@
         document.getElementById(id).classList.remove("active");
       }
 
+      function openDeleteAccountModal() {
+        openModal("delete-account-modal");
+      }
+
+      async function confirmDeleteAccount() {
+        try {
+          setLoading(true);
+          let url;
+          
+          if (currentUser.isDoctor) {
+            url = `${API}/doctors/${currentUser.doctor_id}`;
+          } else {
+            url = `${API}/patients/${currentUser.patientid}`;
+          }
+          
+          const res = await fetch(url, {
+            method: "DELETE",
+          });
+          
+          if (!res.ok) {
+            throw new Error("Failed to delete account");
+          }
+          
+          closeModal("delete-account-modal");
+          alert("Account deleted successfully!");
+          logout();
+        } catch (err) {
+          showError(err.message);
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      function openDeleteCaseModal(caseId) {
+        caseToDeleteId = caseId;
+        openModal("delete-case-modal");
+      }
+
+      async function confirmDeleteCase() {
+        try {
+          setLoading(true);
+          
+          const res = await fetch(`${API}/cases/${caseToDeleteId}`, {
+            method: "DELETE",
+          });
+          
+          if (!res.ok) {
+            throw new Error("Failed to delete case");
+          }
+          
+          closeModal("delete-case-modal");
+          alert("Case deleted successfully!");
+          
+          // Reload cases based on user type
+          if (currentUser.isDoctor) {
+            await loadDoctorCases();
+            renderDoctorCases();
+          } else {
+            await loadPatientCases();
+            renderCases();
+          }
+          
+          caseToDeleteId = null;
+        } catch (err) {
+          showError(err.message);
+        } finally {
+          setLoading(false);
+        }
+      }
+
       function openCreateCase() {
         document.getElementById("case-edit-id").value = "";
         document.getElementById("case-name").value = "";
@@ -1881,6 +3075,19 @@
         document.getElementById("doctor-search").value = "";
         document.getElementById("case-doctor-id").value = "";
         document.getElementById("edit-status-group").style.display = "none";
+        
+        // Show Doctor-in-Charge field for patients
+        const doctorSearchGroup = document.querySelector("label.form-label:has(+ .search-dropdown)")?.parentElement;
+        if (doctorSearchGroup) {
+          doctorSearchGroup.style.display = "block";
+        }
+        
+        // Remove feedback field if present (since patients don't need it)
+        const feedbackField = document.getElementById("case-feedback");
+        if (feedbackField) {
+          feedbackField.parentElement.remove();
+        }
+        
         document.getElementById("case-submit-btn").textContent =
           "Register Case";
         openModal("create-case-modal");
@@ -1935,25 +3142,38 @@
         try {
           setLoading(true);
           const editId = document.getElementById("case-edit-id").value;
-          const chief_Complaint = document.getElementById("case-name").value;
+          const chief_complaint = document.getElementById("case-name").value;
           const description = document.getElementById("case-desc").value;
           const doctor_id = document.getElementById("case-doctor-id").value;
 
-          if (!doctor_id) {
-            showError("Please select a doctor from the list.");
-            return;
+          const payload = {};
+          
+          if (editId) {
+            // Edit existing case
+            payload.appoint_status = document.getElementById("case-status").value;
+            const feedbackField = document.getElementById("case-feedback");
+            if (feedbackField) {
+              payload.feedback = feedbackField.value;
+            }
+            // Only add these if we're not a doctor (patients can edit)
+            if (!currentUser.isDoctor) {
+              payload.chief_complaint = chief_complaint;
+              payload.description = description;
+              payload.doctor_id = doctor_id ? parseInt(doctor_id) : null;
+            }
+          } else {
+            if (!doctor_id) {
+              showError("Please select a doctor from the list.");
+              return;
+            }
+            payload.PatientID = currentUser.patientid;
+            payload.chief_Complaint = chief_complaint; // Keep for create_case
+            payload.description = description;
+            payload.doctor_id = parseInt(doctor_id);
+            payload.appoint_status = "Pending";
           }
 
-          const payload = {
-            PatientID: currentUser.patientid,
-            chief_Complaint,
-            description,
-            doctor_id,
-            appoint_status: editId
-              ? document.getElementById("case-status").value
-              : "Pending",
-          };
-
+          console.log("Sending payload:", payload); // Debug log
           let res;
           if (editId) {
             // Edit existing case
@@ -1980,12 +3200,16 @@
               : "Case created successfully!",
           );
 
-          // Refresh current user data to show new case
-          const userRes = await fetch(
-            `${API}/patients/${currentUser.patientid}`,
-          );
-          if (userRes.ok) {
-            currentUser = await userRes.json();
+          // Refresh current user data
+          if (currentUser.isDoctor) {
+            await loadDoctorCases();
+          } else {
+            const userRes = await fetch(
+              `${API}/patients/${currentUser.patientid}`,
+            );
+            if (userRes.ok) {
+              currentUser = await userRes.json();
+            }
           }
           updateUI();
         } catch (err) {
@@ -2128,6 +3352,19 @@
               -webkit-line-clamp: 2;
               -webkit-box-orient: vertical;
             ">${caseData.description || "No description"}</p>
+            
+            <!-- Doctor Feedback -->
+            ${caseData.feedback ? `
+              <div style="
+                background: var(--primary-light);
+                padding: 12px;
+                border-radius: var(--radius);
+                margin-bottom: 16px;
+              ">
+                <p style="font-size: 12px; font-weight: 700; color: var(--primary); margin: 0 0 4px 0;">Feedback from Doctor:</p>
+                <p style="font-size: 14px; color: var(--text); margin: 0;">${caseData.feedback}</p>
+              </div>
+            ` : ""}
 
             <!-- Doctor & Date Info -->
             <div style="
@@ -2164,6 +3401,28 @@
             `
                 : ""
             }
+
+            <!-- Delete Case Button -->
+            <div style="
+              margin-top: 16px;
+              padding-top: 16px;
+              border-top: 1px solid var(--border);
+            ">
+              <button
+                type="button"
+                class="btn"
+                style="
+                  background: #fee2e2;
+                  color: #dc2626;
+                  border: 1px solid #fecaca;
+                  padding: 8px 16px;
+                  font-size: 13px;
+                "
+                onclick="event.stopPropagation(); openDeleteCaseModal(${caseData.case_id})"
+              >
+                Delete Case
+              </button>
+            </div>
           </div>
         `,
           )
@@ -2296,18 +3555,6 @@
             </div>
           </div>
 
-          <!-- Clinical Background Section -->
-          <div class="card" style="margin-top: 24px;">
-            <div class="card-header">
-              <span class="card-title">Clinical Background</span>
-            </div>
-            <div style="padding: 24px;">
-              <div id="clinical-background-content">
-                <p style="color: var(--text-3); text-align: center;">Loading clinical background...</p>
-              </div>
-            </div>
-          </div>
-
           <!-- Lab Tests Section -->
           <div class="card" style="margin-top: 24px;">
             <div class="card-header">
@@ -2326,46 +3573,7 @@
 
         container.innerHTML = html;
 
-        // Load clinical background and lab tests
-        loadClinicalBackground();
         displayLabTests();
-      }
-
-      function loadClinicalBackground() {
-        if (!currentCaseDetail) return;
-
-        const container = document.getElementById(
-          "clinical-background-content",
-        );
-        const caseData = currentCaseDetail;
-
-        // Try to get clinical background from case data
-        let hasClinicalData = false;
-        let clinicalHtml = "";
-
-        // Smoking & Alcohol Status
-        if (caseData.smoking_status || caseData.alcohol_use) {
-          hasClinicalData = true;
-          clinicalHtml += `
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
-              <div>
-                <p style="font-size: 12px; color: var(--text-3); text-transform: uppercase; margin: 0 0 8px 0; font-weight: 700;">Smoking Status</p>
-                <p style="margin: 0; color: var(--text);">${caseData.smoking_status || "Not recorded"}</p>
-              </div>
-              <div>
-                <p style="font-size: 12px; color: var(--text-3); text-transform: uppercase; margin: 0 0 8px 0; font-weight: 700;">Alcohol Use</p>
-                <p style="margin: 0; color: var(--text);">${caseData.alcohol_use || "Not recorded"}</p>
-              </div>
-            </div>
-          `;
-        }
-
-        if (!hasClinicalData) {
-          clinicalHtml =
-            '<p style="color: var(--text-3); text-align: center;">No clinical background recorded</p>';
-        }
-
-        container.innerHTML = clinicalHtml;
       }
 
       function displayLabTests() {
