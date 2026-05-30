@@ -10,8 +10,7 @@ router = APIRouter()
 
 
 class MedicineCreate(BaseModel):
-    med_id: str
-    medicinename: str
+    medicine_name: str
     medicine_type: str
     description: Optional[str] = None
     form: Optional[str] = None
@@ -20,7 +19,7 @@ class MedicineCreate(BaseModel):
 
 
 class MedicineUpdate(BaseModel):
-    medicinename: Optional[str] = None
+    medicine_name: Optional[str] = None
     medicine_type: Optional[str] = None
     description: Optional[str] = None
     form: Optional[str] = None
@@ -43,7 +42,7 @@ class PrescriptionUpdate(BaseModel):
 
 
 class PrescriptionMedicineCreate(BaseModel):
-    medicine_id: str
+    medicine_id: int
     quantity: Optional[int] = 1
     dosage: Optional[str] = None
     frequency: Optional[str] = None
@@ -64,16 +63,16 @@ def list_prescriptions():
         SELECT
           p.*, 
           json_agg(json_build_object(
-            'medicine_id', m.med_id,
-            'name', m.medicinename,
+            'medicine_id', m.medicine_id,
+            'name', m.medicine_name,
             'medicine_type', m.medicine_type,
             'quantity', h.quantity,
             'dosage', h.dosage,
             'frequency', h.frequency
-          )) FILTER (WHERE m.med_id IS NOT NULL) AS medicines
+          )) FILTER (WHERE m.medicine_id IS NOT NULL) AS medicines
         FROM prescription p
         LEFT JOIN "has" h ON h.prescription_id = p.prescription_id
-        LEFT JOIN medicine m ON m.med_id = h.med_id
+        LEFT JOIN medicine m ON m.medicine_id = h.medicine_id
         GROUP BY p.prescription_id
         ORDER BY p.prescribed_at DESC
         """
@@ -103,7 +102,7 @@ def create_prescription(payload: PrescriptionCreate):
 def list_medicines():
     conn = get_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
-    cur.execute("SELECT * FROM medicine ORDER BY medicinename")
+    cur.execute("SELECT * FROM medicine ORDER BY medicine_name")
     medicines = cur.fetchall()
     cur.close()
     conn.close()
@@ -111,10 +110,10 @@ def list_medicines():
 
 
 @router.get("/medicines/{medicine_id}")
-def get_medicine(medicine_id: str):
+def get_medicine(medicine_id: int):
     conn = get_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
-    cur.execute("SELECT * FROM medicine WHERE med_id = %s", (medicine_id,))
+    cur.execute("SELECT * FROM medicine WHERE medicine_id = %s", (medicine_id,))
     medicine = cur.fetchone()
     cur.close()
     conn.close()
@@ -128,8 +127,8 @@ def create_medicine(payload: MedicineCreate):
     conn = get_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
     cur.execute(
-        "INSERT INTO medicine (med_id, medicinename, medicine_type, description, form, strength, unit_price) VALUES (%s,%s,%s,%s,%s,%s,%s) RETURNING *",
-        (payload.med_id, payload.medicinename, payload.medicine_type, payload.description, payload.form, payload.strength, payload.unit_price),
+        "INSERT INTO medicine (medicine_name, medicine_type, description, form, strength, unit_price) VALUES (%s,%s,%s,%s,%s,%s) RETURNING *",
+        (payload.medicine_name, payload.medicine_type, payload.description, payload.form, payload.strength, payload.unit_price),
     )
     new_med = cur.fetchone()
     conn.commit()
@@ -139,7 +138,7 @@ def create_medicine(payload: MedicineCreate):
 
 
 @router.put("/medicines/{medicine_id}")
-def update_medicine(medicine_id: str, payload: MedicineUpdate):
+def update_medicine(medicine_id: int, payload: MedicineUpdate):
     fields = []
     values = []
     for key, value in payload.dict(exclude_unset=True).items():
@@ -148,7 +147,7 @@ def update_medicine(medicine_id: str, payload: MedicineUpdate):
     if not fields:
         raise HTTPException(status_code=400, detail="No fields to update")
     values.append(medicine_id)
-    sql = f"UPDATE medicine SET {', '.join(fields)} WHERE med_id = %s RETURNING *"
+    sql = f"UPDATE medicine SET {', '.join(fields)} WHERE medicine_id = %s RETURNING *"
     conn = get_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
     cur.execute(sql, tuple(values))
@@ -162,10 +161,10 @@ def update_medicine(medicine_id: str, payload: MedicineUpdate):
 
 
 @router.delete("/medicines/{medicine_id}")
-def delete_medicine(medicine_id: str):
+def delete_medicine(medicine_id: int):
     conn = get_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
-    cur.execute("DELETE FROM medicine WHERE med_id = %s RETURNING med_id", (medicine_id,))
+    cur.execute("DELETE FROM medicine WHERE medicine_id = %s RETURNING medicine_id", (medicine_id,))
     deleted = cur.fetchone()
     conn.commit()
     cur.close()
@@ -184,16 +183,16 @@ def get_prescription(prescription_id: int):
         SELECT
           p.*, 
           json_agg(json_build_object(
-            'medicine_id', m.med_id,
-            'name', m.medicinename,
+            'medicine_id', m.medicine_id,
+            'name', m.medicine_name,
             'medicine_type', m.medicine_type,
             'quantity', h.quantity,
             'dosage', h.dosage,
             'frequency', h.frequency
-          )) FILTER (WHERE m.med_id IS NOT NULL) AS medicines
+          )) FILTER (WHERE m.medicine_id IS NOT NULL) AS medicines
         FROM prescription p
         LEFT JOIN "has" h ON h.prescription_id = p.prescription_id
-        LEFT JOIN medicine m ON m.med_id = h.med_id
+        LEFT JOIN medicine m ON m.medicine_id = h.medicine_id
         WHERE p.prescription_id = %s
         GROUP BY p.prescription_id
         """,
@@ -249,7 +248,7 @@ def add_medicine_to_prescription(prescription_id: int, payload: PrescriptionMedi
     conn = get_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
     cur.execute(
-        "INSERT INTO \"has\" (prescription_id, med_id, quantity, dosage, frequency) VALUES (%s,%s,%s,%s,%s) RETURNING *",
+        "INSERT INTO \"has\" (prescription_id, medicine_id, quantity, dosage, frequency) VALUES (%s,%s,%s,%s,%s) RETURNING *",
         (prescription_id, payload.medicine_id, payload.quantity, payload.dosage, payload.frequency),
     )
     inserted = cur.fetchone()
@@ -260,7 +259,7 @@ def add_medicine_to_prescription(prescription_id: int, payload: PrescriptionMedi
 
 
 @router.put("/{prescription_id}/medicines/{medicine_id}")
-def update_prescription_medicine(prescription_id: int, medicine_id: str, payload: PrescriptionMedicineUpdate):
+def update_prescription_medicine(prescription_id: int, medicine_id: int, payload: PrescriptionMedicineUpdate):
     fields = []
     values = []
     for key, value in payload.dict(exclude_unset=True).items():
@@ -269,7 +268,7 @@ def update_prescription_medicine(prescription_id: int, medicine_id: str, payload
     if not fields:
         raise HTTPException(status_code=400, detail="No fields to update")
     values.extend([prescription_id, medicine_id])
-    sql = f"UPDATE \"has\" SET {', '.join(fields)} WHERE prescription_id = %s AND med_id = %s RETURNING *"
+    sql = f"UPDATE \"has\" SET {', '.join(fields)} WHERE prescription_id = %s AND medicine_id = %s RETURNING *"
     conn = get_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
     cur.execute(sql, tuple(values))
@@ -283,10 +282,10 @@ def update_prescription_medicine(prescription_id: int, medicine_id: str, payload
 
 
 @router.delete("/{prescription_id}/medicines/{medicine_id}")
-def delete_prescription_medicine(prescription_id: int, medicine_id: str):
+def delete_prescription_medicine(prescription_id: int, medicine_id: int):
     conn = get_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
-    cur.execute("DELETE FROM \"has\" WHERE prescription_id = %s AND med_id = %s RETURNING *", (prescription_id, medicine_id))
+    cur.execute("DELETE FROM \"has\" WHERE prescription_id = %s AND medicine_id = %s RETURNING *", (prescription_id, medicine_id))
     deleted = cur.fetchone()
     conn.commit()
     cur.close()

@@ -67,15 +67,15 @@ def get_case(case_id: int):
       LEFT JOIN (
         SELECT "has".prescription_id,
                json_agg(json_build_object(
- 'medicine_id', m.med_id,
- 'medicine_name', m.medicinename,
+ 'medicine_id', m.medicine_id,
+ 'medicine_name', m.medicine_name,
  'medicine_type', m.medicine_type,
  'quantity', "has".quantity,
  'dosage', "has".dosage,
  'frequency', "has".frequency
 )) AS medicines
         FROM "has"
-        JOIN medicine m ON m.med_id = "has".med_id
+        JOIN medicine m ON m.medicine_id = "has".medicine_id
         GROUP BY "has".prescription_id
       ) pm ON pm.prescription_id = p.prescription_id
       GROUP BY p.case_id

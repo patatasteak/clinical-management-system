@@ -202,8 +202,8 @@ LEFT JOIN (
     SELECT
       h.prescription_id,
       json_agg(json_build_object(
-        'medicine_id', m.med_id,
-        'name', m.medicinename,
+        'medicine_id', m.medicine_id,
+        'name', m.medicine_name,
         'medicine_type', m.medicine_type,
         'quantity', h.quantity,
         'dosage', h.dosage,
@@ -212,7 +212,7 @@ LEFT JOIN (
 
     FROM "has" h
     JOIN medicine m
-      ON m.med_id = h.med_id
+          ON m.medicine_id = h.medicine_id
 
     GROUP BY h.prescription_id
   ) pm ON pm.prescription_id = pr.prescription_id
