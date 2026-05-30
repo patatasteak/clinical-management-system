@@ -1505,13 +1505,14 @@
     <div id="add-lab-test-modal" class="modal-overlay">
       <div class="modal-card">
         <div class="modal-header">
-          <h2 class="auth-title" style="margin: 0; font-size: 20px">
+          <h2
+            class="auth-title"
+            style="margin: 0; font-size: 20px"
+            id="lab-modal-title"
+          >
             Add Lab Test
           </h2>
-          <button
-            class="modal-close"
-            onclick="closeModal('add-lab-test-modal')"
-          >
+          <button class="modal-close" onclick="closeAddLabTestModal()">
             <svg
               viewBox="0 0 24 24"
               style="
@@ -1527,10 +1528,26 @@
             </svg>
           </button>
         </div>
-        <form onsubmit="handleAddLabTest(event)">
+        <form onsubmit="handleSaveLabTest(event)">
+          <input type="hidden" id="lab-edit-id" />
           <input type="hidden" id="lab-case-id" />
           <div class="form-group">
-            <label class="form-label">Test Type</label>
+            <label class="form-label"
+              >Case <span style="color: var(--primary)">*</span></label
+            >
+            <select
+              class="form-input"
+              id="lab-case-select"
+              required
+              onchange="onCaseSelectChange()"
+            >
+              <option value="">Select a case...</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label"
+              >Test Type <span style="color: var(--primary)">*</span></label
+            >
             <div class="search-dropdown">
               <input
                 type="text"
@@ -1549,12 +1566,7 @@
           </div>
           <div class="form-group">
             <label class="form-label">Date Taken</label>
-            <input
-              type="date"
-              class="form-input"
-              id="lab-date-taken"
-              required
-            />
+            <input type="date" class="form-input" id="lab-date-taken" />
           </div>
           <div class="form-group">
             <label class="form-label">Findings</label>
@@ -1565,28 +1577,76 @@
               placeholder="Enter findings..."
             ></textarea>
           </div>
-          <div class="form-group">
-            <label class="form-label">Ordered By (Doctor)</label>
-            <div class="search-dropdown">
-              <input
-                type="text"
-                class="form-input"
-                id="lab-doctor-search"
-                placeholder="Search doctor..."
-                onfocus="filterDoctorsForLab(this.value)"
-                oninput="filterDoctorsForLab(this.value)"
-                autocomplete="off"
-              />
-              <input type="hidden" id="lab-ordered-by-id" />
-              <div id="lab-doctor-results" class="search-results">
-                <!-- Doctors populated by JS -->
-              </div>
-            </div>
+          <div style="display: flex; gap: 12px">
+            <button
+              type="button"
+              class="btn btn-outline"
+              style="flex: 1"
+              onclick="closeAddLabTestModal()"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="btn btn-primary"
+              style="flex: 1"
+              id="lab-submit-btn"
+            >
+              Add Lab Test
+            </button>
           </div>
-          <button type="submit" class="btn btn-primary btn-block">
-            Add Lab Test
-          </button>
         </form>
+      </div>
+    </div>
+
+    <!-- DELETE LAB TEST CONFIRMATION MODAL -->
+    <div id="delete-lab-test-modal" class="modal-overlay">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2 class="auth-title" style="margin: 0; font-size: 20px">
+            Delete Lab Test
+          </h2>
+          <button
+            class="modal-close"
+            onclick="closeModal('delete-lab-test-modal')"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              style="
+                width: 24px;
+                height: 24px;
+                stroke: currentColor;
+                fill: none;
+                stroke-width: 2;
+              "
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <p style="color: var(--text-2); margin-bottom: 24px">
+          Are you sure you want to delete this lab test? This action is
+          permanent and cannot be undone.
+        </p>
+        <div style="display: flex; gap: 12px">
+          <button
+            type="button"
+            class="btn btn-outline"
+            onclick="closeModal('delete-lab-test-modal')"
+            style="flex: 1"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="btn"
+            style="flex: 1; background: #dc2626; color: white"
+            onclick="confirmDeleteLabTest()"
+          >
+            Yes, Delete
+          </button>
+        </div>
       </div>
     </div>
 
@@ -2703,15 +2763,9 @@
             </div>
           </div>
 
-          <!-- PLACEHOLDER PAGES -->
+          <!-- MY LAB TESTS PAGE -->
           <div id="page-my-labs" class="page">
-            <div class="card">
-              <div
-                style="padding: 40px; text-align: center; color: var(--text-3)"
-              >
-                My Lab Tests module coming soon.
-              </div>
-            </div>
+            <!-- Populated by JS renderLabTests() -->
           </div>
           <div id="page-medicines" class="page">
             <div class="card">
@@ -3523,13 +3577,20 @@
 
           // Render Cases in My Cases Page
           // Load and render cases
-          loadPatientCases().then(() => {
-            renderCases();
+          loadPatientCases()
+            .then(() => {
+              renderCases();
 
-            if (patientCases.length > 0) {
-              displayCaseCards();
-            }
-          });
+              if (patientCases.length > 0) {
+                displayCaseCards();
+              }
+
+              // Load and render lab tests
+              return loadLabTests();
+            })
+            .then(() => {
+              renderLabTests();
+            });
 
           // Update Lab Catalog Page
           updateLabCatalog();
@@ -3822,6 +3883,7 @@
 
         if (name === "lab-catalog") updateLabCatalog();
         if (name === "medicines") renderMedicines();
+        if (name === "my-labs") renderLabTests();
       }
 
       async function updateProfile(e) {
@@ -4861,6 +4923,403 @@
           `,
           )
           .join("");
+      }
+
+      /* ==================== MY LAB TESTS MANAGEMENT ==================== */
+      let patientLabTests = [];
+      let labTestToDeleteId = null;
+      let labTestEditMode = false;
+
+      async function loadLabTests() {
+        try {
+          setLoading(true);
+          if (!currentUser || !patientCases) return [];
+
+          // Fetch lab tests for all patient cases
+          const allLabTests = [];
+          for (const caseData of patientCases) {
+            try {
+              const res = await fetch(`${API}/labs/cases/${caseData.case_id}`);
+              if (res.ok) {
+                const tests = await res.json();
+                // Add case info to each test
+                tests.forEach((test) => {
+                  test.case_data = caseData;
+                });
+                allLabTests.push(...tests);
+              }
+            } catch (err) {
+              console.error(
+                `Failed to load labs for case ${caseData.case_id}:`,
+                err,
+              );
+            }
+          }
+          patientLabTests = allLabTests.sort((a, b) => {
+            const dateA = a.date_released
+              ? new Date(a.date_released)
+              : new Date(0);
+            const dateB = b.date_released
+              ? new Date(b.date_released)
+              : new Date(0);
+            return dateB - dateA; // Descending order
+          });
+          return patientLabTests;
+        } catch (err) {
+          console.error("Failed to load lab tests:", err);
+          patientLabTests = [];
+          return [];
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      function renderLabTests() {
+        const container = document.getElementById("page-my-labs");
+        if (!container) return;
+
+        if (!patientLabTests || patientLabTests.length === 0) {
+          container.innerHTML = `
+              <div class="card">
+                <div class="card-header"><span class="card-title">My Lab Tests</span></div>
+                <div style="padding: 40px; text-align: center;">
+                  <p style="color: var(--text-3); font-size: 16px; margin-bottom: 24px;">
+                    No lab tests on record yet.
+                  </p>
+                  <button class="btn btn-primary" onclick="openAddLabTestModal()">Add Your First Lab Test</button>
+                </div>
+              </div>`;
+          return;
+        }
+
+        // Group tests by case
+        const groupedByCase = {};
+        patientLabTests.forEach((test) => {
+          const caseId = test.case_id;
+          if (!groupedByCase[caseId]) {
+            groupedByCase[caseId] = {
+              caseData: test.case_data,
+              tests: [],
+            };
+          }
+          groupedByCase[caseId].tests.push(test);
+        });
+
+        let html = `
+            <div
+              style="
+                display: flex;
+                justify-content: flex-end;
+                margin-bottom: 20px;
+              "
+            >
+              <button class="btn btn-primary" onclick="openAddLabTestModal()">
+                <svg
+                  viewBox="0 0 24 24"
+                  style="
+                    width: 16px;
+                    height: 16px;
+                    stroke: white;
+                    fill: none;
+                    stroke-width: 2.5;
+                  "
+                >
+                  <line x1="12" y1="5" x2="12" y2="19" />
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+                Add Lab Test
+              </button>
+            </div>
+          `;
+
+        // Render each case group
+        Object.values(groupedByCase).forEach((group) => {
+          const caseData = group.caseData;
+          const tests = group.tests;
+
+          html += `
+              <div class="card" style="margin-bottom: 24px;">
+                <div class="card-header">
+                  <div>
+                    <span class="card-title">${caseData.chief_complaint || caseData.chief_Complaint || "Medical Case"}</span>
+                    <p style="margin: 8px 0 0 0; font-size: 13px; color: var(--text-3);">Case #${caseData.case_id}</p>
+                  </div>
+                  <span style="
+                    display: inline-block;
+                    padding: 6px 16px;
+                    border-radius: 20px;
+                    font-size: 13px;
+                    font-weight: 600;
+                    background: ${getStatusBadgeColor(caseData.appoint_status)};
+                    color: ${getStatusBadgeTextColor(caseData.appoint_status)};
+                  ">${caseData.appoint_status}</span>
+                </div>
+                <div style="padding: 20px;">
+            `;
+
+          tests.forEach((test) => {
+            html += `
+                <div style="
+                  background: var(--surface-2);
+                  border: 1px solid var(--border);
+                  border-radius: var(--radius-lg);
+                  padding: 20px;
+                  margin-bottom: 12px;
+                  transition: var(--transition);
+                ">
+                  <div style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: flex-start;
+                    margin-bottom: 16px;
+                  ">
+                    <div style="flex: 1;">
+                      <h4 style="margin: 0 0 4px 0; font-size: 16px; font-weight: 700; color: var(--text);">
+                        ${test.test_name}
+                      </h4>
+                      <p style="margin: 0; font-size: 13px; color: var(--text-3);">
+                        ${test.catalog_id}
+                      </p>
+                    </div>
+                    <div style="text-align: right;">
+                      <p style="margin: 0; font-size: 14px; font-weight: 600; color: var(--primary);">
+                        PHP ${parseFloat(test.price || 0).toFixed(2)}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div style="
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                    gap: 16px;
+                    margin-bottom: 16px;
+                    padding-bottom: 16px;
+                    border-bottom: 1px solid var(--border);
+                  ">
+                    <div>
+                      <p style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-3); margin: 0 0 4px 0;">Date Released</p>
+                      <p style="font-size: 14px; color: var(--text); margin: 0;">
+                        ${test.date_released ? formatDate(test.date_released) : "N/A"}
+                      </p>
+                    </div>
+                    <div>
+                      <p style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-3); margin: 0 0 4px 0;">Date Taken</p>
+                      <p style="font-size: 14px; color: var(--text); margin: 0;">
+                        ${test.date_taken ? formatDate(test.date_taken) : "N/A"}
+                      </p>
+                    </div>
+                  </div>
+
+                  ${
+                    test.findings
+                      ? `
+                    <div style="margin-bottom: 16px;">
+                      <p style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-3); margin: 0 0 6px 0;">Findings</p>
+                      <p style="font-size: 14px; color: var(--text); margin: 0; line-height: 1.5;">
+                        ${test.findings}
+                      </p>
+                    </div>
+                  `
+                      : ""
+                  }
+
+                  <div style="display: flex; gap: 8px;">
+                    <button class="btn btn-outline" onclick="openEditLabTestModal(${test.result_id})" style="flex: 1; padding: 8px 12px; font-size: 13px;">
+                      Edit
+                    </button>
+                    <button class="btn" style="flex: 1; background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; padding: 8px 12px; font-size: 13px;" onclick="openDeleteLabTestModal(${test.result_id})">
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              `;
+          });
+
+          html += `
+                </div>
+              </div>
+            `;
+        });
+
+        container.innerHTML = html;
+      }
+
+      function openAddLabTestModal() {
+        labTestEditMode = false;
+        document.getElementById("lab-edit-id").value = "";
+        document.getElementById("lab-case-id").value = "";
+        document.getElementById("lab-case-select").value = "";
+        document.getElementById("lab-test-search").value = "";
+        document.getElementById("selected-catalog-id").value = "";
+        document.getElementById("lab-date-taken").value = "";
+        document.getElementById("lab-findings").value = "";
+        document.getElementById("lab-modal-title").textContent = "Add Lab Test";
+        document.getElementById("lab-submit-btn").textContent = "Add Lab Test";
+
+        // Populate case dropdown
+        const caseSelect = document.getElementById("lab-case-select");
+        caseSelect.innerHTML = '<option value="">Select a case...</option>';
+        if (patientCases && patientCases.length > 0) {
+          patientCases.forEach((caseData) => {
+            const option = document.createElement("option");
+            option.value = caseData.case_id;
+            option.textContent =
+              caseData.chief_complaint ||
+              caseData.chief_Complaint ||
+              `Case #${caseData.case_id}`;
+            caseSelect.appendChild(option);
+          });
+        }
+
+        document.getElementById("lab-test-results").classList.remove("active");
+        openModal("add-lab-test-modal");
+      }
+
+      function openEditLabTestModal(labId) {
+        const test = patientLabTests.find((t) => t.result_id === labId);
+        if (!test) {
+          showError("Lab test not found");
+          return;
+        }
+
+        labTestEditMode = true;
+        document.getElementById("lab-edit-id").value = labId;
+        document.getElementById("lab-case-id").value = test.case_id;
+        document.getElementById("lab-test-search").value = test.test_name;
+        document.getElementById("selected-catalog-id").value = test.catalog_id;
+        document.getElementById("lab-date-taken").value = test.date_taken
+          ? test.date_taken.split("T")[0]
+          : "";
+        document.getElementById("lab-findings").value = test.findings || "";
+        document.getElementById("lab-modal-title").textContent =
+          "Edit Lab Test";
+        document.getElementById("lab-submit-btn").textContent =
+          "Update Lab Test";
+
+        // Populate case dropdown and select current case
+        const caseSelect = document.getElementById("lab-case-select");
+        caseSelect.innerHTML = '<option value="">Select a case...</option>';
+        if (patientCases && patientCases.length > 0) {
+          patientCases.forEach((caseData) => {
+            const option = document.createElement("option");
+            option.value = caseData.case_id;
+            option.textContent =
+              caseData.chief_complaint ||
+              caseData.chief_Complaint ||
+              `Case #${caseData.case_id}`;
+            caseSelect.appendChild(option);
+          });
+        }
+        caseSelect.value = test.case_id;
+
+        document.getElementById("lab-test-results").classList.remove("active");
+        openModal("add-lab-test-modal");
+      }
+
+      function onCaseSelectChange() {
+        const caseId = document.getElementById("lab-case-select").value;
+        document.getElementById("lab-case-id").value = caseId;
+      }
+
+      async function handleSaveLabTest(e) {
+        e.preventDefault();
+
+        try {
+          setLoading(true);
+          const editId = document.getElementById("lab-edit-id").value;
+          const caseId = parseInt(document.getElementById("lab-case-id").value);
+          const catalogId = document.getElementById(
+            "selected-catalog-id",
+          ).value;
+          const dateTaken = document.getElementById("lab-date-taken").value;
+          const findings = document.getElementById("lab-findings").value;
+
+          if (!caseId) {
+            showError("Please select a case.");
+            return;
+          }
+
+          if (!catalogId) {
+            showError("Please select a test type.");
+            return;
+          }
+
+          const payload = {
+            case_id: caseId,
+            catalog_id: catalogId,
+            date_taken: dateTaken || null,
+            findings: findings || null,
+          };
+
+          let res;
+          if (editId) {
+            // Update existing lab test
+            res = await fetch(`${API}/labs/${editId}`, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            });
+          } else {
+            // Create new lab test
+            res = await fetch(`${API}/labs`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            });
+          }
+
+          if (!res.ok) throw new Error("Failed to save lab test");
+
+          closeModal("add-lab-test-modal");
+          alert(
+            editId
+              ? "Lab test updated successfully!"
+              : "Lab test added successfully!",
+          );
+
+          // Reload and render
+          await loadLabTests();
+          renderLabTests();
+        } catch (err) {
+          showError(err.message);
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      function openDeleteLabTestModal(labId) {
+        labTestToDeleteId = labId;
+        openModal("delete-lab-test-modal");
+      }
+
+      async function confirmDeleteLabTest() {
+        if (!labTestToDeleteId) return;
+
+        try {
+          setLoading(true);
+
+          const res = await fetch(`${API}/labs/${labTestToDeleteId}`, {
+            method: "DELETE",
+          });
+
+          if (!res.ok) throw new Error("Failed to delete lab test");
+
+          closeModal("delete-lab-test-modal");
+          alert("Lab test deleted successfully!");
+
+          // Reload and render
+          await loadLabTests();
+          renderLabTests();
+          labTestToDeleteId = null;
+        } catch (err) {
+          showError(err.message);
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      function closeAddLabTestModal() {
+        closeModal("add-lab-test-modal");
       }
 
       (function () {
