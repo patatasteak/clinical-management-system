@@ -151,6 +151,7 @@ CREATE TABLE LabTestCatalog (
 -- LAB TEST
 -- ============================================================
 CREATE TABLE lab_test (
+    -- refactor to lab_result
     test_id SERIAL PRIMARY KEY,
     case_id INT NOT NULL REFERENCES patient_case(case_id) ON DELETE CASCADE,
     catalog_id VARCHAR(10) NOT NULL REFERENCES LabTestCatalog(catalog_id),
@@ -158,7 +159,6 @@ CREATE TABLE lab_test (
     findings TEXT,
     ordered_by INT REFERENCES doctor(doctor_id)
 );
--- todo make labtest results
 -- ============================================================
 -- PRESCRIPTIONS / MEDICINES
 -- ============================================================
