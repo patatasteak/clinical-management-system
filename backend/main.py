@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from routes import patients, doctors, cases, vitals, labs, catalog, prescriptions
+from routes import patients, doctors, cases, vitals, labs, catalog, prescriptions, lab_tests
 
 
 app = FastAPI(title="ClinicMS API")
@@ -31,3 +31,4 @@ app.include_router(vitals.router, prefix="/vitals", tags=["vitals"])
 app.include_router(labs.router, prefix="/labs", tags=["labs"])
 app.include_router(catalog.router, prefix="/catalog", tags=["catalog"])
 app.include_router(prescriptions.router, prefix="/prescriptions", tags=["prescriptions"])
+app.include_router(lab_tests.router, prefix="/lab-tests", tags=["Lab Tests"])
