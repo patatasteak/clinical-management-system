@@ -202,8 +202,8 @@ LEFT JOIN (
     SELECT
       h.prescription_id,
       json_agg(json_build_object(
-        'medicine_id', m.medicine_id,
-        'name', m.medicine_name,
+        'medicine_id', m.med_id,
+        'name', m.medicinename,
         'medicine_type', m.medicine_type,
         'quantity', h.quantity,
         'dosage', h.dosage,
@@ -212,7 +212,7 @@ LEFT JOIN (
 
     FROM "has" h
     JOIN medicine m
-      ON m.medicine_id = h.medicine_id
+      ON m.med_id = h.med_id
 
     GROUP BY h.prescription_id
   ) pm ON pm.prescription_id = pr.prescription_id
@@ -414,6 +414,7 @@ def get_patient_cases(patient_id: int):
         pc.appoint_status,
         pc.chief_complaint,
         pc.description,
+        pc.feedback,
         pc.patientid,
         pc.doctor_id,
         pc.date_opened,
@@ -466,3 +467,24 @@ def get_patient_cases(patient_id: int):
     conn.close()
 
     return rows
+
+
+@router.delete("/{patient_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_patient(patient_id: int):
+    conn = get_connection()
+    cur = conn.cursor()
+    
+    # First check if patient exists
+    cur.execute("SELECT patientid FROM patient WHERE patientid = %s", (patient_id,))
+    if not cur.fetchone():
+        cur.close()
+        conn.close()
+        raise HTTPException(status_code=404, detail="Patient not found")
+    
+    # Delete patient
+    cur.execute("DELETE FROM patient WHERE patientid = %s", (patient_id,))
+    conn.commit()
+    
+    cur.close()
+    conn.close()
+    return None

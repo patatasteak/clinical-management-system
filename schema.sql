@@ -29,8 +29,9 @@ CREATE TABLE admin_user (
 -- ============================================================
 -- DOCTOR
 -- ============================================================
+CREATE SEQUENCE doctor_id_seq START 100000;
 CREATE TABLE doctor (
-    doctor_id SERIAL PRIMARY KEY,
+    doctor_id INT PRIMARY KEY DEFAULT nextval('doctor_id_seq'),
     first_name VARCHAR(50) NOT NULL,
     last_name VARCHAR(50) NOT NULL,
     sex VARCHAR(1) CHECK (sex IN ('M', 'F', 'O')),
@@ -40,7 +41,8 @@ CREATE TABLE doctor (
     specialization VARCHAR(100),
     contact_number VARCHAR(50),
     role VARCHAR(20) DEFAULT 'resident',
-    is_active BOOLEAN DEFAULT TRUE
+    is_active BOOLEAN DEFAULT TRUE,
+    password_hash VARCHAR(255)
 );
 -- ============================================================
 -- PATIENT
@@ -71,8 +73,8 @@ CREATE TABLE patient_case (
         appoint_status IN ('Pending', 'Ongoing', 'Closed')
     ),
     chief_Complaint TEXT NOT NULL,
-    -- Case Name
     description TEXT,
+    feedback TEXT,
     PatientID INT NOT NULL REFERENCES patient(PatientID) ON DELETE CASCADE,
     doctor_id INT NOT NULL REFERENCES doctor(doctor_id),
     date_opened TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
