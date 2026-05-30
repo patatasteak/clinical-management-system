@@ -1,4 +1,116 @@
 -- ============================================================
+-- ALLERGIES
+-- ============================================================
+INSERT INTO allergy (
+        clinical_id,
+        allergen,
+        reaction,
+        severity,
+        noted_date
+    )
+VALUES (
+        1,
+        'Penicillin',
+        'Rash and hives',
+        'moderate',
+        '2015-06-01'
+    ),
+    (
+        1,
+        'Shellfish',
+        'Swelling of lips and throat',
+        'severe',
+        '2018-02-10'
+    ),
+    (
+        2,
+        'Aspirin',
+        'Gastric bleeding',
+        'severe',
+        '2020-09-15'
+    ),
+    (
+        3,
+        'Dust mites',
+        'Sneezing and asthma trigger',
+        'moderate',
+        '2010-03-22'
+    ),
+    (
+        3,
+        'NSAIDs',
+        'Bronchospasm',
+        'severe',
+        '2016-07-08'
+    ),
+    (
+        5,
+        'Latex',
+        'Contact dermatitis',
+        'mild',
+        '2008-11-30'
+    );
+-- ============================================================
+-- DISABILITIES
+-- ============================================================
+INSERT INTO disability (
+        clinical_id,
+        description,
+        congenital,
+        notes
+    )
+VALUES (
+        4,
+        'Mild hearing impairment (left ear)',
+        FALSE,
+        'Acquired, likely noise-induced'
+    );
+-- ============================================================
+-- PAST SURGERIES
+-- ============================================================
+INSERT INTO past_surgery (
+        clinical_id,
+        procedure_name,
+        date_performed,
+        hospital,
+        notes
+    )
+VALUES (
+        1,
+        'Appendectomy',
+        '2010-07-14',
+        'Cebu Doctors University Hospital',
+        'Uncomplicated, full recovery'
+    ),
+    (
+        4,
+        'Coronary Artery Bypass Grafting (CABG)',
+        '2019-11-03',
+        'Vicente Sotto Memorial Medical Center',
+        '3-vessel CABG, stable post-op'
+    ),
+    (
+        4,
+        'Cataract Surgery (left eye)',
+        '2022-06-20',
+        'Cebu Eye Center',
+        'Phacoemulsification with IOL implant'
+    ),
+    (
+        5,
+        'Cesarean Section',
+        '2010-04-02',
+        'Chong Hua Hospital',
+        'First delivery'
+    ),
+    (
+        5,
+        'Cesarean Section',
+        '2013-08-18',
+        'Chong Hua Hospital',
+        'Second delivery'
+    );
+-- ============================================================
 -- MEDICINES
 -- updated for new schema
 -- ============================================================
