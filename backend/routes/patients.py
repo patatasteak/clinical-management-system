@@ -86,83 +86,10 @@ SELECT
   p.birthday,
   p.emergencycontact,
 
-  COALESCE(cb.clinical_background, '[]') AS clinical_background,
-  COALESCE(a.allergies, '[]') AS allergies,
-  COALESCE(d.disabilities, '[]') AS disabilities,
-  COALESCE(ps.past_surgeries, '[]') AS past_surgeries,
   COALESCE(v.vitals, '[]') AS vitals,
   COALESCE(pr.prescriptions, '[]') AS prescriptions
 
 FROM patient p
-
-LEFT JOIN (
-  SELECT
-    pc.patientid,
-    json_agg(json_build_object(
-      'clinical_id', cb.clinical_id,
-      'case_id', cb.case_id,
-      'smoking_status', cb.smoking_status,
-      'alcohol_use', cb.alcohol_use,
-      'notes', cb.notes
-    )) AS clinical_background
-  FROM clinical_background cb
-  JOIN patient_case pc
-    ON pc.case_id = cb.case_id
-  GROUP BY pc.patientid
-) cb ON cb.patientid = p.patientid
-
-LEFT JOIN (
-  SELECT
-    pc.patientid,
-    json_agg(json_build_object(
-      'allergy_id', a.allergy_id,
-      'allergen', a.allergen,
-      'reaction', a.reaction,
-      'severity', a.severity,
-      'noted_date', a.noted_date
-    )) AS allergies
-  FROM allergy a
-  JOIN clinical_background cb
-    ON cb.clinical_id = a.clinical_id
-  JOIN patient_case pc
-    ON pc.case_id = cb.case_id
-  GROUP BY pc.patientid
-) a ON a.patientid = p.patientid
-
-LEFT JOIN (
-  SELECT
-    pc.patientid,
-    json_agg(json_build_object(
-      'disability_id', d.disability_id,
-      'description', d.description,
-      'congenital', d.congenital,
-      'notes', d.notes
-    )) AS disabilities
-  FROM disability d
-  JOIN clinical_background cb
-    ON cb.clinical_id = d.clinical_id
-  JOIN patient_case pc
-    ON pc.case_id = cb.case_id
-  GROUP BY pc.patientid
-) d ON d.patientid = p.patientid
-
-LEFT JOIN (
-  SELECT
-    pc.patientid,
-    json_agg(json_build_object(
-      'surgery_id', ps.surgery_id,
-      'procedure_name', ps.procedure_name,
-      'date_performed', ps.date_performed,
-      'hospital', ps.hospital,
-      'notes', ps.notes
-    )) AS past_surgeries
-  FROM past_surgery ps
-  JOIN clinical_background cb
-    ON cb.clinical_id = ps.clinical_id
-  JOIN patient_case pc
-    ON pc.case_id = cb.case_id
-  GROUP BY pc.patientid
-) ps ON ps.patientid = p.patientid
 
 LEFT JOIN (
   SELECT
@@ -312,95 +239,6 @@ def get_patient_vitals(patient_id: int):
     cur.close()
     conn.close()
     return rows
-
-
-def _get_or_create_clinical_id(patient_id: int, cur):
-    cur.execute(
-        "SELECT clinical_id FROM clinical_background WHERE patientid = %s",
-        (patient_id,),
-    )
-    row = cur.fetchone()
-    if row:
-        return row["clinical_id"]
-    cur.execute(
-        "INSERT INTO clinical_background (patientid) VALUES (%s) RETURNING clinical_id",
-        (patient_id,),
-    )
-    return cur.fetchone()["clinical_id"]
-
-
-@router.post("/{patient_id}/allergies", status_code=status.HTTP_201_CREATED)
-def add_allergy(patient_id: int, payload: dict):
-    # payload expected keys: allergen, reaction, severity, noted_date
-    conn = get_connection()
-    cur = conn.cursor(cursor_factory=RealDictCursor)
-    clinical_id = _get_or_create_clinical_id(patient_id, cur)
-    cur.execute(
-        "INSERT INTO allergy (clinical_id, allergen, reaction, severity, noted_date) VALUES (%s,%s,%s,%s,%s) RETURNING allergy_id, allergen, reaction, severity, noted_date",
-        (
-            clinical_id,
-            payload.get("allergen"),
-            payload.get("reaction"),
-            payload.get("severity"),
-            payload.get("noted_date"),
-        ),
-    )
-    new_row = cur.fetchone()
-    conn.commit()
-    cur.close()
-    conn.close()
-    return new_row
-
-
-@router.delete("/allergies/{allergy_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_allergy(allergy_id: int):
-    conn = get_connection()
-    cur = conn.cursor()
-    cur.execute("DELETE FROM allergy WHERE allergy_id = %s RETURNING allergy_id", (allergy_id,))
-    deleted = cur.fetchone()
-    conn.commit()
-    cur.close()
-    conn.close()
-    if not deleted:
-        raise HTTPException(status_code=404, detail="Allergy not found")
-    return None
-
-
-@router.post("/{patient_id}/conditions", status_code=status.HTTP_201_CREATED)
-def add_condition(patient_id: int, payload: dict):
-    # payload expected keys: condition_name, date_diagnosed, status, notes
-    conn = get_connection()
-    cur = conn.cursor(cursor_factory=RealDictCursor)
-    clinical_id = _get_or_create_clinical_id(patient_id, cur)
-    cur.execute(
-        "INSERT INTO chronic_condition (clinical_id, condition_name, date_diagnosed, status, notes) VALUES (%s,%s,%s,%s,%s) RETURNING condition_id, condition_name, date_diagnosed, status, notes",
-        (
-            clinical_id,
-            payload.get("condition_name"),
-            payload.get("date_diagnosed"),
-            payload.get("status"),
-            payload.get("notes"),
-        ),
-    )
-    new_row = cur.fetchone()
-    conn.commit()
-    cur.close()
-    conn.close()
-    return new_row
-
-
-@router.delete("/conditions/{condition_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_condition(condition_id: int):
-    conn = get_connection()
-    cur = conn.cursor()
-    cur.execute("DELETE FROM chronic_condition WHERE condition_id = %s RETURNING condition_id", (condition_id,))
-    deleted = cur.fetchone()
-    conn.commit()
-    cur.close()
-    conn.close()
-    if not deleted:
-        raise HTTPException(status_code=404, detail="Condition not found")
-    return None
 
 
 @router.get("/{patient_id}/cases")

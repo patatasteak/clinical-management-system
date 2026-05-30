@@ -3555,18 +3555,6 @@
             </div>
           </div>
 
-          <!-- Clinical Background Section -->
-          <div class="card" style="margin-top: 24px;">
-            <div class="card-header">
-              <span class="card-title">Clinical Background</span>
-            </div>
-            <div style="padding: 24px;">
-              <div id="clinical-background-content">
-                <p style="color: var(--text-3); text-align: center;">Loading clinical background...</p>
-              </div>
-            </div>
-          </div>
-
           <!-- Lab Tests Section -->
           <div class="card" style="margin-top: 24px;">
             <div class="card-header">
@@ -3585,46 +3573,7 @@
 
         container.innerHTML = html;
 
-        // Load clinical background and lab tests
-        loadClinicalBackground();
         displayLabTests();
-      }
-
-      function loadClinicalBackground() {
-        if (!currentCaseDetail) return;
-
-        const container = document.getElementById(
-          "clinical-background-content",
-        );
-        const caseData = currentCaseDetail;
-
-        // Try to get clinical background from case data
-        let hasClinicalData = false;
-        let clinicalHtml = "";
-
-        // Smoking & Alcohol Status
-        if (caseData.smoking_status || caseData.alcohol_use) {
-          hasClinicalData = true;
-          clinicalHtml += `
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
-              <div>
-                <p style="font-size: 12px; color: var(--text-3); text-transform: uppercase; margin: 0 0 8px 0; font-weight: 700;">Smoking Status</p>
-                <p style="margin: 0; color: var(--text);">${caseData.smoking_status || "Not recorded"}</p>
-              </div>
-              <div>
-                <p style="font-size: 12px; color: var(--text-3); text-transform: uppercase; margin: 0 0 8px 0; font-weight: 700;">Alcohol Use</p>
-                <p style="margin: 0; color: var(--text);">${caseData.alcohol_use || "Not recorded"}</p>
-              </div>
-            </div>
-          `;
-        }
-
-        if (!hasClinicalData) {
-          clinicalHtml =
-            '<p style="color: var(--text-3); text-align: center;">No clinical background recorded</p>';
-        }
-
-        container.innerHTML = clinicalHtml;
       }
 
       function displayLabTests() {
